@@ -1,0 +1,50 @@
+# Fix Git Configuration
+
+## Problem
+The user sees 10k+ changes after initializing git. This is because there is no `.gitignore` file in the root of the monorepo, so the root `node_modules`, `.turbo` folder, and other artifacts are being picked up by git.
+
+## Solution
+Create a `.gitignore` file in the root directory `/Users/lijie/Desktop/deriv` with standard ignore patterns for a Node.js/Turbo monorepo.
+
+### Proposed `.gitignore` content
+```gitignore
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.sw?
+```
+
+## Verification
+1. Create the `.gitignore` file.
+2. Instruct the user to clear their git cache if files were already added (`git rm -r --cached .`).
+3. Verify that the number of changes drops significantly.
