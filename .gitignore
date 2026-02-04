@@ -1,0 +1,18 @@
+# Ensure your .env, .venv and __pycache__ folders are not pushed to GitHub.
+
+# Protect secrets (Keep this!)
+.env
+
+# Ignore ALL virtual environments (common names)
+.venv/
+venv/
+ENV/
+env/
+
+# Ignore Python byte-code (prevents clutter)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore local VS Code settings (optional)
+.vscode/

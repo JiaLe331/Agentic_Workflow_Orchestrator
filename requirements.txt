@@ -1,0 +1,8 @@
+# Add or remove as you proceed
+fastapi
+langchain
+pydantic
+uvicorn
+python-dotenv
+supabase
+httpx
