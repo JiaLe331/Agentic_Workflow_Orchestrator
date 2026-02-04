@@ -1,0 +1,104 @@
+{
+    "workflows": [
+        {
+            "id": "demo-sales-agent",
+            "title": "Sales Outreach Agent",
+            "department": "Sales",
+            "description": "Qualifies leads from Typeform, enriches them with Clearbit, and updates HubSpot.",
+            "requiresInput": true,
+            "inputs": [
+                {
+                    "key": "email",
+                    "label": "Lead Email",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "key": "context",
+                    "label": "Context data",
+                    "type": "text"
+                },
+                {
+                    "key": "resume",
+                    "label": "Resume (PDF)",
+                    "type": "file"
+                }
+            ]
+        }
+    ],
+    "responses": {
+        "default": [
+            {
+                "type": "stat-card",
+                "title": "Total Processed",
+                "value": "1,240 Records",
+                "trend": "+12.5% from last run"
+            },
+            {
+                "type": "chart",
+                "chartType": "bar",
+                "title": "Deep Analysis Results",
+                "labels": [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun"
+                ],
+                "datasets": [
+                    {
+                        "label": "Qualified",
+                        "data": [
+                            65,
+                            59,
+                            80,
+                            81,
+                            56,
+                            55
+                        ],
+                        "color": "#4f46e5"
+                    },
+                    {
+                        "label": "Rejected",
+                        "data": [
+                            28,
+                            48,
+                            40,
+                            19,
+                            86,
+                            27
+                        ],
+                        "color": "#ef4444"
+                    }
+                ]
+            },
+            {
+                "type": "table",
+                "title": "Recent Extractions",
+                "columns": [
+                    "Name",
+                    "Score",
+                    "Status"
+                ],
+                "data": [
+                    {
+                        "Name": "Alice Smith",
+                        "Score": "98%",
+                        "Status": "Approved"
+                    },
+                    {
+                        "Name": "Bob Jones",
+                        "Score": "45%",
+                        "Status": "Rejected"
+                    },
+                    {
+                        "Name": "Charlie Day",
+                        "Score": "88%",
+                        "Status": "Review"
+                    }
+                ]
+            }
+        ]
+    }
+}

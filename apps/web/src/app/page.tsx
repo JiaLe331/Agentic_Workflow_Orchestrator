@@ -1,65 +1,115 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AgentVisualization } from "@/components/AgentVisualization";
+import { useWorkflow, type WorkflowItem } from "@/context/WorkflowContext";
 
 export default function Home() {
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const router = useRouter();
+
+  const { addWorkflow } = useWorkflow();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+    setIsGenerating(true);
+  };
+
+  const handleGenerationComplete = () => {
+    setIsGenerating(false);
+    // Determine department based on simple keyword matching for demo
+    let dept: "Sales" | "HR" | "Finance" | "Marketing" = "Sales";
+    const p = prompt.toLowerCase();
+    if (p.includes("hr") || p.includes("human") || p.includes("onboard")) dept = "HR";
+    else if (p.includes("finance") || p.includes("marketing")) dept = "Finance"; // Simplified logic
+
+    const newAgent: WorkflowItem = {
+      id: crypto.randomUUID(),
+      title: "New Agentic Workflow",
+      department: dept,
+      description: `Automatically generated workflow based on: "${prompt}"`,
+      createdAt: new Date().toISOString(),
+      // Demo: Always require input for now to show the feature
+      requiresInput: true,
+      inputs: [
+        { key: "email", label: "Lead Email", type: "text", required: true },
+        { key: "context", label: "Context data", type: "text" },
+        { key: "resume", label: "Resume (PDF)", type: "file" }
+      ]
+    };
+
+    // Save to global state
+    addWorkflow(newAgent);
+
+    // Redirect to collections
+    router.push("/collections");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex h-full flex-col items-center justify-center p-8">
+      {!isGenerating && (
+        <div className="w-full max-w-2xl text-center">
+          <h1 className="mb-4 text-4xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl">
+            What agent do you want to build?
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mb-10 text-lg text-zinc-600 dark:text-zinc-400">
+            Describe your workflow in plain English, and we&apos;ll orchestrate the n8n nodes for you.
           </p>
+
+          <form onSubmit={handleSubmit} className="relative mx-auto w-full">
+            <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600 dark:border-zinc-800 dark:bg-zinc-900">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                rows={4}
+                className="block w-full resize-none border-0 bg-transparent py-4 placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6 text-zinc-900 dark:text-white px-4"
+                placeholder="e.g., Create a sales agent that qualifies leads from Typeform, enriches them with Clearbit, and updates HubSpot..."
+              />
+              <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
+                <div className="flex gap-2 text-xs text-zinc-500">
+                  <span>Smart context aware</span>
+                  <span>•</span>
+                  <span>n8n native</span>
+                </div>
+                <button
+                  type="submit"
+                  disabled={!prompt.trim()}
+                  className="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Generate Agent
+                  <Sparkles className="-mr-0.5 h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {["Sales Outreach", "HR Onboarding", "Finance Approval"].map((example) => (
+              <button
+                key={example}
+                onClick={() => setPrompt(`Create a ${example} workflow...`)}
+                className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                {example}...
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
+
+      {isGenerating && (
+        <AgentVisualization onComplete={handleGenerationComplete} />
+      )}
     </div>
   );
 }
