@@ -99,6 +99,426 @@
                     }
                 ]
             }
+        ],
+        "daily-summary-bot": [
+            {
+                "type": "text",
+                "content": "## 🚀 Daily Activity Processing Initiated\nFetching unstructured logs from Slack channels: `#general`, `#dev-team`, `#sales-wins`..."
+            },
+            {
+                "type": "pipeline-view",
+                "title": "Unstructured Data Transformation",
+                "source": {
+                    "title": "Raw Slack Dump (Unstructured)",
+                    "content": "User: @alice (10:05 AM)\n > Just closed the deal with Acme Corp! $50k contract signed.\n\nUser: @bob (11:20 AM)\n > Pushed the new hotfix for the landing page. It's live now.\n\nUser: @charlie (02:15 PM)\n > Need approval for the Q3 budget report by EOD."
+                },
+                "process": {
+                    "steps": [
+                        "Tokenizing Text...",
+                        "Identifying Entities (Acme Corp, $50k)...",
+                        "Sentiment Analysis (Positive)...",
+                        "Mapping to DB Schema..."
+                    ]
+                },
+                "target": {
+                    "title": "Structured DB Entry (Clean)",
+                    "data": [
+                        {
+                            "Employee": "Alice",
+                            "Activity": "Deal Closed",
+                            "Entity": "Acme Corp",
+                            "Value": "$50,000",
+                            "Tag": "Sales"
+                        },
+                        {
+                            "Employee": "Bob",
+                            "Activity": "Deployment",
+                            "Entity": "Landing Page",
+                            "Value": "Hotfix",
+                            "Tag": "Engineering"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "stat-card",
+                "title": "New Records Created",
+                "value": "+3 Entries",
+                "trend": "100% Accuracy Score"
+            }
         ]
+    },
+    "databaseSchema": {
+        "HR": {
+            "tables": [
+                {
+                    "name": "Employees",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "full_name",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "ic_passport_no",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "email",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "epf_no",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "socso_no",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "tax_tin_no",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "base_salary",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "join_date",
+                            "type": "date"
+                        }
+                    ]
+                },
+                {
+                    "name": "Statutory_Rates",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "name",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "employee_rate",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "employer_rate",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "effective_date",
+                            "type": "date"
+                        }
+                    ]
+                },
+                {
+                    "name": "Payroll_Runs",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "period_month",
+                            "type": "date"
+                        },
+                        {
+                            "name": "status",
+                            "type": "enum"
+                        },
+                        {
+                            "name": "total_payout",
+                            "type": "decimal"
+                        }
+                    ]
+                },
+                {
+                    "name": "Payslips",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "payroll_run_id",
+                            "type": "uuid",
+                            "fk": "HR.Payroll_Runs.id"
+                        },
+                        {
+                            "name": "employee_id",
+                            "type": "uuid",
+                            "fk": "HR.Employees.id"
+                        },
+                        {
+                            "name": "gross_salary",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "epf_deduction",
+                            "type": "decimal",
+                            "fk": "HR.Statutory_Rates.id"
+                        },
+                        {
+                            "name": "socso_deduction",
+                            "type": "decimal",
+                            "fk": "HR.Statutory_Rates.id"
+                        },
+                        {
+                            "name": "pcb_tax",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "net_salary",
+                            "type": "decimal"
+                        }
+                    ]
+                },
+                {
+                    "name": "EPF_Statements",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "run_id",
+                            "type": "uuid",
+                            "fk": "HR.Payroll_Runs.id"
+                        },
+                        {
+                            "name": "total_contribution",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "submission_ref",
+                            "type": "varchar"
+                        }
+                    ]
+                },
+                {
+                    "name": "Activity_Logs",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "employee_id",
+                            "type": "uuid",
+                            "fk": "HR.Employees.id"
+                        },
+                        {
+                            "name": "raw_content",
+                            "type": "text"
+                        },
+                        {
+                            "name": "structured_summary",
+                            "type": "jsonb"
+                        },
+                        {
+                            "name": "source_system",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "created_at",
+                            "type": "timestamp"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Sales": {
+            "tables": [
+                {
+                    "name": "Customers",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "company_name",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "contact_person",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "tax_id",
+                            "type": "varchar"
+                        }
+                    ]
+                },
+                {
+                    "name": "Deals",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "customer_id",
+                            "type": "uuid",
+                            "fk": "Sales.Customers.id"
+                        },
+                        {
+                            "name": "stage",
+                            "type": "enum"
+                        },
+                        {
+                            "name": "estimated_value",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "owner_id",
+                            "type": "uuid",
+                            "fk": "HR.Employees.id"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sales_Orders",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "deal_id",
+                            "type": "uuid",
+                            "fk": "Sales.Deals.id"
+                        },
+                        {
+                            "name": "order_date",
+                            "type": "date"
+                        },
+                        {
+                            "name": "total_amount",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "status",
+                            "type": "enum"
+                        }
+                    ]
+                },
+                {
+                    "name": "Commissions",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "order_id",
+                            "type": "uuid",
+                            "fk": "Sales.Sales_Orders.id"
+                        },
+                        {
+                            "name": "employee_id",
+                            "type": "uuid",
+                            "fk": "HR.Employees.id"
+                        },
+                        {
+                            "name": "amount",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "payout_date",
+                            "type": "date"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Finance": {
+            "tables": [
+                {
+                    "name": "GL_Accounts",
+                    "columns": [
+                        {
+                            "name": "code",
+                            "type": "varchar",
+                            "pk": true
+                        },
+                        {
+                            "name": "name",
+                            "type": "varchar"
+                        },
+                        {
+                            "name": "type",
+                            "type": "enum"
+                        }
+                    ]
+                },
+                {
+                    "name": "Journal_Entries",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "reference_id",
+                            "type": "uuid"
+                        },
+                        {
+                            "name": "date",
+                            "type": "date"
+                        },
+                        {
+                            "name": "description",
+                            "type": "varchar"
+                        }
+                    ]
+                },
+                {
+                    "name": "GL_Lines",
+                    "columns": [
+                        {
+                            "name": "id",
+                            "type": "uuid",
+                            "pk": true
+                        },
+                        {
+                            "name": "journal_entry_id",
+                            "type": "uuid",
+                            "fk": "Finance.Journal_Entries.id"
+                        },
+                        {
+                            "name": "gl_account_code",
+                            "type": "varchar",
+                            "fk": "Finance.GL_Accounts.code"
+                        },
+                        {
+                            "name": "debit",
+                            "type": "decimal"
+                        },
+                        {
+                            "name": "credit",
+                            "type": "decimal"
+                        }
+                    ]
+                }
+            ]
+        }
     }
 }

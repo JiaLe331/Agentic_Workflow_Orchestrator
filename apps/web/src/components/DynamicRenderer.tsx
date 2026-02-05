@@ -25,6 +25,13 @@ export type UIComponent =
         labels: string[]; // X-Axis values
         datasets: { label: string; data: number[]; color?: string }[];
     }
+    | {
+        type: "pipeline-view";
+        title: string;
+        source: { title: string; content: string };
+        process: { steps: string[] };
+        target: { title: string; data: Record<string, string>[] };
+    }
     | { type: "text"; content: string };
 
 export type AgentResponse = {
@@ -52,6 +59,8 @@ export function DynamicRenderer({ layout }: { layout: UIComponent[] }) {
                                 <p>{component.content}</p>
                             </div>
                         );
+                    case "pipeline-view":
+                        return <PipelineView key={index} {...component} />;
                     default:
                         return null;
                 }
@@ -189,3 +198,70 @@ function ChartComponent({
     );
 }
 
+function PipelineView({ title, source, process, target }: {
+    title: string;
+    source: { title: string; content: string };
+    process: { steps: string[] };
+    target: { title: string; data: Record<string, string>[] };
+}) {
+    return (
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <h3 className="mb-6 text-lg font-medium text-zinc-900 dark:text-white">{title}</h3>
+
+            <div className="grid gap-8 lg:grid-cols-3">
+                {/* Source: Dirty Data */}
+                <div className="flex flex-col">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-500">
+                        {source.title}
+                    </div>
+                    <div className="flex-1 rounded-lg border border-red-100 bg-red-50/50 p-4 font-mono text-xs text-red-900 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-200">
+                        <pre className="whitespace-pre-wrap break-words">{source.content}</pre>
+                    </div>
+                </div>
+
+                {/* Process: AI Transformation */}
+                <div className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-zinc-50 p-6 dark:bg-zinc-800/50">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                        AI Processing
+                    </div>
+                    {process.steps.map((step, i) => (
+                        <div key={i} className="flex w-full items-center gap-3 rounded bg-white px-4 py-3 shadow-sm dark:bg-zinc-800">
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" style={{ animationDelay: `${i * 200}ms` }} />
+                            <span className="text-xs text-zinc-700 dark:text-zinc-300">{step}</span>
+                        </div>
+                    ))}
+                    <div className="mt-4 animate-bounce text-zinc-400">
+                        ↓
+                    </div>
+                </div>
+
+                {/* Target: Clean Data */}
+                <div className="flex flex-col">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-green-600">
+                        {target.title}
+                    </div>
+                    <div className="flex-1 overflow-hidden rounded-lg border border-green-100 bg-green-50/50 dark:border-green-900/30 dark:bg-green-900/10">
+                        <table className="min-w-full divide-y divide-green-200/50 dark:divide-green-800/30">
+                            <thead className="bg-green-100/50 dark:bg-green-900/20">
+                                <tr>
+                                    {Object.keys(target.data[0] || {}).map((k) => (
+                                        <th key={k} className="px-3 py-2 text-left text-[10px] font-bold uppercase text-green-800 dark:text-green-300">{k}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-green-200/50 dark:divide-green-800/30">
+                                {target.data.map((row, i) => (
+                                    <tr key={i}>
+                                        {Object.values(row).map((val, j) => (
+                                            <td key={j} className="px-3 py-2 text-xs text-green-900 dark:text-green-200">{val}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -40,6 +40,18 @@ export function WorkflowProvider({ children }: { children: React.ReactNode }) {
             } catch (e) {
                 console.error("Failed to parse workflows", e);
             }
+        } else {
+            // Seed Default Agents
+            setWorkflows([
+                {
+                    id: "daily-summary-bot",
+                    title: "Daily Activity Summarizer",
+                    department: "HR",
+                    createdAt: new Date().toISOString(),
+                    description: "Analyzes Slack logs to generate structured daily activity reports for employees.",
+                    requiresInput: false
+                }
+            ]);
         }
         setIsLoaded(true);
     }, []);
