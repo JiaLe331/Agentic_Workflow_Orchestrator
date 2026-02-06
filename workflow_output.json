@@ -1,0 +1,130 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "00000000-0000-0000-0000-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "person",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "full_name",
+              "condition": "eq",
+              "keyValue": "li jie"
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000002",
+      "name": "Fetch Record",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        250,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_prod_credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "person",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "full_name",
+              "fieldValue": "li jia"
+            },
+            {
+              "fieldId": "nationality",
+              "fieldValue": "china"
+            }
+          ]
+        }
+      },
+      "id": "00000000-0000-0000-0000-000000000003",
+      "name": "Update Record",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        500,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_prod_credentials"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "00000000-0000-0000-0000-000000000004",
+      "name": "Display Results",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        750,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Record": {
+      "main": [
+        [
+          {
+            "node": "Update Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Record": {
+      "main": [
+        [
+          {
+            "node": "Display Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
