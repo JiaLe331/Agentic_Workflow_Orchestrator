@@ -1,91 +1,118 @@
-import { Play, FileText, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { WorkflowItem } from "@/context/WorkflowContext";
-import { useRouter } from "next/navigation";
+import { IconTrash, IconPlayerPlay, IconArrowRight, IconTable } from '@tabler/icons-react';
+import { Workflow } from '@/hooks/use-workflows';
+import { formatTimeAgo } from '@/lib/utils';
+import { useState } from 'react';
+import { WorkflowDetailsSlideOver } from './WorkflowDetailsSlideOver';
 
 interface WorkflowCollectionProps {
-    item: WorkflowItem;
-    onRun?: (id: string) => void;
-    onView?: (id: string) => void;
+    workflows: Workflow[];
+    onEdit?: (workflow: Workflow) => void;
+    onDelete?: (id: string) => void;
+    onRun?: (workflow: Workflow) => void;
 }
 
-const departmentColors = {
-    Sales: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    HR: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-    Finance: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    Marketing: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
-};
+export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: WorkflowCollectionProps) {
+    const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
 
-export function WorkflowCollection({ item, onRun, onView }: WorkflowCollectionProps) {
-    const router = useRouter();
-
-    const handleRunClick = () => {
-        if (item.requiresInput) {
-            router.push(`/agent/${item.id}`);
-        } else {
-            onRun?.(item.id);
-        }
-    };
+    if (!workflows || workflows.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center text-gray-500 bg-white border border-gray-200 border-dashed rounded-lg dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                <p>No workflows found.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="flex flex-col rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-start justify-between">
-                <div>
-                    <span
-                        className={cn(
-                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                            departmentColors[item.department]
-                        )}
+        <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {workflows.map((workflow) => (
+                    <div
+                        key={workflow.id}
+                        onClick={() => setSelectedWorkflow(workflow)}
+                        className="relative flex flex-col p-5 transition-all border border-gray-200 shadow-sm bg-white/50 hover:bg-white rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 dark:border-gray-700 hover:-translate-y-1 cursor-pointer"
                     >
-                        {item.department}
-                    </span>
-                    <h3 className="mt-3 text-lg font-semibold text-zinc-900 dark:text-white">
-                        {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
-                        {item.description}
-                    </p>
-                </div>
+                        <div className="flex items-start justify-between mb-1">
+                            <div className="flex-1 pr-4">
+                                <h3 className="text-lg tracking-tight text-gray-900 dark:text-white">
+                                    {workflow.title || 'Untitled Workflow'}
+                                </h3>
+                            </div>
+                            <div className="shrink-0">
+                                <span className="text-xs font-medium text-gray-400 px-2 py-1 rounded-full dark:bg-gray-700/50 dark:text-gray-400">
+                                    {formatTimeAgo(workflow.updatedAt)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <p className="mb-5 w-full text-xs rounded-lg font-light leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2 dark:bg-gray-800">
+                            {workflow.description || 'No description provided.'}
+                        </p>
+
+                        {/* Tables Involved - Middle Section */}
+                        {workflow.tablesInvolved && workflow.tablesInvolved.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-4">
+                                {workflow.tablesInvolved.map((table) => (
+                                    <div key={table} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
+                                        <IconTable size={10} className="mr-1 opacity-70" />
+                                        {table}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Add spacer if no tables to maintain consistent vertical rhythm if desired, or let it collapse */}
+                        {(!workflow.tablesInvolved || workflow.tablesInvolved.length === 0) && <div className="mb-2" />}
+
+                        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDelete && onDelete(workflow.id);
+                                    }}
+                                    className="p-2 text-gray-400 transition-colors rounded-lg hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                                    title="Delete Workflow"
+                                >
+                                    <IconTrash size={16} />
+                                </button>
+                            </div>
+
+                            {workflow.workflowUrl ? (
+                                <a
+                                    href={workflow.workflowUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-black rounded-lg hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 group shadow-sm hover:shadow"
+                                >
+                                    URL Agent
+                                    <IconArrowRight className="w-3 h-3 ml-1.5 transition-transform group-hover:translate-x-1" />
+                                </a>
+                            ) : (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onRun && onRun(workflow);
+                                    }}
+                                    className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm hover:shadow"
+                                >
+                                    <IconPlayerPlay className="w-3 h-3 mr-1.5" />
+                                    Run
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            <div className="mt-auto pt-6 flex items-center justify-between">
-                <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-400">
-                    <Calendar className="mr-1.5 h-3.5 w-3.5" />
-                    {new Date(item.createdAt).toLocaleDateString()}
-                </div>
-                <div className="flex gap-2">
-                    {onView && (
-                        <button
-                            onClick={() => onView(item.id)}
-                            className="inline-flex items-center justify-center rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
-                        >
-                            <FileText className="mr-1.5 h-4 w-4" />
-                            Details
-                        </button>
-                    )}
-                    <button
-                        onClick={handleRunClick}
-                        className={cn(
-                            "inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-                            item.requiresInput
-                                ? "bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                                : "bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600"
-                        )}
-                    >
-                        {item.requiresInput ? (
-                            <>
-                                <FileText className="mr-1.5 h-4 w-4" />
-                                Open Form
-                            </>
-                        ) : (
-                            <>
-                                <Play className="mr-1.5 h-4 w-4" />
-                                Run Now
-                            </>
-                        )}
-                    </button>
-                </div>
-            </div>
-        </div>
+            <WorkflowDetailsSlideOver
+                workflow={selectedWorkflow}
+                isOpen={!!selectedWorkflow}
+                onClose={() => setSelectedWorkflow(null)}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onRun={onRun}
+            />
+        </>
     );
 }

@@ -4,48 +4,30 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AgentVisualization } from "@/components/AgentVisualization";
-import { useWorkflow, type WorkflowItem } from "@/context/WorkflowContext";
+import { useWorkflows } from "@/hooks/use-workflows";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
 
-  const { addWorkflow } = useWorkflow();
+  const { generate } = useWorkflows();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
     setIsGenerating(true);
+
+    try {
+      generate(prompt);
+    } catch (e) {
+      console.error(e);
+      setIsGenerating(false);
+    }
   };
 
-  const handleGenerationComplete = () => {
-    setIsGenerating(false);
-    // Determine department based on simple keyword matching for demo
-    let dept: "Sales" | "HR" | "Finance" | "Marketing" = "Sales";
-    const p = prompt.toLowerCase();
-    if (p.includes("hr") || p.includes("human") || p.includes("onboard")) dept = "HR";
-    else if (p.includes("finance") || p.includes("marketing")) dept = "Finance"; // Simplified logic
-
-    const newAgent: WorkflowItem = {
-      id: crypto.randomUUID(),
-      title: "New Agentic Workflow",
-      department: dept,
-      description: `Automatically generated workflow based on: "${prompt}"`,
-      createdAt: new Date().toISOString(),
-      // Demo: Always require input for now to show the feature
-      requiresInput: true,
-      inputs: [
-        { key: "email", label: "Lead Email", type: "text", required: true },
-        { key: "context", label: "Context data", type: "text" },
-        { key: "resume", label: "Resume (PDF)", type: "file" }
-      ]
-    };
-
-    // Save to global state
-    addWorkflow(newAgent);
-
-    // Redirect to collections
+  const handleVisualizationComplete = () => {
+    // Redirect to collections once the visualization animation is done
     router.push("/collections");
   };
 
@@ -108,7 +90,7 @@ export default function Home() {
       )}
 
       {isGenerating && (
-        <AgentVisualization onComplete={handleGenerationComplete} />
+        <AgentVisualization onComplete={handleVisualizationComplete} />
       )}
     </div>
   );

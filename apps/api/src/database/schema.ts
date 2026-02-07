@@ -132,6 +132,9 @@ export const workflow = pgTable('workflow', {
     result: text('result'),
     uiType: text('ui_type'),
     uiCode: text('ui_code'),
+    workflowUrl: text('workflow_url'),
+    userPrompt: text('user_prompt'), // Added column
+    executionPlan: jsonb('execution_plan'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
