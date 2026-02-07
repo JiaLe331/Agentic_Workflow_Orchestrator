@@ -7,7 +7,8 @@ import os
 
 # Initialize LLM
 # Note: Ensure GOOGLE_API_KEY is in .env
-llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
+# Agent 1 (Intent) uses a cheaper/faster model for cost optimization.
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 
 def process_intent(user_input: str) -> GeneralizedWorkflow:
     """
@@ -35,6 +36,9 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
         3. Determine the 'operation' (READ, CREATE, UPDATE, DELETE).
         4. Extract 'filters'.
         5. Suggest 'ui_type' and 'data_type_display'.
+        6. **EXTRACT VALUES**: If the user provides specific values (e.g. "set status to active", "change name to John"), you MUST extract them into the 'values' dictionary.
+           - Example: "Update Li to active" -> values: {{"status": "active"}}
+           - Example: "Change name to Li Jia" -> values: {{"full_name": "Li Jia"}}
         
         Request: {user_input}
         

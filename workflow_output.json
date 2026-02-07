@@ -2,14 +2,15 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "00000000-0000-0000-0000-000000000001",
+      "id": "d1b2c3a4-5678-90ab-cdef-1234567890ab",
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
         0,
         0
-      ]
+      ],
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -20,14 +21,14 @@
           "conditions": [
             {
               "keyName": "full_name",
-              "condition": "eq",
+              "condition": "ilike",
               "keyValue": "li jie"
             }
           ]
         }
       },
-      "id": "00000000-0000-0000-0000-000000000002",
-      "name": "Fetch Record",
+      "id": "e2c3d4b5-6789-01cd-ef01-2345678901cd",
+      "name": "Fetch Person",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
@@ -36,9 +37,10 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "supabase_prod_credentials"
+          "id": "uY4ILzHGf3nsKJXd"
         }
-      }
+      },
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -66,8 +68,8 @@
           ]
         }
       },
-      "id": "00000000-0000-0000-0000-000000000003",
-      "name": "Update Record",
+      "id": "f3d4e5c6-7890-12de-f012-3456789012de",
+      "name": "Update Person",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
@@ -76,20 +78,39 @@
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "supabase_prod_credentials"
+          "id": "uY4ILzHGf3nsKJXd"
         }
-      }
+      },
+      "alwaysOutputData": true
     },
     {
       "parameters": {},
-      "id": "00000000-0000-0000-0000-000000000004",
+      "id": "a4b5c6d7-8901-23ef-0123-4567890123ef",
       "name": "Display Results",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
         750,
         0
-      ]
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-a818ace3",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a818ace3-174f-4376-b4c3-d39393cad839",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        140
+      ],
+      "webhookId": "cfa45028-ccf9-4041-b4a8-30ffccdaad5a"
     }
   ],
   "connections": {
@@ -97,25 +118,25 @@
       "main": [
         [
           {
-            "node": "Fetch Record",
+            "node": "Fetch Person",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Record": {
+    "Fetch Person": {
       "main": [
         [
           {
-            "node": "Update Record",
+            "node": "Update Person",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Update Record": {
+    "Update Person": {
       "main": [
         [
           {
@@ -125,6 +146,18 @@
           }
         ]
       ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Person",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
-  }
+  },
+  "settings": {}
 }

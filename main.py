@@ -59,6 +59,11 @@ async def main():
     print("\n[Agent 3] Generating n8n JSON Code...")
     try:
         n8n_json = generate_n8n_workflow(workflow_plan)
+        
+        # Post-Processing: Inject Webhook for API execution (Deterministic)
+        from agents.utils import inject_webhook_node
+        n8n_json = inject_webhook_node(n8n_json)
+        
         print("  > n8n Workflow Generated Successfully.")
         
         # Save to file
@@ -73,6 +78,15 @@ async def main():
 
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")
+    
+    # --- Step 4: Immediate Execution ---
+    # If the user has configured n8n credentials, deploy and run immediately.
+    if os.getenv("N8N_API_KEY"):
+        print("-" * 50)
+        print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
+        from n8n_executor import execute_workflow_via_api
+        execute_workflow_via_api()
+        
     print("=" * 50)
 
 if __name__ == "__main__":

@@ -3,7 +3,17 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 from agents.models import WorkflowPlan
 from agents.json_validator import validate_and_inject_credentials
+from agents.schema import SCHEMA_DEFINITION
 import json
+import os
+
+# Configuration
+# Default to "Supabase account 3" (Retrieved ID: uY4ILzHGf3nsKJXd)
+# This matches the user's preferred UI selection.
+# TODO: Change based on user to user for their credential selection key on the Supabase node
+# found the internal ID for "Supabase account 3"
+# please refer to the notes.md
+SUPABASE_CREDENTIAL_ID = os.getenv("SUPABASE_CREDENTIAL_ID", "uY4ILzHGf3nsKJXd")
 
 # Using a standard, available model
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
@@ -24,7 +34,8 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
         Rules:
         1. Produce ONLY the JSON output. Do not wrap in markdown blocks like ```json ... ```.
         2. The output must follow the standard n8n JSON schema (nodes, connections).
-        3. **Node Type Mapping**:
+        3. **Structure**: MUST include `nodes`, `connections`, and empty `settings` object `{{}}`.
+        4. **Node Type Mapping**:
            - `manual_trigger` -> `n8n-nodes-base.manualTrigger` (trigger node).
            - `display_results` -> `n8n-nodes-base.noOp` (No Operation node, matches user preference).
            - Database Nodes -> `n8n-nodes-base.supabase`.
@@ -32,9 +43,18 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
            - **Supabase**: Use `"typeVersion": 1` (Compatible with user's environment).
            - **NoOp**: Use `"typeVersion": 1`.
         5. **Schema & Credentials**:
-           - **Credentials**: MUST use `{{ "supabaseApi": {{ "id": "supabase_prod_credentials" }} }}`.
+           - **Credentials**: MUST use `{{ "supabaseApi": {{ "id": "{supabase_credential_id}" }} }}`.
            - **Filters**: MUST be wrapped in a `conditions` object: `{{ "filters": {{ "conditions": [ ... ] }} }}`.
            - **Connections**: keys must be Node NAMES, not IDs.
+           - **Execution Flow**: Set `"alwaysOutputData": true` for ALL nodes (to ensure flow continues even if 0 items found).
+           - **Naming**: Use descriptive names (e.g., "Fetch Employee", "Create Record") instead of "node_1".
+        6. **Schema Enforcement (CRITICAL)**:
+           - Review the `Reference Schema`. If you are creating a record, check which columns are `NOT NULL`.
+           - If the Input Plan is missing a `NOT NULL` field (e.g., year, date, nationality), you **MUST** generate a valid value for it.
+           - **Dates**: Use current date (e.g. "2023-01-01") if not specified.
+           - **Text**: Use "N/A" or a placeholder if not specified.
+           - **Numbers**: Use 0 if not specified.
+           - **UUIDs/FKs**: If a Foreign Key is required and not available, you might fail, but try to infer or use a placeholder if appropriate context exists.
         
         Example Supabase Node Config (Mental Model V1 - Legacy):
         - Operation: getAll
@@ -86,7 +106,9 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
 
         IMPORTANT: 
         1. **Filters**: Use `keyName`, `condition`, and `keyValue`.
-        2. **Operators**: Use SHORT CODES: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`.
+        2. **Operators**: Use SHORT CODES: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `ilike` (case-insensitive like), `is_not_null`, `is_null`.
+           - **CRITICAL for TEXT**: ALWAYS use `ilike` for text/string comparisons (e.g. names, emails) to avoid case-sensitivity issues.
+           - Example: `{{ "keyName": "full_name", "condition": "ilike", "keyValue": "john doe" }}`
         3. **Table**: Use `tableId`.
         4. **Values**: `keyValue` should be a string.
         5. **Update**: Do NOT use `matcherColumn`. Use `filters` to select the row to update.
@@ -95,7 +117,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
            - **NEVER** use `{{ $('Manual Trigger')... }}` unless the user explicitly requested a form-based workflow. (The Manual Trigger usually has no data).
         
         IMPORTANT: Do NOT include the actual sensitive credential data values in the output. 
-        Just include the reference id "supabase_prod_credentials". 
+        Just include the reference id "{supabase_credential_id}". 
         The top-level "credentials" array can be empty or omitted.
         
         Generate the n8n JSON now.
@@ -109,7 +131,9 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
         plan_json = workflow_plan.model_dump_json()
         
         result = chain.invoke({
-            "workflow_plan": plan_json
+            "workflow_plan": plan_json,
+            "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
+            "schema": SCHEMA_DEFINITION
         })
         
         # Clean up potential markdown wrapping

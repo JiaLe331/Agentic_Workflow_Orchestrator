@@ -2,14 +2,16 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import PydanticOutputParser
 from agents.models import WorkflowPlan, GeneralizedWorkflow
+from agents.schema import SCHEMA_DEFINITION
 import json
 
+# Agent 2 (Planner) uses the PRO model for complex reasoning and schema validation.
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
 
 def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
     """
     Agent 2: Breaks down the GeneralizedWorkflow into specific functional nodes.
-    CRITICAL: Enforces foreign key resolution and UUID validation.
+    CRITICAL: Enforces foreign key resolution, UUID validation, and Schema Compliance.
     """
     
     parser = PydanticOutputParser(pydantic_object=WorkflowPlan)
@@ -22,24 +24,25 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         Input Context:
         {generalized_workflow}
         
+        Reference Schema (DB Definition):
+        {schema}
+        
         CRITICAL RULES:
         1. **DIRECT ACTION**: Simplify the workflow. Do NOT check for existence unless logic requires a branch.
         2. **ID PARSING**: Only separate if necessary.
+        3. **SCHEMA COMPLIANCE**: 
+           - Reference the Schema for every DB operation.
+           - For `CREATE` (Insert): You MUST include ALL `NOT NULL` columns in the `parameters` -> `data` object.
+           - For `UPDATE`: Identify the row using a Unique Constraint or PK in `filters`.
         
         MANDATORY STRUCTURE:
-        1. **START**: The first node MUST ALWAYS be `manual_trigger` (description: "Trigger workflow manually").
-        2. **LOGIC**: The operational nodes (fetch, action). DO NOT add "check" or "format" nodes unless conditional logic (branching) is required.
-        3. **END**: The last node MUST ALWAYS be `display_results` (description: "Show final output").
-        
-        STRICT SEQUENCE EXAMPLE (Replacing a name):
-        - Node 1: `manual_trigger`
-        - Node 2: `fetch_record_by_filter`
-        - Node 3: `update_record`
-        - Node 4: `display_results`
+        1. **START**: The first node MUST ALWAYS be `manual_trigger`.
+        2. **LOGIC**: The operational nodes (fetch, create, update, etc).
+        3. **END**: The last node MUST ALWAYS be `display_results`.
         
         STRICT SEQUENCE EXAMPLE (Creating a new employee):
         - Node 1: `manual_trigger`
-        - Node 2: `fetch_record_by_filter`
+        - Node 2: `fetch_record_by_filter` (Check duplicates or get FKs)
         - Node 3: `create_record`
         - Node 4: `display_results`
         
@@ -48,11 +51,18 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         - If you need a Company ID, you must Fetch -> Validate -> Use.
         
         PARAMETER STRUCTURE (for DB nodes):
-        When generating a node for Database interactions (fetch, update, create), the 'parameters' dictionary MUST include a 'query_spec' with:
+        When generating a node for Database interactions, the 'parameters' dictionary MUST include a 'query_spec' with:
         - `table`: "table_name"
         - `operation`: "select" | "insert" | "update" | "delete"
         - `columns`: ["field1", "field2"] (for select)
-        - `filters`: {{ "column_name": "value" }} (For SELECT and UPDATE. Must identify the row.)
+        - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
+        - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
+        - `data`: {{ "column_name": "value" }} (For INSERT/UPDATE. Must cover all NOT NULL fields!)
+        
+        **CRITICAL**: 
+        - If `generalized_workflow.values` contains data, you **MUST** use it in the `data` field of the DB node.
+        - Example: If inputs has `values={{{{'status': 'active'}}}}`, then `parameters.data` MUST be `{{{{'status': 'active'}}}}`.
+        - Do NOT default to `{{input.field}}` if a specific value is provided in `generalized_workflow.values`.
         
         Example Parameter Output:
         {{
@@ -64,7 +74,7 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
           }}
         }}
         
-        Output format must be a list of these atomic nodes.
+        Output valid JSON adhering to the schema.
         
         {format_instructions}
         """
@@ -78,6 +88,7 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         
         result = chain.invoke({
             "generalized_workflow": workflow_json,
+            "schema": SCHEMA_DEFINITION,
             "format_instructions": parser.get_format_instructions()
         })
         return result
