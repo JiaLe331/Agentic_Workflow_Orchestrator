@@ -8,7 +8,7 @@ import json
 # Agent 2 (Planner) uses the PRO model for complex reasoning and schema validation.
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
 
-def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
+def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str = "") -> WorkflowPlan:
     """
     Agent 2: Breaks down the GeneralizedWorkflow into specific functional nodes.
     CRITICAL: Enforces foreign key resolution, UUID validation, and Schema Compliance.
@@ -26,6 +26,9 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         
         Reference Schema (DB Definition):
         {schema}
+        
+        Examples / Context:
+        {context_text}
         
         CRITICAL RULES:
         1. **DIRECT ACTION**: Simplify the workflow. Do NOT check for existence unless logic requires a branch.
@@ -58,6 +61,7 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
         - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
         - `data`: {{ "column_name": "value" }} (For INSERT/UPDATE. Must cover all NOT NULL fields!)
+        - **IMPORTANT**: Do NOT include `created_at` or `updated_at` in `data`. They are auto-generated.
         
         **CRITICAL**: 
         - If `generalized_workflow.values` contains data, you **MUST** use it in the `data` field of the DB node.
@@ -67,10 +71,10 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         Example Parameter Output:
         {{
           "query_spec": {{
-             "table": "users",
+             "table": "employee",
              "operation": "update",
              "filters": {{ "id": "uuid-1234" }},
-             "data": {{ "role": "admin" }}
+             "data": {{ "role": "manager" }}
           }}
         }}
         
@@ -89,6 +93,7 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow) -> WorkflowPlan:
         result = chain.invoke({
             "generalized_workflow": workflow_json,
             "schema": SCHEMA_DEFINITION,
+            "context_text": context_text,
             "format_instructions": parser.get_format_instructions()
         })
         return result

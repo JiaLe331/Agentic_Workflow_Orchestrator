@@ -16,6 +16,7 @@ class GeneralizedWorkflow(BaseModel):
     data_type_display: Optional[str] = Field(None, description="Data type for display: 'decimal', 'number', 'category', 'text'.")
     validation_error: Optional[str] = Field(None, description="If the request violates the schema (e.g., column absent), populate this error message to STOP the workflow.")
     values: Dict[str, Any] = Field(default_factory=dict, description="Explicit values to be used for CREATE or UPDATE operations (e.g. {'status': 'active'}). extract from user query.")
+    required_docs: List[str] = Field(default_factory=list, description="List of documentation filenames required for this context (e.g. ['employee.md', 'pay_roll.md']).")
 
 
 # --- Agent 2 Models ---

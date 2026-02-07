@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "d1b2c3a4-5678-90ab-cdef-1234567890ab",
+      "id": "d8f9a2b1-3c4e-4f5a-9b0c-1d2e3f4a5b6c",
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
@@ -14,21 +14,20 @@
     },
     {
       "parameters": {
-        "operation": "getAll",
-        "tableId": "person",
+        "operation": "create",
+        "tableId": "company",
         "returnAll": true,
-        "filters": {
-          "conditions": [
+        "fieldsUi": {
+          "fieldValues": [
             {
-              "keyName": "full_name",
-              "condition": "ilike",
-              "keyValue": "li jie"
+              "fieldId": "name",
+              "fieldValue": "DEll technologies"
             }
           ]
         }
       },
-      "id": "e2c3d4b5-6789-01cd-ef01-2345678901cd",
-      "name": "Fetch Person",
+      "id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "name": "Create Company",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
@@ -43,54 +42,13 @@
       "alwaysOutputData": true
     },
     {
-      "parameters": {
-        "operation": "update",
-        "tableId": "person",
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "id",
-              "condition": "eq",
-              "keyValue": "={{ $json.id }}"
-            }
-          ]
-        },
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "full_name",
-              "fieldValue": "li jia"
-            },
-            {
-              "fieldId": "nationality",
-              "fieldValue": "china"
-            }
-          ]
-        }
-      },
-      "id": "f3d4e5c6-7890-12de-f012-3456789012de",
-      "name": "Update Person",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        500,
-        0
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "uY4ILzHGf3nsKJXd"
-        }
-      },
-      "alwaysOutputData": true
-    },
-    {
       "parameters": {},
-      "id": "a4b5c6d7-8901-23ef-0123-4567890123ef",
+      "id": "f6e5d4c3-b2a1-4098-8765-432109876543",
       "name": "Display Results",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        750,
+        500,
         0
       ],
       "alwaysOutputData": true
@@ -98,11 +56,11 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "webhook-a818ace3",
+        "path": "webhook-6d6a0856",
         "responseMode": "lastNode",
         "options": {}
       },
-      "id": "a818ace3-174f-4376-b4c3-d39393cad839",
+      "id": "6d6a0856-01b3-4fe8-a601-6729bf1659b0",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
@@ -110,7 +68,7 @@
         0,
         140
       ],
-      "webhookId": "cfa45028-ccf9-4041-b4a8-30ffccdaad5a"
+      "webhookId": "174cfb81-b19d-4788-af84-f67d0f2e11a8"
     }
   ],
   "connections": {
@@ -118,25 +76,14 @@
       "main": [
         [
           {
-            "node": "Fetch Person",
+            "node": "Create Company",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Person": {
-      "main": [
-        [
-          {
-            "node": "Update Person",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Update Person": {
+    "Create Company": {
       "main": [
         [
           {
@@ -151,7 +98,7 @@
       "main": [
         [
           {
-            "node": "Fetch Person",
+            "node": "Create Company",
             "type": "main",
             "index": 0
           }

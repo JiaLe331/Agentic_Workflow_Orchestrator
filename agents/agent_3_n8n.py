@@ -58,17 +58,16 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
         
         Example Supabase Node Config (Mental Model V1 - Legacy):
         - Operation: getAll
-        - Parameter "tableId": "invoice"
+        - Parameter "tableId": "sale"
         - Filter Structure: 
           {{
             "parameters": {{
-               "tableId": "invoice",
+               "tableId": "sale",
                "operation": "getAll",
                "returnAll": true,
                "filters": {{
                   "conditions": [
-                     {{ "keyName": "status", "condition": "eq", "keyValue": "paid" }},
-                     {{ "keyName": "total_amount", "condition": "gt", "keyValue": "1000" }}
+                     {{ "keyName": "gross_amount", "condition": "gt", "keyValue": "1000" }}
                   ]
                }}
             }}
@@ -84,11 +83,11 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
           
         Example Supabase UPDATE Node Config (Mental Model V1 - Legacy):
         - Operation: update
-        - Parameter "tableId": "person"
+        - Parameter "tableId": "employee"
         - Filter (Select Row): 
           {{
             "parameters": {{
-               "tableId": "person",
+               "tableId": "employee",
                "operation": "update",
                "filters": {{
                   "conditions": [
@@ -97,8 +96,8 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
                }},
                "fieldsUi": {{
                   "fieldValues": [
-                     {{ "fieldId": "full_name", "fieldValue": "Li Jia" }},
-                     {{ "fieldId": "date_of_birth", "fieldValue": "50" }}
+                     {{ "fieldId": "name", "fieldValue": "Ali Baba" }},
+                     {{ "fieldId": "date_of_birth", "fieldValue": "1990-01-01" }}
                   ]
                }}
             }}
@@ -108,12 +107,12 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
         1. **Filters**: Use `keyName`, `condition`, and `keyValue`.
         2. **Operators**: Use SHORT CODES: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `ilike` (case-insensitive like), `is_not_null`, `is_null`.
            - **CRITICAL for TEXT**: ALWAYS use `ilike` for text/string comparisons (e.g. names, emails) to avoid case-sensitivity issues.
-           - Example: `{{ "keyName": "full_name", "condition": "ilike", "keyValue": "john doe" }}`
+           - Example: `{{ "keyName": "name", "condition": "ilike", "keyValue": "john doe" }}`
         3. **Table**: Use `tableId`.
         4. **Values**: `keyValue` should be a string.
         5. **Update**: Do NOT use `matcherColumn`. Use `filters` to select the row to update.
         6. **Static vs Dynamic**: 
-           - If the plan has exact values (e.g. "Li Jia"), use them as **STATIC STRINGS** (e.g. `"fieldValue": "Li Jia"`).
+           - If the plan has exact values (e.g. "Ali Baba"), use them as **STATIC STRINGS** (e.g. `"fieldValue": "Ali Baba"`).
            - **NEVER** use `{{ $('Manual Trigger')... }}` unless the user explicitly requested a form-based workflow. (The Manual Trigger usually has no data).
         
         IMPORTANT: Do NOT include the actual sensitive credential data values in the output. 

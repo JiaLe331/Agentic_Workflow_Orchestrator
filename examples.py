@@ -4,4 +4,4 @@
 
 # python3 main.py --query "find all invoices where status is paid and total is greater than 1000"g
 
-#python3 main.py --query "can you insert a new person called Li Man Jie with nationality of uganda and male"
+#python3 main.py --query "can you insert a new employee called Li Man Jie with nationality of uganda and male"

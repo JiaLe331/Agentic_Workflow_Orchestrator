@@ -44,10 +44,26 @@ async def main():
         print(f"Agent 1 Failed: {e}")
         return
 
-    # --- Step 2: Agent 2 (Planner) ---
+    # --- Step 2: Context Loading ---
+    print("\n[System] Loading Context Docs...")
+    context_text = ""
+    if generalized_workflow.required_docs:
+        print(f"  > Required Docs: {generalized_workflow.required_docs}")
+        for doc_name in generalized_workflow.required_docs:
+            doc_path = os.path.join("docs", doc_name)
+            if os.path.exists(doc_path):
+                with open(doc_path, "r") as f:
+                    context_text += f"\n\n--- {doc_name} ---\n{f.read()}"
+            else:
+                print(f"  > Warning: Doc {doc_name} not found.")
+    else:
+        print("  > No specific docs requested. Using generic context.")
+
+    # --- Step 3: Agent 2 (Planner) ---
     print("\n[Agent 2] Planning Workflow Nodes...")
     try:
-        workflow_plan = plan_workflow(generalized_workflow)
+        # Pass context_text to plan_workflow
+        workflow_plan = plan_workflow(generalized_workflow, context_text)
         print(f"  > Generated {len(workflow_plan.nodes)} workflow nodes.")
         for node in workflow_plan.nodes:
             print(f"    - [{node.id}] {node.function}: {node.description}")
@@ -55,26 +71,51 @@ async def main():
         print(f"Agent 2 Failed: {e}")
         return
 
-    # --- Step 3: Agent 3 (n8n Generator) ---
+    # --- Step 4: Agent 3 (n8n Generator) ---
     print("\n[Agent 3] Generating n8n JSON Code...")
-    try:
-        n8n_json = generate_n8n_workflow(workflow_plan)
-        
-        # Post-Processing: Inject Webhook for API execution (Deterministic)
-        from agents.utils import inject_webhook_node
-        n8n_json = inject_webhook_node(n8n_json)
-        
-        print("  > n8n Workflow Generated Successfully.")
-        
-        # Save to file
-        output_file = "workflow_output.json"
-        with open(output_file, "w") as f:
-            f.write(n8n_json)
-        print(f"  > Saved to {output_file}")
-        
-    except Exception as e:
-        print(f"Agent 3 Failed: {e}")
-        return
+    MAX_RETRIES = 3
+    retry_count = 0
+    valid = False
+    
+    from agents.agent_validator import validate_n8n_workflow, CriticalValidationFailure
+
+    while retry_count < MAX_RETRIES and not valid:
+        try:
+            # Agent 3 uses the plan (context was used by Agent 2 to refine the plan)
+            n8n_json = generate_n8n_workflow(workflow_plan)
+            
+            # Post-Processing: Inject Webhook
+            from agents.utils import inject_webhook_node
+            n8n_json = inject_webhook_node(n8n_json)
+            
+            # --- VALIDATION ---
+            print(f"  > Validating generated workflow (Attempt {retry_count + 1})...")
+            try:
+                validate_n8n_workflow(n8n_json)
+                valid = True
+                print("  > Validation Passed.")
+            except CriticalValidationFailure as cvf:
+                print(f"\n❌ DISRUPTOR TRIGGERED: Critical Schema Violation")
+                print(f"   Reason: {cvf}")
+                print("   > Aborting workflow generation immediately.")
+                return 
+            except Exception as ve:
+                print(f"  > Validation Failed: {ve}")
+                print("  > Retrying Agent 3...")
+                retry_count += 1
+                if retry_count == MAX_RETRIES:
+                    print("  > Max retries reached. Aborting.")
+                    return
+
+            if valid:
+                output_file = "workflow_output.json"
+                with open(output_file, "w") as f:
+                    f.write(n8n_json)
+                print(f"  > Saved to {output_file}")
+            
+        except Exception as e:
+            print(f"Agent 3 Failed: {e}")
+            return
 
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")
