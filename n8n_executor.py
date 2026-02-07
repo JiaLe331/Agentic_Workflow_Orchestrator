@@ -17,16 +17,21 @@ def execute_workflow_via_api():
     if not N8N_API_KEY:
         print("❌ Error: N8N_API_KEY not found in .env")
         print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
-        return
+        print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
+        return None, None
 
     workflow_file = "workflow_output.json"
     if not os.path.exists(workflow_file):
         print(f"❌ Error: {workflow_file} not found. Run main.py first.")
-        return
+        print(f"❌ Error: {workflow_file} not found. Run main.py first.")
+        return None, None
 
     print(f"Loading {workflow_file}...")
     with open(workflow_file, "r") as f:
         workflow_json = json.load(f)
+        
+    result_json = None
+    workflow_id = None
 
     # 1. Import Workflow (Create)
     # Removing ID matching to force creation of a NEW workflow instance (or we could update if ID exists)
@@ -60,10 +65,10 @@ def execute_workflow_via_api():
         print(f"❌ Import Failed: {e}")
         if e.response is not None:
              print(f"Response Body: {e.response.text}")
-        return
+        return None, None
     except Exception as e:
         print(f"❌ Import Failed (Unknown): {e}")
-        return
+        return None, None
 
     # 2. Activate Workflow
     print(f"🔌 Activating workflow {workflow_id}...")
@@ -71,10 +76,11 @@ def execute_workflow_via_api():
     try:
         requests.post(activate_url, headers=headers, json={"active": True}).raise_for_status()
         print("✅ Workflow Activated")
+        time.sleep(2) # Give n8n a moment to register the webhook
     except Exception as e:
         print(f"❌ Activation Failed: {e}")
         # Continue? If activation fails, webhook might not work.
-        return
+        return workflow_id, None
 
     # 3. Trigger Webhook
     # Dynamic: Find the correct webhook path from the JSON (it's now unique)
@@ -105,6 +111,8 @@ def execute_workflow_via_api():
              print(resp.text)
     except Exception as e:
         print(f"❌ Webhook Trigger Failed: {e}")
+        
+    return workflow_id, result_json
 
 if __name__ == "__main__":
     execute_workflow_via_api()

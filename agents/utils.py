@@ -46,14 +46,14 @@ def inject_webhook_node(workflow_json: str) -> str:
                 "httpMethod": "POST",
                 "path": webhook_path,
                 "responseMode": "lastNode", 
-                "options": {}
+                "options": {},
+                "authentication": "none"
             },
             "id": webhook_id,
             "name": webhook_name,
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
-            "position": [0, 140], 
-            "webhookId": str(uuid.uuid4())
+            "position": [0, 140]
         }
         
         # Check if "Webhook" name collision exists? 

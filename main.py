@@ -1,26 +1,25 @@
+
 import os
 import argparse
 import asyncio
 from dotenv import load_dotenv
+import requests
+import json
 
 # Load env variables (e.g., OPENAI_API_KEY)
 load_dotenv()
 
 from agents.agent_1_intent import process_intent
 from agents.agent_2_planner import plan_workflow
+
 from agents.agent_3_n8n import generate_n8n_workflow
+from controllers.workflow import save_workflow_to_api
 
-async def main():
-    parser = argparse.ArgumentParser(description="Agentic Workflow Orchestrator")
-    parser.add_argument("--query", type=str, help="The user's natural language request")
-    args = parser.parse_args()
-
-    user_query = args.query
-    if not user_query:
-        # Default example if no query provided
-        user_query = "i want to know what is the cost of all employees this month and generate me a UI"
-        print(f"No query provided. Using default: '{user_query}'\n")
-
+async def run_workflow_generation(user_query: str):
+    """
+    Orchestrates the workflow generation process.
+    Returns the saved workflow result (dict) or None if failed.
+    """
     print("-" * 50)
     print(f"USER REQUEST: {user_query}")
     print("-" * 50)
@@ -81,6 +80,9 @@ async def main():
     feedback_error = None
     previous_json = None
     
+    # Keep track of the LAST generated JSON to save regardless of success
+    last_generated_json = None
+    
     from agents.agent_validator import validate_n8n_workflow, CriticalValidationFailure
 
     while retry_count < MAX_RETRIES and not valid:
@@ -92,6 +94,8 @@ async def main():
             from agents.utils import inject_webhook_node
             n8n_json = inject_webhook_node(n8n_json)
             
+            last_generated_json = n8n_json # Capture for persistence
+            
             # --- VALIDATION ---
             print(f"  > Validating generated workflow (Attempt {retry_count + 1})...")
             try:
@@ -102,6 +106,11 @@ async def main():
                 print(f"\n❌ DISRUPTOR TRIGGERED: Critical Schema Violation")
                 print(f"   Reason: {cvf}")
                 print("   > Aborting workflow generation immediately.")
+                # Even if critical failure, we might want to save? 
+                # User said "regardless if it works or fails". 
+                # But critical failure usually means we abort. 
+                # Let's save what we have before returning.
+                save_workflow_to_api(generalized_workflow, last_generated_json)
                 return 
             except Exception as ve:
                 print(f"  > Validation Failed: {ve}")
@@ -113,31 +122,58 @@ async def main():
                 print("  > Retrying Agent 3 with feedback...")
                 retry_count += 1
                 if retry_count == MAX_RETRIES:
-                    print("  > Max retries reached. Aborting.")
-                    return
-
-            if valid:
-                output_file = "workflow_output.json"
-                with open(output_file, "w") as f:
-                    f.write(n8n_json)
-                print(f"  > Saved to {output_file}")
-            
+                    print("  > Max retries reached. Proceeding to save failed workflow.")
         except Exception as e:
             print(f"Agent 3 Failed: {e}")
+            # If agent 3 fails hard, we might not have json.
+            if last_generated_json:
+                 save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan)
             return
 
+    # --- Step 4: Execution & Persistence ---
+    # We need to execute FIRST to get the real ID, then persist to API.
+    
+    n8n_workflow_id = None
+    execution_result = None
+    
+    # 1. Save to local file (Required for execution script)
+    if valid:
+        output_file = "workflow_output.json"
+        with open(output_file, "w") as f:
+            f.write(last_generated_json)
+        print(f"  > Saved to {output_file}")
+        
+        # 2. Auto-Execute if Key Exists
+        if os.getenv("N8N_API_KEY"):
+            print("-" * 50)
+            print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
+            from n8n_executor import execute_workflow_via_api
+            n8n_workflow_id, execution_result = execute_workflow_via_api()
+
+    # 3. Persist to API (After execution attempt to capture ID)
+    if last_generated_json:
+        # We return the response from save_workflow_to_api if we modified it to return the response object/json
+        # But controller currently prints. Let's assume successful persistence.
+        save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan, n8n_workflow_id, user_query, execution_result)
+        # In a real scenario, we might want to return the saved ID here.
+        
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")
-    
-    # --- Step 4: Immediate Execution ---
-    # If the user has configured n8n credentials, deploy and run immediately.
-    if os.getenv("N8N_API_KEY"):
-        print("-" * 50)
-        print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
-        from n8n_executor import execute_workflow_via_api
-        execute_workflow_via_api()
-        
     print("=" * 50)
+    
+    return True # Or some result object
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description="Agentic Workflow Orchestrator")
+    parser.add_argument("--query", type=str, help="The user's natural language request")
+    parser.add_argument("--server", action="store_true", help="Start the API server (default behavior)")
+    args = parser.parse_args()
+
+    if args.query:
+        asyncio.run(run_workflow_generation(args.query))
+    else:
+        # Default to starting the server
+        import uvicorn
+        print("\n[System] Starting API Server on http://0.0.0.0:8000 ...")
+        # Ensure we are in the right directory or python path includes current dir
+        uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)

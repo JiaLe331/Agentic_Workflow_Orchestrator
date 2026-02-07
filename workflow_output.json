@@ -2,7 +2,7 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "00000000-0000-0000-0000-000000000000",
+      "id": "manual_trigger",
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
@@ -14,23 +14,21 @@
     },
     {
       "parameters": {
-        "tableId": "company",
-        "operation": "create",
-        "fieldsUi": {
-          "fieldValues": [
+        "operation": "getAll",
+        "tableId": "product",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
             {
-              "fieldId": "name",
-              "fieldValue": "Deriv technology"
-            },
-            {
-              "fieldId": "industry",
-              "fieldValue": "trading"
+              "keyName": "item_name",
+              "condition": "ilike",
+              "keyValue": "Unbranded Cotton Chicken"
             }
           ]
         }
       },
-      "id": "00000000-0000-0000-0000-000000000001",
-      "name": "Create Company",
+      "id": "fetch_product_id",
+      "name": "Fetch Product ID",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
@@ -46,21 +44,26 @@
     },
     {
       "parameters": {
-        "tableId": "employee",
         "operation": "getAll",
+        "tableId": "sale",
         "returnAll": true,
         "filters": {
           "conditions": [
             {
-              "keyName": "name",
-              "condition": "ilike",
-              "keyValue": "Li Jie"
+              "keyName": "product_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Fetch Product ID').first().json.id }}"
+            },
+            {
+              "keyName": "created_at",
+              "condition": "gte",
+              "keyValue": "2026-02-08"
             }
           ]
         }
       },
-      "id": "00000000-0000-0000-0000-000000000002",
-      "name": "Fetch Employee",
+      "id": "fetch_sales_data",
+      "name": "Fetch Sales Data",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
@@ -75,69 +78,33 @@
       "alwaysOutputData": true
     },
     {
-      "parameters": {
-        "tableId": "employee",
-        "operation": "create",
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "name",
-              "fieldValue": "Li Jie"
-            },
-            {
-              "fieldId": "ic",
-              "fieldValue": "={{ $json.ic }}"
-            },
-            {
-              "fieldId": "date_of_birth",
-              "fieldValue": "={{ $json.date_of_birth }}"
-            }
-          ]
-        }
-      },
-      "id": "00000000-0000-0000-0000-000000000003",
-      "name": "Create Employee",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        660,
-        0
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "uY4ILzHGf3nsKJXd"
-        }
-      },
-      "alwaysOutputData": true
-    },
-    {
       "parameters": {},
-      "id": "00000000-0000-0000-0000-000000000004",
+      "id": "display_results",
       "name": "Display Results",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        880,
-        100
+        660,
+        0
       ],
       "alwaysOutputData": true
     },
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "webhook-0f19594d",
+        "path": "webhook-061cf8a3",
         "responseMode": "lastNode",
-        "options": {}
+        "options": {},
+        "authentication": "none"
       },
-      "id": "0f19594d-4a7b-46a3-8393-e56d33aefa2a",
+      "id": "061cf8a3-0bed-4271-a496-7c20b417df7a",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
         0,
         140
-      ],
-      "webhookId": "af88d215-b051-4cad-89d7-905dbb086523"
+      ]
     }
   ],
   "connections": {
@@ -145,41 +112,25 @@
       "main": [
         [
           {
-            "node": "Create Company",
+            "node": "Fetch Product ID",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Create Company": {
+    "Fetch Product ID": {
       "main": [
         [
           {
-            "node": "Fetch Employee",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Display Results",
+            "node": "Fetch Sales Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Employee": {
-      "main": [
-        [
-          {
-            "node": "Create Employee",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Employee": {
+    "Fetch Sales Data": {
       "main": [
         [
           {
@@ -194,7 +145,7 @@
       "main": [
         [
           {
-            "node": "Create Company",
+            "node": "Fetch Product ID",
             "type": "main",
             "index": 0
           }

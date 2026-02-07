@@ -4,6 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 from agents.models import WorkflowPlan
 from agents.json_validator import validate_and_inject_credentials
 from agents.schema import SCHEMA_DEFINITION
+from datetime import datetime
 import json
 import os
 
@@ -140,6 +141,15 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
            - If the plan has exact values (e.g. "Ali Baba"), use them as **STATIC STRINGS** (e.g. `"fieldValue": "Ali Baba"`).
            - **NEVER** use `{{ $('Manual Trigger')... }}` unless the user explicitly requested a form-based workflow. (The Manual Trigger usually has no data).
         
+        7. **DATE FORMATTING (CRITICAL)**:
+           - You MUST use one of the following formats for dates:
+             - `YYYY-MM-DD` (e.g., `2026-02-07`)
+             - `YYYY-MM-DDTHH:MM:SSZ` (ISO 8601 UTC)
+             - `YYYY-MM-DDTHH:MM:SS+00:00`
+           - **FORBIDDEN FORMATS**: `DD-MM-YYYY`, `MM/DD/YYYY`, `Jan 1st 2023`, `tomorrow`, `today`.
+           - If the plan says "today", use the current date provided below:
+             Current Date: {current_date}
+       
         IMPORTANT: Do NOT include the actual sensitive credential data values in the output. 
         Just include the reference id "{supabase_credential_id}". 
         The top-level "credentials" array can be empty or omitted.
@@ -155,7 +165,8 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
             "workflow_plan": workflow_plan.json(),
             "schema": SCHEMA_DEFINITION,
             "feedback_context": feedback_context,
-            "supabase_credential_id": SUPABASE_CREDENTIAL_ID
+            "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
+            "current_date": datetime.now().strftime("%Y-%m-%d")
         })
         
         # Cleanup markdown formatting if presential markdown wrapping
