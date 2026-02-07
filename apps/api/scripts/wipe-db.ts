@@ -15,12 +15,30 @@ async function wipeDatabase() {
     try {
         console.log('🗑️  Wiping database...');
 
-        // Drop the public schema and recreate it.
-        // This removes all tables, views, types, etc. in the public schema.
-        await pool.query('DROP SCHEMA public CASCADE;');
-        await pool.query('CREATE SCHEMA public;');
-        await pool.query('GRANT ALL ON SCHEMA public TO public;');
-        await pool.query("COMMENT ON SCHEMA public IS 'standard public schema';");
+        // Disable foreign key checks to allow truncation in any order
+        await pool.query('SET session_replication_role = \'replica\';');
+
+        const tables = [
+            'workflow',
+            'sale',
+            'product',
+            'customer',
+            'pay_roll',
+            'onboarding',
+            'employee',
+            'company',
+        ];
+
+        for (const table of tables) {
+            // Check if table exists before truncating to avoid errors on first run
+            const tableExists = await pool.query(`SELECT to_regclass('public.${table}');`);
+            if (tableExists.rows[0].to_regclass) {
+                await pool.query(`TRUNCATE TABLE "${table}" CASCADE;`);
+            }
+        }
+
+        // Re-enable foreign key checks
+        await pool.query('SET session_replication_role = \'origin\';');
 
         console.log('✅ Database wiped successfully.');
     } catch (error) {

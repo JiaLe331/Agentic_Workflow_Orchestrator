@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, date, numeric, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, date, numeric, boolean, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import { genderEnum, saleStatusEnum } from './enums';
 export * from './enums';
 
@@ -64,6 +64,7 @@ export const customer = pgTable('customer', {
     role: text('role'), // customer role
     companyId: uuid('company_id').references(() => company.id), // "for company that customer is registered with" indicates link to Company
     title: text('title'), // customer title
+    email: text('email').unique(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
@@ -113,6 +114,24 @@ export const onboarding = pgTable('onboarding', {
     passed: boolean('passed'),
     onboarded: boolean('onboarded'),
     employeeId: uuid('employee_id').references(() => employee.id), // nullable
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+    fullName: text('full_name').notNull(),
+    email: text('email').notNull(),
+});
+
+// ------------------------------
+// WORKFLOW
+// ------------------------------
+export const workflow = pgTable('workflow', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    nodesJson: jsonb('nodes_json'),
+    title: text('title'),
+    description: text('description'),
+    tablesInvolved: text('tables_involved').array(),
+    result: text('result'),
+    uiType: text('ui_type'),
+    uiCode: text('ui_code'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
