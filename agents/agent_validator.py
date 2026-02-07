@@ -29,14 +29,21 @@ def validate_n8n_workflow(n8n_json_str: str, schema_definition: str = "") -> boo
                 cond_operator = condition.get("condition")
                 key_name = condition.get("keyName", "")
                 
-                # List of likely text fields (can be expanded or derived)
-                text_fields = ["name", "email", "description", "title", "role", "colour", "item_name", "country_origin", "nationality"]
+                # List of likely text fields
+                text_fields = ["name", "email", "description", "title", "role", "colour", "item_name", "country_origin", "nationality", "industry"]
                 
-                if key_name in text_fields and cond_operator == "eq":
-                    # Critical Validation Error? Or just fix it?
-                    # User asked for a list of rules for VALIDATION LOOP.
-                    # We will raise error to trigger retry (or disrupt if configured, but plan said retry 3 times).
-                    raise Exception(f"Rule Violation: Text comparison for '{key_name}' must use 'ilike', found 'eq'.")
+                # Rule 1: Comparison Operator Rules
+                # - 'status' -> eq
+                # - 'text' -> ilike
+                
+                if key_name == "status":
+                    if cond_operator != "eq":
+                         raise Exception(f"Rule Violation: 'status' field must use 'eq' operator, found '{cond_operator}'.")
+                
+                elif key_name in text_fields:
+                    # Default text fields should use ilike
+                    if cond_operator == "eq":
+                        raise Exception(f"Rule Violation: Text comparison for '{key_name}' must use 'ilike', found 'eq'. Use 'ilike' for case-insensitive matching.")
 
         # Rule 2: Timestamp Exclusion Rule
         if node_type == "n8n-nodes-base.supabase" and parameters.get("operation") in ["create", "update"]:

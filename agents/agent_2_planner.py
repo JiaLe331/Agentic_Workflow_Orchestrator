@@ -33,7 +33,13 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         CRITICAL RULES:
         1. **DIRECT ACTION**: Simplify the workflow. Do NOT check for existence unless logic requires a branch.
         2. **ID PARSING**: Only separate if necessary.
-        3. **SCHEMA COMPLIANCE**: 
+        3. **COMPARISON OPERATORS - STRICT ENFORCEMENT**:
+           - **'status' columns**: MUST use 'eq' (exact match). Example: status = 'paid'.
+           - **Text/Name columns**: MUST use 'ilike' (Case-Insensitive) UNLESS user specifies case-sensitive.
+           - **Sub-string search**: Use 'like' (e.g. "%part%").
+        4. **TIMESTAMP EXCLUSION**: Never write to 'created_at' or 'updated_at'.
+        5. **MANDATORY INPUTS**: If a NOT NULL field is missing from user input, mark it as '={{ $json.foo }}' (dynamic input).
+        6. **SCHEMA COMPLIANCE**: 
            - Reference the Schema for every DB operation.
            - For `CREATE` (Insert): You MUST include ALL `NOT NULL` columns in the `parameters` -> `data` object.
            - For `UPDATE`: Identify the row using a Unique Constraint or PK in `filters`.

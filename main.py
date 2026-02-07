@@ -77,12 +77,16 @@ async def main():
     retry_count = 0
     valid = False
     
+    # Feedback variables for retries
+    feedback_error = None
+    previous_json = None
+    
     from agents.agent_validator import validate_n8n_workflow, CriticalValidationFailure
 
     while retry_count < MAX_RETRIES and not valid:
         try:
-            # Agent 3 uses the plan (context was used by Agent 2 to refine the plan)
-            n8n_json = generate_n8n_workflow(workflow_plan)
+            # Agent 3 generation (with optional feedback)
+            n8n_json = generate_n8n_workflow(workflow_plan, feedback_error, previous_json)
             
             # Post-Processing: Inject Webhook
             from agents.utils import inject_webhook_node
@@ -101,7 +105,12 @@ async def main():
                 return 
             except Exception as ve:
                 print(f"  > Validation Failed: {ve}")
-                print("  > Retrying Agent 3...")
+                
+                # Prepare feedback for next retry
+                feedback_error = str(ve)
+                previous_json = n8n_json
+                
+                print("  > Retrying Agent 3 with feedback...")
                 retry_count += 1
                 if retry_count == MAX_RETRIES:
                     print("  > Max retries reached. Aborting.")

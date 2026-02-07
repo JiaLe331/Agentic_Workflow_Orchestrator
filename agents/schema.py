@@ -22,6 +22,7 @@ CREATE TABLE "customer" (
 	"role" text,
 	"company_id" uuid,
 	"title" text,
+	"email" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -43,6 +44,8 @@ CREATE TABLE "employee" (
 
 CREATE TABLE "onboarding" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" text NOT NULL,
+	"email" text,
 	"filtering" boolean,
 	"interview_stage" integer,
 	"technical_assessment" boolean,

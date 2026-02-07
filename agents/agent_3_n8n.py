@@ -18,22 +18,47 @@ SUPABASE_CREDENTIAL_ID = os.getenv("SUPABASE_CREDENTIAL_ID", "uY4ILzHGf3nsKJXd")
 # Using a standard, available model
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
 
-def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
+def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = None, previous_json: str = None) -> str:
     """
-    Agent 3: Converts the WorkflowPlan into an n8n workflow JSON structure.
+    Agent 3: Generates the actual n8n JSON code based on the WorkflowPlan.
     """
     
+    # Check if we are in a Retry/Feedback Loop
+    feedback_context = ""
+    if feedback_error and previous_json:
+        feedback_context = f"""
+        WARNING: Your previous attempt failed validation.
+        
+        PREVIOUS JSON:
+        {previous_json}
+        
+        VALIDATION ERROR:
+        {feedback_error}
+        
+        GOAL: Fix the error in the previous JSON while maintaining the rest of the logic.
+        """
+
     prompt = ChatPromptTemplate.from_template(
         """
-        You are an n8n Workflow Specialist.
-        Your goal is to convert a high-level execution plan into a VALID n8n workflow JSON.
+        You are an n8n Workflow Generator. Convert the following plan into n8n JSON.
         
-        Input Plan:
+        {feedback_context}
+        
+        Workflow Plan:
         {workflow_plan}
         
         Rules:
         1. Produce ONLY the JSON output. Do not wrap in markdown blocks like ```json ... ```.
         2. The output must follow the standard n8n JSON schema (nodes, connections).
+        CRITICAL RULES FOR N8N JSON:
+        1. **OPERATORS**:
+           - **'status' fields**: Use 'eq' (e.g. status under 'Filters').
+           - **Text fields** (name, title, etc): Use 'ilike'.
+           - **Partial match**: Use 'like'.
+        2. **Do NOT** include `created_at` or `updated_at` in any `fieldValues` for `create` or `update` operations.
+        3. **Do NOT** output any markdown. Return raw JSON only.
+        4. **Do NOT** use 'START' node. Use 'n8n-nodes-base.manualTrigger'.
+        5. **Always** check `generalized_workflow.values` for explicit values.
         3. **Structure**: MUST include `nodes`, `connections`, and empty `settings` object `{{}}`.
         4. **Node Type Mapping**:
            - `manual_trigger` -> `n8n-nodes-base.manualTrigger` (trigger node).
@@ -126,17 +151,15 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan) -> str:
     chain = prompt | llm | StrOutputParser()
     
     try:
-        # Pydantic models need to be serialized for the prompt
-        plan_json = workflow_plan.model_dump_json()
-        
-        result = chain.invoke({
-            "workflow_plan": plan_json,
-            "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
-            "schema": SCHEMA_DEFINITION
+        n8n_json = chain.invoke({
+            "workflow_plan": workflow_plan.json(),
+            "schema": SCHEMA_DEFINITION,
+            "feedback_context": feedback_context,
+            "supabase_credential_id": SUPABASE_CREDENTIAL_ID
         })
         
-        # Clean up potential markdown wrapping
-        cleaned_result = result.strip()
+        # Cleanup markdown formatting if presential markdown wrapping
+        cleaned_result = n8n_json.strip()
         if cleaned_result.startswith("```json"):
             cleaned_result = cleaned_result[7:]
         if cleaned_result.endswith("```"):
