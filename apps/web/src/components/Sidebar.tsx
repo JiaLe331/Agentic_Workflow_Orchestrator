@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Library, Settings, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: Bot },
@@ -12,7 +13,7 @@ export function Sidebar() {
     return (
         <div className="flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
             <div className="flex h-16 items-center px-6">
-                <Bot className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                <IconDeviceLaptop className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                 <span className="ml-3 text-lg font-bold text-zinc-900 dark:text-white">
                     n8n Agents
                 </span>

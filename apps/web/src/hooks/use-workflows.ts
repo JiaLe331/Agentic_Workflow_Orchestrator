@@ -3,7 +3,17 @@ import useSWR, { mutate } from 'swr';
 
 const API_URL = ''; // Use relative path to leverage Next.js rewrites
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string) => {
+    const res = await fetch(url);
+    if (!res.ok) {
+        const error = new Error('An error occurred while fetching the data.');
+        // Attach extra info to the error object.
+        (error as any).info = await res.json();
+        (error as any).status = res.status;
+        throw error;
+    }
+    return res.json();
+};
 
 // Legacy format
 export interface ExecutionStepLegacy {
@@ -41,6 +51,7 @@ export interface Workflow {
     uiType: string;
     uiCode: string;
     workflowUrl?: string;
+    webhookUrl?: string;
     userPrompt?: string;
     executionPlan?: ExecutionStep[];
     createdAt: string;
@@ -106,7 +117,7 @@ export function useWorkflows() {
     };
 
     return {
-        workflows: data || [],
+        workflows: Array.isArray(data) ? data : [],
         error,
         isLoading,
         create,

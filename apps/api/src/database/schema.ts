@@ -133,6 +133,7 @@ export const workflow = pgTable('workflow', {
     uiType: text('ui_type'),
     uiCode: text('ui_code'),
     workflowUrl: text('workflow_url'),
+    webhookUrl: text('webhook_url'), // Added column
     userPrompt: text('user_prompt'), // Added column
     executionPlan: jsonb('execution_plan'),
     createdAt: timestamp('created_at').defaultNow().notNull(),

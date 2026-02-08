@@ -77,18 +77,7 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                                 </button>
                             </div>
 
-                            {workflow.workflowUrl ? (
-                                <a
-                                    href={workflow.workflowUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-black rounded-lg hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 group shadow-sm hover:shadow"
-                                >
-                                    URL Agent
-                                    <IconArrowRight className="w-3 h-3 ml-1.5 transition-transform group-hover:translate-x-1" />
-                                </a>
-                            ) : (
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -99,7 +88,20 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                                     <IconPlayerPlay className="w-3 h-3 mr-1.5" />
                                     Run
                                 </button>
-                            )}
+
+                                {workflow.workflowUrl && (
+                                    <a
+                                        href={workflow.workflowUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex text-xs items-center justify-center p-1.5 text-gray-400 transition-colors rounded-sm hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                                        title="View n8n workflow"
+                                    >
+                                        N8N Workflow
+                                    </a>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
