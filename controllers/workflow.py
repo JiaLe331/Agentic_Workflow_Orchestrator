@@ -3,7 +3,7 @@ import requests
 import json
 from agents.models import GeneralizedWorkflow, WorkflowPlan
 
-def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None):
+def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None, webhook_url: str = None):
     """
     Saves the generated workflow to the backend API.
     """
@@ -35,7 +35,8 @@ def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: st
         "nodesJson": nodes_json_obj,
         "executionPlan": [node.dict() for node in workflow_plan.nodes] if workflow_plan else [],
         "userPrompt": user_prompt,
-        "result": execution_result
+        "result": execution_result,
+        "webhookUrl": webhook_url
     }
     
     print(f"\n[System] Persisting workflow to {API_URL}...")

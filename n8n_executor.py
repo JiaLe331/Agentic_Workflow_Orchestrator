@@ -18,20 +18,22 @@ def execute_workflow_via_api():
         print("❌ Error: N8N_API_KEY not found in .env")
         print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
         print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
-        return None, None
+        return None, None, None
 
     workflow_file = "workflow_output.json"
     if not os.path.exists(workflow_file):
         print(f"❌ Error: {workflow_file} not found. Run main.py first.")
         print(f"❌ Error: {workflow_file} not found. Run main.py first.")
-        return None, None
+        return None, None, None
 
     print(f"Loading {workflow_file}...")
     with open(workflow_file, "r") as f:
         workflow_json = json.load(f)
         
     result_json = None
+    result_json = None
     workflow_id = None
+    webhook_url = None
 
     # 1. Import Workflow (Create)
     # Removing ID matching to force creation of a NEW workflow instance (or we could update if ID exists)
@@ -65,10 +67,10 @@ def execute_workflow_via_api():
         print(f"❌ Import Failed: {e}")
         if e.response is not None:
              print(f"Response Body: {e.response.text}")
-        return None, None
+        return None, None, None
     except Exception as e:
         print(f"❌ Import Failed (Unknown): {e}")
-        return None, None
+        return None, None, None
 
     # 2. Activate Workflow
     print(f"🔌 Activating workflow {workflow_id}...")
@@ -80,7 +82,7 @@ def execute_workflow_via_api():
     except Exception as e:
         print(f"❌ Activation Failed: {e}")
         # Continue? If activation fails, webhook might not work.
-        return workflow_id, None
+        return workflow_id, None, None
 
     # 3. Trigger Webhook
     # Dynamic: Find the correct webhook path from the JSON (it's now unique)
@@ -95,9 +97,16 @@ def execute_workflow_via_api():
     
     print(f"⚡ Triggering Webhook: {webhook_url}")
     try:
-        # We can send dummy data or the original query if needed
+        # Try Production URL First
         resp = requests.post(webhook_url, json={"trigger": "auto-executor"})
         
+        # If 404, try Test URL
+        if resp.status_code == 404:
+            print(f"⚠️ Production webhook 404. Trying Test Webhook...")
+            test_webhook_url = f"{N8N_HOST}/webhook-test/{webhook_path}"
+            print(f"⚡ Triggering Test Webhook: {test_webhook_url}")
+            resp = requests.post(test_webhook_url, json={"trigger": "auto-executor"})
+
         if resp.ok:
              print("✅ Execution Triggered & Completed Successfully!")
              try:
@@ -112,7 +121,7 @@ def execute_workflow_via_api():
     except Exception as e:
         print(f"❌ Webhook Trigger Failed: {e}")
         
-    return workflow_id, result_json
+    return workflow_id, result_json, webhook_url
 
 if __name__ == "__main__":
     execute_workflow_via_api()

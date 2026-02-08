@@ -135,6 +135,7 @@ async def run_workflow_generation(user_query: str):
     
     n8n_workflow_id = None
     execution_result = None
+    webhook_url = None
     
     # 1. Save to local file (Required for execution script)
     if valid:
@@ -148,13 +149,13 @@ async def run_workflow_generation(user_query: str):
             print("-" * 50)
             print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
             from n8n_executor import execute_workflow_via_api
-            n8n_workflow_id, execution_result = execute_workflow_via_api()
+            n8n_workflow_id, execution_result, webhook_url = execute_workflow_via_api()
 
     # 3. Persist to API (After execution attempt to capture ID)
     if last_generated_json:
         # We return the response from save_workflow_to_api if we modified it to return the response object/json
         # But controller currently prints. Let's assume successful persistence.
-        save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan, n8n_workflow_id, user_query, execution_result)
+        save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan, n8n_workflow_id, user_query, execution_result, webhook_url)
         # In a real scenario, we might want to return the saved ID here.
         
     print("\n" + "=" * 50)
