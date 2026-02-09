@@ -7,3 +7,10 @@ python-dotenv
 supabase
 httpx
 langchain-google-genai
+llama-parse
+twilio
+python-multipart
+jinja2
+google-api-python-client
+google-auth
+google-auth-httplib2

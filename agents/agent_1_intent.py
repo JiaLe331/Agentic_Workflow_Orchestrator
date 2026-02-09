@@ -39,8 +39,9 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
         6. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them into the 'values' dictionary.
            - Example: "Change name to X" -> values: {{"name": "X"}}
         7. **SELECT DOCS**: Identify which table(s) are involved and list their corresponding doc filenames in 'required_docs'.
-           - Available docs: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md]
+           - Available docs: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md, whatsapp.md]
            - Example: If targeting 'employee' table -> required_docs: ["employee.md"]
+           - **WHATSAPP**: If the user wants to send a WhatsApp message, you MUST include "whatsapp.md".
         
         Request: {user_input}
         

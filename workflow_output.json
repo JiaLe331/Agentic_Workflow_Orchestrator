@@ -7,128 +7,68 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        250,
-        300
-      ],
-      "alwaysOutputData": true
+        0,
+        0
+      ]
     },
     {
       "parameters": {
-        "operation": "getAll",
-        "tableId": "sale",
-        "returnAll": true,
-        "limit": 5,
-        "filters": {
-          "conditions": [
+        "values": {
+          "string": [
             {
-              "keyName": "created_at",
-              "condition": "gte",
-              "keyValue": "={{ $now.minus({months: 1}).toFormat('yyyy-MM-dd') }}"
+              "name": "status",
+              "value": "error"
+            },
+            {
+              "name": "message",
+              "value": "Unclear request. More information needed."
+            },
+            {
+              "name": "details",
+              "value": "No target table identified. Operation 'READ' cannot be performed on null target."
             }
           ]
         },
-        "options": {
-          "sort": {
-            "sortRules": [
-              {
-                "field": "gross_amount",
-                "direction": "DESC"
-              }
-            ]
-          }
-        }
+        "keepOnlySet": true
       },
       "id": "00000000-0000-0000-0000-000000000002",
-      "name": "Fetch Top Products",
-      "type": "n8n-nodes-base.supabase",
+      "name": "Generate Response",
+      "type": "n8n-nodes-base.set",
       "typeVersion": 1,
       "position": [
-        470,
-        300
+        250,
+        0
       ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "uY4ILzHGf3nsKJXd"
-        }
-      },
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "operation": "create",
-        "tableId": "sale",
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "product_id",
-              "fieldValue": "={{ $json.product_id }}"
-            },
-            {
-              "fieldId": "customer_id",
-              "fieldValue": "={{ $json.customer_id }}"
-            },
-            {
-              "fieldId": "unit_number",
-              "fieldValue": "={{ $json.unit_number }}"
-            },
-            {
-              "fieldId": "gross_amount",
-              "fieldValue": "={{ $json.gross_amount }}"
-            },
-            {
-              "fieldId": "nett_amount",
-              "fieldValue": "={{ $json.nett_amount }}"
-            },
-            {
-              "fieldId": "status",
-              "fieldValue": "={{ $json.status }}"
-            }
-          ]
-        }
-      },
-      "id": "00000000-0000-0000-0000-000000000003",
-      "name": "Create Sale Records",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        690,
-        300
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "uY4ILzHGf3nsKJXd"
-        }
-      },
       "alwaysOutputData": true
     },
     {
       "parameters": {},
-      "id": "00000000-0000-0000-0000-000000000004",
+      "id": "00000000-0000-0000-0000-000000000003",
       "name": "Display Results",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        910,
-        300
+        500,
+        0
       ],
       "alwaysOutputData": true
     },
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "webhook-6369cb75",
+        "path": "webhook-fd986f42",
         "responseMode": "lastNode",
-        "options": {},
-        "authentication": "none"
+        "options": {}
       },
-      "id": "6369cb75-9ef2-4718-a008-aabc4e4586a2",
+      "id": "fd986f42-583d-4f64-9569-a19f834191db",
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
         0,
         140
-      ]
+      ],
+      "webhookId": "60e4a61a-abc6-42a4-9c93-201017a8238b"
     }
   ],
   "connections": {
@@ -136,25 +76,14 @@
       "main": [
         [
           {
-            "node": "Fetch Top Products",
+            "node": "Generate Response",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch Top Products": {
-      "main": [
-        [
-          {
-            "node": "Create Sale Records",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Sale Records": {
+    "Generate Response": {
       "main": [
         [
           {
@@ -169,7 +98,7 @@
       "main": [
         [
           {
-            "node": "Fetch Top Products",
+            "node": "Generate Response",
             "type": "main",
             "index": 0
           }
