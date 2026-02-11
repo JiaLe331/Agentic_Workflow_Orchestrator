@@ -36,26 +36,7 @@ export default function CollectionsPage() {
     if (error) return <div className="p-8 text-center text-red-500">Error loading workflows</div>;
 
     return (
-        <div className="flex flex-col h-full bg-gray-50/50 dark:bg-gray-900/50">
-            {/* Header Section */}
-            <div className="px-8 py-6 mb-6 bg-white border-b border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                        <div className="p-2 text-white bg-blue-600 rounded-lg shadow-lg shadow-blue-600/20">
-                            <IconLibrary size={24} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Workflow Library</h1>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Manage and organize your automated workflows</p>
-                        </div>
-                    </div>
-                    <button className="flex items-center px-4 py-2 space-x-2 text-sm font-medium text-white transition-all bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700 hover:shadow-blue-600/30 active:scale-95">
-                        <IconPlus size={18} />
-                        <span>New Collection</span>
-                    </button>
-                </div>
-            </div>
-
+        <div className="flex flex-col h-full bg-gray-50/50 dark:bg-gray-900/50 pt-6">
             {/* Main Content */}
             <div className="flex-1 px-8 pb-8 overflow-y-auto">
                 {/* Search and Filter Bar */}

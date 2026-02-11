@@ -164,12 +164,30 @@ export function WorkflowDetailsSlideOver({
 
 
                 {/* RIGHT COLUMN: Existing Details */}
-                <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
+                <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900 overflow-y-auto relative">
 
-                    {/* Content - Scrollable */}
-                    <div className="flex-1 overflow-y-auto p-8 space-y-8">
+                    {workflow.imageUrl ? (
+                        <div
+                            className="h-48 w-full border-b border-gray-100 dark:border-gray-800 relative group shrink-0"
+                            style={{
+                                backgroundImage: `url(${workflow.imageUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat'
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent z-10 dark:from-gray-900/40"></div>
+                        </div>
+                    ) : (
+                        <div className="h-32 w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center shrink-0">
+                            <IconTable className="w-12 h-12 text-gray-200 dark:text-gray-700" stroke={1.5} />
+                        </div>
+                    )}
 
-                        {/* Title & Meta - Header integrated here */}
+                    {/* Content - Padded */}
+                    <div className="p-8 space-y-8 flex-1">
+
+                        {/* Title & Meta */}
                         <div>
                             <div className="flex items-start justify-between gap-4">
                                 <h1 className="text-3xl text-gray-900 dark:text-white mb-2 leading-tight">
@@ -222,7 +240,7 @@ export function WorkflowDetailsSlideOver({
                             </div>
                         )}
 
-                        {/* Results (Replaces previous Node Config spot) */}
+                        {/* Results */}
                         <div>
                             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                                 Results
@@ -312,8 +330,8 @@ export function WorkflowDetailsSlideOver({
                                                 {isCopied ? <IconCheck size={14} className="text-green-500" /> : <IconCopy size={14} />}
                                             </button>
                                         </div>
-                                        <div className="text-sm text-gray-600 dark:text-gray-300 italic bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                            "{workflow.userPrompt || 'No prompt info available.'}"
+                                        <div className="text-xs text-gray-500 dark:text-gray-300 dark:bg-gray-800 p-3 rounded-lg">
+                                            {workflow.userPrompt || 'No prompt info available.'}
                                         </div>
                                         {/* Arrow pointer */}
                                         <div className="absolute top-full right-4 -mt-1.5 w-3 h-3 bg-white dark:bg-gray-900 border-b border-r border-gray-200 dark:border-gray-700 transform rotate-45"></div>
