@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import PydanticOutputParser
 from agents.models import WorkflowPlan, GeneralizedWorkflow
-from agents.schema import SCHEMA_DEFINITION
+from prompts.schema import SCHEMA_DEFINITION
 import json
 
 # Agent 2 (Planner) uses the PRO model for complex reasoning and schema validation.

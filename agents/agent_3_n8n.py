@@ -3,7 +3,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 from agents.models import WorkflowPlan
 from agents.json_validator import validate_and_inject_credentials
-from agents.schema import SCHEMA_DEFINITION
+from prompts.schema import SCHEMA_DEFINITION
 from datetime import datetime
 import json
 import os

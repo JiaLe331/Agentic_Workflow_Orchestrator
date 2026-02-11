@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import PydanticOutputParser
 from agents.models import GeneralizedWorkflow
-from agents.schema import SCHEMA_DEFINITION
+from prompts.schema import SCHEMA_DEFINITION
 import os
 
 # Initialize LLM

@@ -1,6 +1,5 @@
 
 import os
-import time
 
 def setup_credentials():
     print("=" * 60)

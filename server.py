@@ -4,30 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from controllers import pdf_parser, whatsapp, email, google_calendar
 
-# We need to import the workflow generation logic separately to avoid circular imports if main imports server
-# However, run_workflow_generation is in main.py. 
-# Ideally, we should move run_workflow_generation successfully to a controller or service.
-# For now, we will keep the import but wrap it in an endpoint.
-
-# Import main carefully or move logic. 
-# main.py imports generate_n8n_workflow etc.
-# Let's import run_workflow_generation inside the function or file if possible.
-# But main.py imports server.py! Circular dependency risk.
-# Ideally, main.py should NOT import server.py if server.py imports main.py.
-# main.py currently does `import uvicorn; uvicorn.run("server:app")`. This is fine.
-# But server.py needs `run_workflow_generation` from main.py?
-# Yes, checking previous `server.py` content... `from main import run_workflow_generation`.
-# This is a circular dependency if `main.py` imports `server`.
-# However, `main.py` only imports `server` inside `if __name__ == "__main__" or inside the `run_server` block which might be okay dynamically?
-# No, `uvicorn.run("server:app")` loads `server.py` which imports `main`. `main` imports `server`? No, `main` imports `uvicorn`.
-
-# Previous `server.py` was:
-# from main import run_workflow_generation
-
-# Let's check `main.py` imports.
-# It does NOT import `server` at top level. It imports `uvicorn` inside `if args.query ... else`.
-# So it should be safe.
-
 from main import run_workflow_generation
 
 app = FastAPI(
