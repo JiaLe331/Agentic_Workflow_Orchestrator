@@ -17,7 +17,6 @@ def execute_workflow_via_api():
     if not N8N_API_KEY:
         print("❌ Error: N8N_API_KEY not found in .env")
         print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
-        print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
         return None, None, None
 
     workflow_file = "workflow_output.json"
