@@ -3,10 +3,7 @@ import os
 import argparse
 import asyncio
 from dotenv import load_dotenv
-import requests
-import json
 
-# Load env variables (e.g., OPENAI_API_KEY)
 load_dotenv()
 
 from agents.agent_1_intent import process_intent
@@ -14,6 +11,7 @@ from agents.agent_2_planner import plan_workflow
 
 from agents.agent_3_n8n import generate_n8n_workflow
 from controllers.workflow import save_workflow_to_api
+from utils.n8n_executor import execute_workflow_via_api
 
 async def run_workflow_generation(user_query: str):
     """
@@ -148,7 +146,6 @@ async def run_workflow_generation(user_query: str):
         if os.getenv("N8N_API_KEY"):
             print("-" * 50)
             print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
-            from n8n_executor import execute_workflow_via_api
             n8n_workflow_id, execution_result, webhook_url = execute_workflow_via_api()
 
     # 3. Persist to API (After execution attempt to capture ID)
