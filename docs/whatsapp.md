@@ -1,67 +1,55 @@
-# WhatsApp Integration
+ROLE:
+You are generating an n8n HTTP Request node for sending WhatsApp messages.
 
-This documentation describes how to send WhatsApp messages using the system's WhatsApp API.
+GOAL:
+Always output a valid n8n node JSON that sends a WhatsApp message using the internal API.
 
-## Capability: Send WhatsApp Message
+ENDPOINT:
+POST <http://host.docker.internal:8000/api/whatsapp/send>
 
-- **Action**: Send a text message to a phone number.
-- **Tools**: `n8n-nodes-base.httpRequest` to calling the internal API.
+PAYLOAD FIELDS:
 
-## n8n Node Structure
+- to
+- message
 
-To send a WhatsApp message, you MUST use the following JSON structure for the nodes. The `Set Test Data` node should be populated with the dynamic `to` and `message` values.
+CRITICAL RULES FOR jsonBody:
 
-```json
+1) jsonBody MUST be valid JSON, not JavaScript.
+2) Use ONLY double quotes (").
+3) NEVER use single quotes (').
+4) NEVER use JSON.stringify().
+5) NEVER wrap the entire object in an expression like ={{ ... }}.
+6) Use n8n expressions ONLY inside JSON string values:
+   - Correct: "{{ $json.to }}"
+   - Correct: "{{ $json.message }}"
+7) Because jsonBody is inside JSON, escape inner quotes with backslashes (\").
+
+MANDATORY jsonBody FORMAT (DO NOT CHANGE):
+
+"jsonBody": "={ \"to\": \"{{ $json.to }}\", \"message\": \"{{ $json.message }}\" }"
+
+MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
+
 {
-  "nodes": [
-    {
-      "parameters": {
-        "jsCode": "return items.map(item => {\n  // Agent 3: Replace {{to_phone_number}} with the actual column name (e.g. phone)\n  // Agent 3: Replace {{message_text}} with the message content. Use ${item.json.name} for dynamic values.\n  const phone = item.json[\"{{to_phone_number}}\"];\n  return {\n    json: {\n      to: phone ? phone.replace(/[^0-9+]/g, '') : '',\n      message: `{{message_text}}`\n    }\n  }\n});"
-      },
-      "name": "Set WhatsApp Data",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        176,
-        -144
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://host.docker.internal:8000/api/whatsapp/send",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $json.to, message: $json.message }) }}",
-        "options": {}
-      },
-      "name": "Send WhatsApp",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        400,
-        -144
-      ]
-    }
-  ],
-  "connections": {
-    "Set WhatsApp Data": {
-      "main": [
-        [
-          {
-            "node": "Send WhatsApp",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  }
+  "parameters": {
+    "method": "POST",
+    "url": "<http://host.docker.internal:8000/api/whatsapp/send>",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={ \"to\": \"{{ $json.to }}\", \"message\": \"{{ $json.message }}\" }",
+    "options": {}
+  },
+  "name": "Send WhatsApp",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.2
 }
-```
 
-## Description
+VALIDATION CHECK BEFORE OUTPUT:
 
-- **Set WhatsApp Data**: This Code node prepares the data. Replace `{{to_phone_number}}` and `{{message_text}}` with the actual values or expressions from previous nodes.
-- **Send WhatsApp**: This HTTP Request node sends the payload to the local API endpoint `http://host.docker.internal:8000/api/whatsapp/send`.
-  - **Note**: `host.docker.internal` is used assuming n8n is running in Docker and needs to access the host's API (this server). If running natively, `localhost` might work, but stick to the provided URL for consistency with containerized setups.
+- jsonBody contains double quotes only.
+- jsonBody contains {{ $json.to }} and {{ $json.message }}.
+- jsonBody does NOT contain JSON.stringify.
+- jsonBody does NOT contain single quotes.
+- The node matches the template exactly.
+
+If any rule is violated, regenerate the output.

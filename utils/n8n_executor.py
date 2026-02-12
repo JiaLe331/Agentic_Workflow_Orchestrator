@@ -13,45 +13,29 @@ N8N_API_KEY = os.getenv("N8N_API_KEY")
 # Note: N8N_API_KEY is required for the Public API (v1). 
 # If credentials are not set, the script will prompt or fail.
 
-def execute_workflow_via_api():
+def get_headers():
     if not N8N_API_KEY:
         print("❌ Error: N8N_API_KEY not found in .env")
-        print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
-        return None, None, None
-
-    workflow_file = "test/workflow_output.json"
-    if not os.path.exists(workflow_file):
-        print(f"❌ Error: {workflow_file} not found. Run main.py first.")
-        print(f"❌ Error: {workflow_file} not found. Run main.py first.")
-        return None, None, None
-
-    print(f"Loading {workflow_file}...")
-    with open(workflow_file, "r") as f:
-        workflow_json = json.load(f)
-        
-    result_json = None
-    result_json = None
-    workflow_id = None
-    webhook_url = None
-
-    # 1. Import Workflow (Create)
-    # Removing ID matching to force creation of a NEW workflow instance (or we could update if ID exists)
-    if "id" in workflow_json:
-        del workflow_json["id"]
-        
-    # Ensure 'name' exists (Required by API)
-    if "name" not in workflow_json:
-        workflow_json["name"] = f"AI Workflow {int(time.time())}"
-        
-    # Ensure 'settings' exists (Required by API)
-    if "settings" not in workflow_json:
-        workflow_json["settings"] = {}
-        
-    # Headers
-    headers = {
+        return None
+    return {
         "X-N8N-API-KEY": N8N_API_KEY,
         "Content-Type": "application/json"
     }
+
+def import_workflow(workflow_json: dict) -> dict:
+    """
+    Imports a workflow json into n8n. Returns the full workflow object (including ID).
+    """
+    headers = get_headers()
+    if not headers: return None
+
+    # Cleaning for Import
+    if "id" in workflow_json:
+        del workflow_json["id"]
+    if "name" not in workflow_json:
+        workflow_json["name"] = f"AI Workflow {int(time.time())}"
+    if "settings" not in workflow_json:
+        workflow_json["settings"] = {}
 
     print(f"🚀 Importing workflow '{workflow_json['name']}' to n8n...")
     create_url = f"{N8N_HOST}/api/v1/workflows"
@@ -59,32 +43,35 @@ def execute_workflow_via_api():
         response = requests.post(create_url, json=workflow_json, headers=headers)
         response.raise_for_status()
         new_workflow = response.json()
-        workflow_id = new_workflow['id']
-        workflow_name = new_workflow['name']
-        print(f"✅ Imported: {workflow_name} (ID: {workflow_id})")
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Import Failed: {e}")
-        if e.response is not None:
-             print(f"Response Body: {e.response.text}")
-        return None, None, None
+        print(f"✅ Imported: {new_workflow['name']} (ID: {new_workflow['id']})")
+        return new_workflow
     except Exception as e:
-        print(f"❌ Import Failed (Unknown): {e}")
-        return None, None, None
+        print(f"❌ Import Failed: {e}")
+        return None
 
-    # 2. Activate Workflow
+def activate_workflow(workflow_id: str) -> bool:
+    """
+    Activates an existing workflow by ID.
+    """
+    headers = get_headers()
+    if not headers: return False
+
     print(f"🔌 Activating workflow {workflow_id}...")
     activate_url = f"{N8N_HOST}/api/v1/workflows/{workflow_id}/activate"
     try:
         requests.post(activate_url, headers=headers, json={"active": True}).raise_for_status()
         print("✅ Workflow Activated")
-        time.sleep(2) # Give n8n a moment to register the webhook
+        time.sleep(2) 
+        return True
     except Exception as e:
         print(f"❌ Activation Failed: {e}")
-        # Continue? If activation fails, webhook might not work.
-        return workflow_id, None, None
+        return False
 
-    # 3. Trigger Webhook
-    # Dynamic: Find the correct webhook path from the JSON (it's now unique)
+def trigger_webhook(workflow_json: dict) -> tuple:
+    """
+    Determines the webhook URL from the JSON and triggers it.
+    Returns (result_json, webhook_url)
+    """
     webhook_path = "webhook" # Default
     if "nodes" in workflow_json:
         for node in workflow_json["nodes"]:
@@ -93,8 +80,9 @@ def execute_workflow_via_api():
                 break
     
     webhook_url = f"{N8N_HOST}/webhook/{webhook_path}"
-    
     print(f"⚡ Triggering Webhook: {webhook_url}")
+    
+    result_json = None
     try:
         # Try Production URL First
         resp = requests.post(webhook_url, json={"trigger": "auto-executor"})
@@ -118,8 +106,35 @@ def execute_workflow_via_api():
              print(f"⚠️ Triggered but received error: {resp.status_code}")
              print(resp.text)
     except Exception as e:
-        print(f"❌ Webhook Trigger Failed: {e}")
-        
+         print(f"❌ Webhook Trigger Failed: {e}")
+         
+    return result_json, webhook_url
+
+def execute_workflow_via_api():
+    """
+    Facade for backward compatibility: Import -> Activate -> Trigger
+    """
+    workflow_file = "test/workflow_output.json"
+    if not os.path.exists(workflow_file):
+        print(f"❌ Error: {workflow_file} not found.")
+        return None, None, None
+
+    print(f"Loading {workflow_file}...")
+    with open(workflow_file, "r") as f:
+        workflow_json = json.load(f)
+
+    # 1. Import
+    new_workflow = import_workflow(workflow_json)
+    if not new_workflow:
+        return None, None, None
+    workflow_id = new_workflow['id']
+
+    # 2. Activate
+    activate_workflow(workflow_id)
+
+    # 3. Trigger
+    result_json, webhook_url = trigger_webhook(workflow_json)
+
     return workflow_id, result_json, webhook_url
 
 if __name__ == "__main__":

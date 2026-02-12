@@ -5,6 +5,7 @@ import requests
 import time
 from dotenv import load_dotenv
 
+# python test/test_deploy.py
 # Load environment variables
 load_dotenv()
 

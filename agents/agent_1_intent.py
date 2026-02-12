@@ -8,7 +8,7 @@ import os
 # Initialize LLM
 # Note: Ensure GOOGLE_API_KEY is in .env
 # Agent 1 (Intent) uses a cheaper/faster model for cost optimization.
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001", temperature=0)
 
 def process_intent(user_input: str) -> GeneralizedWorkflow:
     """

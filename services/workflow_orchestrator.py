@@ -3,12 +3,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from fastapi.concurrency import run_in_threadpool
+
 from agents.agent_1_intent import process_intent
 from agents.agent_2_planner import plan_workflow
 
 from agents.agent_3_n8n import generate_n8n_workflow
 from services.workflow_persistence import save_workflow_to_api
-from utils.n8n_executor import execute_workflow_via_api
+from utils.n8n_executor import import_workflow, activate_workflow, trigger_webhook
 from utils.n8n_crawler import crawl_and_screenshot_workflow
 from utils.validators import validate_phone_number
 
@@ -24,7 +26,8 @@ async def run_workflow_generation(user_query: str):
     # --- Step 1: Agent 1 (Intent) ---
     print("\n[Agent 1] Analyzing Intent & Schema...")
     try:
-        generalized_workflow = process_intent(user_query)
+        # Run synchronous agent in threadpool to avoid blocking event loop
+        generalized_workflow = await run_in_threadpool(process_intent, user_query)
         
         # --- DISRUPTOR CHECK ---
         if generalized_workflow.validation_error:
@@ -68,7 +71,8 @@ async def run_workflow_generation(user_query: str):
     print("\n[Agent 2] Planning Workflow Nodes...")
     try:
         # Pass context_text to plan_workflow
-        workflow_plan = plan_workflow(generalized_workflow, context_text)
+        # Run synchronous agent in threadpool
+        workflow_plan = await run_in_threadpool(plan_workflow, generalized_workflow, context_text)
         print(f"  > Generated {len(workflow_plan.nodes)} workflow nodes.")
         for node in workflow_plan.nodes:
             print(f"    - [{node.id}] {node.function}: {node.description}")
@@ -94,7 +98,8 @@ async def run_workflow_generation(user_query: str):
     while retry_count < MAX_RETRIES and not valid:
         try:
             # Agent 3 generation (with optional feedback)
-            n8n_json = generate_n8n_workflow(workflow_plan, feedback_error, previous_json, context_text)
+            # Run synchronous agent in threadpool
+            n8n_json = await run_in_threadpool(generate_n8n_workflow, workflow_plan, feedback_error, previous_json, context_text)
             
             # Post-Processing: Inject Webhook
             from agents.utils import inject_webhook_node
@@ -135,6 +140,9 @@ async def run_workflow_generation(user_query: str):
 
     # --- Step 4: Execution & Persistence ---
     
+    # --- Step 4: Execution & Persistence ---
+    # Strict Order: Import -> Crawl -> Save DB -> Execute -> Update DB
+    
     n8n_workflow_id = None
     execution_result = None
     webhook_url = None
@@ -142,54 +150,69 @@ async def run_workflow_generation(user_query: str):
     saved_db_record = None
 
     if valid:
-        # 1. Save to local file (Required for execution script)
+        import json
+        workflow_json_obj = json.loads(last_generated_json)
+
+        # 1. Save to local file (Required for debugging/reference)
         output_file = "test/workflow_output.json"
         with open(output_file, "w") as f:
             f.write(last_generated_json)
         print(f"  > Saved to {output_file}")
         
-        # 2. Persist to API (Database) FIRST
-        # We don't have n8n_id or execution results yet, but we secure the record.
-        print("\n[System] Persisting workflow to DB before execution...")
-        try:
-             # We pass None for runtime values initially
-             saved_db_record = save_workflow_to_api(
-                 generalized_workflow, 
-                 last_generated_json, 
-                 workflow_plan, 
-                 n8n_workflow_id=None, 
-                 user_query=user_query, 
-                 execution_result=None, 
-                 webhook_url=None, 
-                 uploaded_url=None
-             )
-        except Exception as e:
-            print(f"  > Warning: DB Persistence failed: {e}")
-
-        # 3. Auto-Execute (Deploy & Trigger)
         if os.getenv("N8N_API_KEY"):
             print("-" * 50)
-            print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
-            
-            # This function currently handles: Import -> Activate -> Trigger Webhook
-            n8n_workflow_id, execution_result, webhook_url = execute_workflow_via_api()
-            
-            # --- Step 5: Screenshot & Upload (New) ---
-            if n8n_workflow_id:
+            print("[Orchestrator] Starting Sequential Deployment...")
+
+            # 2. Import to n8n (Get ID)
+            # Run blocking import in threadpool
+            new_workflow = await run_in_threadpool(import_workflow, workflow_json_obj)
+            if new_workflow:
+                n8n_workflow_id = new_workflow['id']
+                
+                # 3. Crawl & Screenshot (Get Image URL)
                 print(f"\n[Crawler] Initiating screenshot for workflow {n8n_workflow_id}...")
                 try:
                     uploaded_url = await crawl_and_screenshot_workflow(n8n_workflow_id)
                     if uploaded_url:
-                        print(f"  > Screenshot uploaded: {uploaded_url}")
-                        
-                    # TODO: Update the previously saved DB record with these new details (ID, URL, Result)
-                    # For now, we just print them, effectively fulfilling the "Save then Activate" flow.
-                    if saved_db_record:
-                         print(f"  > (Logic to update DB record {saved_db_record.get('id', '?')} with n8n ID {n8n_workflow_id} goes here)")
-                         
+                         print(f"  > Screenshot uploaded: {uploaded_url}")
                 except Exception as e:
                     print(f"❌ Crawler Failed: {e}")
-        
+
+                # 4. Save to DB (PRE-EXECUTION)
+                print("\n[System] Persisting workflow to DB (Pre-Execution)...")
+                try:
+                     # Run blocking DB save in threadpool
+                     saved_db_record = await run_in_threadpool(
+                         save_workflow_to_api,
+                         generalized_workflow, 
+                         last_generated_json, 
+                         workflow_plan, 
+                         n8n_workflow_id=n8n_workflow_id, 
+                         user_prompt=user_query, 
+                         execution_result=None, # Not executed yet
+                         webhook_url=None,      # Not triggered yet (though predictable)
+                         image_url=uploaded_url
+                     )
+                except Exception as e:
+                    print(f"  > Warning: DB Persistence failed: {e}")
+
+                # 5. Execute: Activate & Trigger
+                print(f"[Orchestrator] Activating and Triggering Workflow {n8n_workflow_id}...")
+                
+                # Run blocking activation in threadpool
+                await run_in_threadpool(activate_workflow, n8n_workflow_id)
+                
+                # Run blocking webhook trigger in threadpool
+                execution_result, webhook_url = await run_in_threadpool(trigger_webhook, workflow_json_obj)
+                
+                # 6. Update DB (POST-EXECUTION) - Optional but good for completeness
+                # Since we have a new result, we should nominally save it or update the record.
+                # Simplest way is to call save again (it creates a new history record usually)
+                # or just log it. 
+                if execution_result:
+                     print(f"[Orchestrator] Execution finished. Result obtained.")
+                     # TODO: Update DB with execution result
+    
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")
     print("=" * 50)
