@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Library, Settings, Bot } from "lucide-react";
+import { Library, Settings, Bot, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: Bot },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Collections", href: "/collections", icon: Library },
     { name: "Settings", href: "#", icon: Settings },
 ];

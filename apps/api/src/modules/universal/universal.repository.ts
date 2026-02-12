@@ -20,7 +20,7 @@ export class UniversalRepository {
     async findAll(tableName: string) {
         const table = this.getTable_(tableName);
         // @ts-ignore - Dynamic table access
-        return this.db.select().from(table).orderBy(desc(table.createdAt || table.id));
+        return this.db.select().from(table).orderBy(desc(table.updatedAt || table.createdAt || table.id));
     }
 
     async findOne(tableName: string, id: string) {

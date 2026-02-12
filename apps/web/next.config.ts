@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         source: '/workflows/:id',
         destination: 'http://localhost:4000/workflows/:id',
       },
+      {
+        source: '/universal/:path*',
+        destination: 'http://localhost:4000/universal/:path*',
+      },
     ];
   },
 };
