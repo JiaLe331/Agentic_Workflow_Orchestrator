@@ -6,6 +6,7 @@ uvicorn
 python-dotenv
 supabase
 httpx
+requests
 langchain-google-genai
 llama-parse
 twilio
