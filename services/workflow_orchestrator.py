@@ -9,6 +9,8 @@ from agents.agent_2_planner import plan_workflow
 from agents.agent_3_n8n import generate_n8n_workflow
 from services.workflow_persistence import save_workflow_to_api
 from utils.n8n_executor import execute_workflow_via_api
+from utils.n8n_crawler import crawl_and_screenshot_workflow
+from utils.validators import validate_phone_number
 
 async def run_workflow_generation(user_query: str):
     """
@@ -34,6 +36,15 @@ async def run_workflow_generation(user_query: str):
         print(f"  > Intent: {generalized_workflow.intent}")
         print(f"  > Target Table: {generalized_workflow.target_table}")
         print(f"  > Operation: {generalized_workflow.operation}")
+        if generalized_workflow.additional_inputs:
+             # Validate Phone Number if present
+            if "whatsapp_number" in generalized_workflow.additional_inputs:
+                raw_phone = generalized_workflow.additional_inputs["whatsapp_number"]
+                validated_phone = validate_phone_number(raw_phone)
+                generalized_workflow.additional_inputs["whatsapp_number"] = validated_phone
+                print(f"  > Validated Phone: {validated_phone}")
+            
+            print(f"  > Additional Inputs: {generalized_workflow.additional_inputs}")
     except Exception as e:
         print(f"Agent 1 Failed: {e}")
         return
@@ -83,7 +94,7 @@ async def run_workflow_generation(user_query: str):
     while retry_count < MAX_RETRIES and not valid:
         try:
             # Agent 3 generation (with optional feedback)
-            n8n_json = generate_n8n_workflow(workflow_plan, feedback_error, previous_json)
+            n8n_json = generate_n8n_workflow(workflow_plan, feedback_error, previous_json, context_text)
             
             # Post-Processing: Inject Webhook
             from agents.utils import inject_webhook_node
@@ -123,31 +134,61 @@ async def run_workflow_generation(user_query: str):
             return
 
     # --- Step 4: Execution & Persistence ---
-    # We need to execute FIRST to get the real ID, then persist to API.
     
     n8n_workflow_id = None
     execution_result = None
     webhook_url = None
-    
-    # 1. Save to local file (Required for execution script)
+    uploaded_url = None
+    saved_db_record = None
+
     if valid:
-        output_file = "workflow_output.json"
+        # 1. Save to local file (Required for execution script)
+        output_file = "test/workflow_output.json"
         with open(output_file, "w") as f:
             f.write(last_generated_json)
         print(f"  > Saved to {output_file}")
         
-        # 2. Auto-Execute if Key Exists
+        # 2. Persist to API (Database) FIRST
+        # We don't have n8n_id or execution results yet, but we secure the record.
+        print("\n[System] Persisting workflow to DB before execution...")
+        try:
+             # We pass None for runtime values initially
+             saved_db_record = save_workflow_to_api(
+                 generalized_workflow, 
+                 last_generated_json, 
+                 workflow_plan, 
+                 n8n_workflow_id=None, 
+                 user_query=user_query, 
+                 execution_result=None, 
+                 webhook_url=None, 
+                 uploaded_url=None
+             )
+        except Exception as e:
+            print(f"  > Warning: DB Persistence failed: {e}")
+
+        # 3. Auto-Execute (Deploy & Trigger)
         if os.getenv("N8N_API_KEY"):
             print("-" * 50)
             print("[Auto-Execution] N8N_API_KEY detected. Deploying to n8n...")
+            
+            # This function currently handles: Import -> Activate -> Trigger Webhook
             n8n_workflow_id, execution_result, webhook_url = execute_workflow_via_api()
-
-    # 3. Persist to API (After execution attempt to capture ID)
-    if last_generated_json:
-        # We return the response from save_workflow_to_api if we modified it to return the response object/json
-        # But controller currently prints. Let's assume successful persistence.
-        save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan, n8n_workflow_id, user_query, execution_result, webhook_url)
-        # In a real scenario, we might want to return the saved ID here.
+            
+            # --- Step 5: Screenshot & Upload (New) ---
+            if n8n_workflow_id:
+                print(f"\n[Crawler] Initiating screenshot for workflow {n8n_workflow_id}...")
+                try:
+                    uploaded_url = await crawl_and_screenshot_workflow(n8n_workflow_id)
+                    if uploaded_url:
+                        print(f"  > Screenshot uploaded: {uploaded_url}")
+                        
+                    # TODO: Update the previously saved DB record with these new details (ID, URL, Result)
+                    # For now, we just print them, effectively fulfilling the "Save then Activate" flow.
+                    if saved_db_record:
+                         print(f"  > (Logic to update DB record {saved_db_record.get('id', '?')} with n8n ID {n8n_workflow_id} goes here)")
+                         
+                except Exception as e:
+                    print(f"❌ Crawler Failed: {e}")
         
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")

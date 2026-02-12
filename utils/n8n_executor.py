@@ -19,7 +19,7 @@ def execute_workflow_via_api():
         print("Please create an API Key in n8n (Settings > Public API) and add it to .env")
         return None, None, None
 
-    workflow_file = "workflow_output.json"
+    workflow_file = "test/workflow_output.json"
     if not os.path.exists(workflow_file):
         print(f"❌ Error: {workflow_file} not found. Run main.py first.")
         print(f"❌ Error: {workflow_file} not found. Run main.py first.")

@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import pdf_parser, whatsapp, email, google_calendar, workflow
+from controllers import pdf_parser, whatsapp, email, google_calendar, workflow, storage
+
+from services.firebase_service import initialize_firebase
 
 def create_app() -> FastAPI:
+    initialize_firebase()
+
     app = FastAPI(
         title="DerivHack Workflow API",
         description="Microservices API for n8n workflow automation",
@@ -23,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(whatsapp.router, prefix="/api/whatsapp", tags=["WhatsApp"])
     app.include_router(email.router, prefix="/api/email", tags=["Email"])
     app.include_router(google_calendar.router, prefix="/api/calendar", tags=["Google Calendar"])
+    app.include_router(storage.router, prefix="/api/storage", tags=["Storage"])
     app.include_router(workflow.router, prefix="", tags=["Workflow"]) # Prefix is empty because endpoint is /generate-workflow
 
     @app.get("/")
@@ -36,7 +41,9 @@ def create_app() -> FastAPI:
                 "pdf_parser": "/api/parse-pdf",
                 "whatsapp": "/api/whatsapp/send",
                 "email": "/api/email/send",
-                "google_calendar": "/api/calendar/create"
+                "email": "/api/email/send",
+                "google_calendar": "/api/calendar/create",
+                "storage": "/api/storage/upload"
             }
         }
 

@@ -19,7 +19,7 @@ SUPABASE_CREDENTIAL_ID = os.getenv("SUPABASE_CREDENTIAL_ID", "uY4ILzHGf3nsKJXd")
 # Using a standard, available model
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
 
-def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = None, previous_json: str = None) -> str:
+def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = None, previous_json: str = None, context_text: str = "") -> str:
     """
     Agent 3: Generates the actual n8n JSON code based on the WorkflowPlan.
     """
@@ -47,6 +47,9 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
         
         Workflow Plan:
         {workflow_plan}
+        
+        Documentation Context (USE THIS FOR NODE STRUCTURES):
+        {context_text}
         
         Rules:
         1. Produce ONLY the JSON output. Do not wrap in markdown blocks like ```json ... ```.
@@ -81,6 +84,10 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
            - **Text**: Use "N/A" or a placeholder if not specified.
            - **Numbers**: Use 0 if not specified.
            - **UUIDs/FKs**: If a Foreign Key is required and not available, you might fail, but try to infer or use a placeholder if appropriate context exists.
+           
+        **DOCUMENTATION OVERRIDE**:
+        - If the `Documentation Context` contains a JSON structure for a specific capability (e.g., WhatsApp, Email), you **MUST** use that structure exactly as provided.
+        - **WhatsApp**: If sending via WhatsApp, use the node type and parameters defined in the context.
         
         Example Supabase Node Config (Mental Model V1 - Legacy):
         - Operation: getAll
@@ -166,7 +173,8 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
             "schema": SCHEMA_DEFINITION,
             "feedback_context": feedback_context,
             "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
-            "current_date": datetime.now().strftime("%Y-%m-%d")
+            "current_date": datetime.now().strftime("%Y-%m-%d"),
+            "context_text": context_text
         })
         
         # Cleanup markdown formatting if presential markdown wrapping

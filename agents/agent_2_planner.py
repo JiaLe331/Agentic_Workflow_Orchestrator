@@ -74,6 +74,10 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         - Example: If inputs has `values={{{{'status': 'active'}}}}`, then `parameters.data` MUST be `{{{{'status': 'active'}}}}`.
         - Do NOT default to `{{input.field}}` if a specific value is provided in `generalized_workflow.values`.
         
+        **EXTERNAL INPUTS (additional_inputs)**:
+        - If `generalized_workflow.additional_inputs` contains values (e.g. 'whatsapp_number', 'email_subject'), you **MUST** use them in usage nodes.
+        - Example: If `additional_inputs` has {{'whatsapp_number': '12345'}}, the WhatsApp node `parameters` MUST use '12345' (or map it).
+        
         Example Parameter Output:
         {{
           "query_spec": {{

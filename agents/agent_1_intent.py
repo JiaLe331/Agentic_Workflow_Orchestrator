@@ -36,8 +36,10 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
         3. Determine the 'operation' (READ, CREATE, UPDATE, DELETE).
         4. Extract 'filters'.
         5. Suggest 'ui_type' and 'data_type_display'.
-        6. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them into the 'values' dictionary.
-           - Example: "Change name to X" -> values: {{"name": "X"}}
+        6. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them:
+           - **DB COLUMNS**: If the value corresponds to a column in the `target_table` (e.g. "Change status to active"), put it in `values`.
+           - **EXTERNAL INPUTS**: If the value is NOT in the schema (e.g. "Send to 0123456789", "Subject: Hello"), put it in `additional_inputs`.
+           - Example: "Send to whatsapp 12345" -> additional_inputs: {{"whatsapp_number": "12345"}}
         7. **SELECT DOCS**: Identify which table(s) are involved and list their corresponding doc filenames in 'required_docs'.
            - Available docs: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md, whatsapp.md]
            - Example: If targeting 'employee' table -> required_docs: ["employee.md"]
