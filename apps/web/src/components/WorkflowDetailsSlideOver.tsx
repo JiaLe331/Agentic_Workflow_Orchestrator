@@ -201,26 +201,22 @@ export function WorkflowDetailsSlideOver({
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            {/* Description */}
+                            <div className='py-3'>
+                                <p className="text-gray-500 dark:text-gray-300 leading-relaxed text-base">
+                                    {workflow.description || 'No description provided.'}
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-4">
                                 <span className={cn(
                                     "px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide",
                                     workflow.uiType ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : "bg-gray-100 text-gray-600"
                                 )}>
                                     {workflow.uiType || 'No UI Type'}
                                 </span>
-                                <span>•</span>
-                                <span>Updated {formatTimeAgo(workflow.updatedAt)}</span>
+                                <span className='text-xs text-gray-400/80'>Updated {formatTimeAgo(workflow.updatedAt)}</span>
                             </div>
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                                Description
-                            </h3>
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base bg-gray-50 p-5 rounded-xl border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700/50">
-                                {workflow.description || 'No description provided.'}
-                            </p>
                         </div>
 
                         {/* Tables Involved */}

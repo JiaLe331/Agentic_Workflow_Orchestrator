@@ -2,38 +2,29 @@
 
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { AgentVisualization } from "@/components/AgentVisualization";
-import { useWorkflows } from "@/hooks/use-workflows";
+import { useLiveStatus } from "@/context/LiveStatusContext";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const router = useRouter();
 
-  const { generate } = useWorkflows();
+  const {
+    generateAgent,
+    isGenerating,
+    isOpen,
+  } = useLiveStatus();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    setIsGenerating(true);
-
-    try {
-      generate(prompt);
-    } catch (e) {
-      console.error(e);
-      setIsGenerating(false);
-    }
-  };
-
-  const handleVisualizationComplete = () => {
-    // Redirect to collections once the visualization animation is done
-    router.push("/collections");
+    await generateAgent(prompt);
   };
 
   return (
     <div className="flex h-full flex-col items-center justify-center p-8">
-      {!isGenerating && (
+
+      {/* Global LiveWorkflowStatus is rendered in layout */}
+
+      {!isGenerating && !isOpen && (
         <div className="w-full max-w-2xl text-center">
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl">
             What agent do you want to build?
@@ -87,10 +78,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      )}
-
-      {isGenerating && (
-        <AgentVisualization onComplete={handleVisualizationComplete} />
       )}
     </div>
   );
