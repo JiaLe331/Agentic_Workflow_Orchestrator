@@ -26,6 +26,10 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         
         Reference Schema (DB Definition):
         {schema}
+
+        **MANDATORY DATABASE POLICY: SUPABASE ONLY**
+        - You MUST use SUPABASE for all persistence.
+        - No other database (MySQL, SQLite, etc.) is permitted.
         
         Examples / Context:
         {context_text}

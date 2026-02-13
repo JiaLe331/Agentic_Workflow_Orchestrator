@@ -57,8 +57,8 @@ class TemplatedEmailRequest(BaseModel):
 
 class EmailResponse(BaseModel):
     success: bool
-    message_id: Optional[str] = None
-    to: Optional[str] = None
+    output: Optional[str] = None # message_id
+    metadata: Optional[dict] = None
     error: Optional[str] = None
 
 
@@ -168,10 +168,14 @@ async def send_email(request: EmailRequest, x_api_key: Optional[str] = Header(No
         # Send
         message_id = send_via_smtp(msg)
 
-        return EmailResponse(success=True, message_id=message_id, to=request.to)
+        return EmailResponse(
+            success=True, 
+            output=message_id,
+            metadata={"to": request.to}
+        )
 
     except Exception as e:
-        return EmailResponse(success=False, to=request.to, error=str(e))
+        return EmailResponse(success=False, output=None, error=str(e), metadata={"to": request.to})
 
 
 @router.post("/send-templated", response_model=EmailResponse)
@@ -209,9 +213,13 @@ async def send_templated_email(request: TemplatedEmailRequest, x_api_key: Option
 
     try:
         message_id = send_via_smtp(msg)
-        return EmailResponse(success=True, message_id=message_id, to=request.to)
+        return EmailResponse(
+            success=True, 
+            output=message_id,
+            metadata={"to": request.to}
+        )
     except Exception as e:
-        return EmailResponse(success=False, to=request.to, error=str(e))
+        return EmailResponse(success=False, output=None, error=str(e), metadata={"to": request.to})
 
 
 @router.get("/health")

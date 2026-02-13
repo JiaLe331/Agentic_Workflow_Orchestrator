@@ -35,15 +35,34 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
         2. Identify the 'target_table' best fitting the request.
         3. Determine the 'operation' (READ, CREATE, UPDATE, DELETE).
         4. Extract 'filters'.
+
         5. Suggest 'ui_type' and 'data_type_display'.
-        6. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them:
+        6. **GENERATE TITLE**: Create a very minimal `title` (3-5 words) that captures the core action and object. e.g. "Send Email Summary", "Parse PDF Invoice".
+        7. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them:
            - **DB COLUMNS**: If the value corresponds to a column in the `target_table` (e.g. "Change status to active"), put it in `values`.
            - **EXTERNAL INPUTS**: If the value is NOT in the schema (e.g. "Send to 0123456789", "Subject: Hello"), put it in `additional_inputs`.
-           - Example: "Send to whatsapp 12345" -> additional_inputs: {{"whatsapp_number": "12345"}}
-        7. **SELECT DOCS**: Identify which table(s) are involved and list their corresponding doc filenames in 'required_docs'.
-           - Available docs: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md, whatsapp.md]
-           - Example: If targeting 'employee' table -> required_docs: ["employee.md"]
-           - **WHATSAPP**: If the user wants to send a WhatsApp message, you MUST include "whatsapp.md".
+           - Example: "Send to whatsapp 12345" -> additional_inputs: {{ "whatsapp_number": "12345" }}
+           - Example: "Email bob@example.com" -> additional_inputs: {{ "email_to": "bob@example.com", "email_subject": "Notification" }}
+        8. **SELECT DOCS**: Identify which docs are needed. Add them to 'required_docs'.
+        
+           **CATEGORY A: ENTITIES (Database Tables)**
+           - Available: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md]
+           - **RULE**: If you select ANY of these, you **MUST** also include "database.md".
+           - Example: Target 'employee' -> ["employee.md", "database.md"]
+
+           **CATEGORY B: TOOLS (External Actions)**
+           - Available: [whatsapp.md, email_tool.md, llm_tool.md, pdf_reader_tool.md, upload_file_tool.md]
+           - **WHATSAPP**: Use "whatsapp.md" for WhatsApp messages.
+           - **EMAIL**: Use "email_tool.md" for sending emails.
+           - **LLM/AI**: Use "llm_tool.md" for AI/Intelligence/Summarization.
+           - **PDF**: Use "pdf_reader_tool.md" for parsing PDF files.
+           - **UPLOAD**: Use "upload_file_tool.md" for generic file uploads.
+
+           **CATEGORY C: CONNECTORS (Bridging Tools)**
+           - Available: [node_connectors/pdf-to-llm.md, node_connectors/upload-file-to-pdf.md, node_connectors/llm-to-email.md]
+           - **PDF + LLM**: If `pdf_reader_tool.md` AND `llm_tool.md` are used -> Add "node_connectors/pdf-to-llm.md".
+           - **PDF UPLOAD**: If `pdf_reader_tool.md` is to be used with a file upload -> Add "node_connectors/upload-file-to-pdf.md".
+           - **LLM + EMAIL**: If `llm_tool.md` AND `email_tool.md` are used -> Add "node_connectors/llm-to-email.md".
         
         Request: {user_input}
         

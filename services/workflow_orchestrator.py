@@ -13,8 +13,9 @@ from services.workflow_persistence import save_workflow_to_api
 from utils.n8n_executor import import_workflow, activate_workflow, trigger_webhook
 from utils.n8n_crawler import crawl_and_screenshot_workflow
 from utils.validators import validate_phone_number
+from services.websocket_manager import manager
 
-async def run_workflow_generation(user_query: str):
+async def run_workflow_generation(user_query: str, client_id: str = None):
     """
     Orchestrates the workflow generation process.
     Returns the saved workflow result (dict) or None if failed.
@@ -31,12 +32,25 @@ async def run_workflow_generation(user_query: str):
         
         # --- DISRUPTOR CHECK ---
         if generalized_workflow.validation_error:
-            print(f"\n❌ DISRUPTOR TRIGGERED: Schema Validation Failed")
-            print(f"   Reason: {generalized_workflow.validation_error}")
-            print("   > Aborting workflow generation.")
+            msg = f"❌ DISRUPTOR TRIGGERED: Schema Validation Failed\n   Reason: {generalized_workflow.validation_error}"
+            print(msg)
+            if client_id: await manager.send_message(client_id, {"type": "log", "data": msg})
             return
             
         print(f"  > Intent: {generalized_workflow.intent}")
+        if client_id: 
+            await manager.send_message(client_id, {
+                "type": "step", 
+                "status": "intent_analyzed", 
+                "data": {
+                    "intent": generalized_workflow.intent, 
+                    "title": generalized_workflow.title, 
+                    "operation": generalized_workflow.operation,
+                    "target_table": generalized_workflow.target_table
+                }
+            })
+
+        print(f"  > Title: {generalized_workflow.title}")
         print(f"  > Target Table: {generalized_workflow.target_table}")
         print(f"  > Operation: {generalized_workflow.operation}")
         if generalized_workflow.additional_inputs:
@@ -47,14 +61,18 @@ async def run_workflow_generation(user_query: str):
                 generalized_workflow.additional_inputs["whatsapp_number"] = validated_phone
                 print(f"  > Validated Phone: {validated_phone}")
             
-            print(f"  > Additional Inputs: {generalized_workflow.additional_inputs}")
+            print(f"  > Additional Inputs: {generalized_workflow.additional_inputs}")   
     except Exception as e:
         print(f"Agent 1 Failed: {e}")
         return
 
     # --- Step 2: Context Loading ---
     print("\n[System] Loading Context Docs...")
+    if client_id: await manager.send_message(client_id, {"type": "log", "data": "[System] Loading Context Docs..."})
     context_text = ""
+    if generalized_workflow.required_docs is None:
+        generalized_workflow.required_docs = []
+    
     if generalized_workflow.required_docs:
         print(f"  > Required Docs: {generalized_workflow.required_docs}")
         for doc_name in generalized_workflow.required_docs:
@@ -74,6 +92,16 @@ async def run_workflow_generation(user_query: str):
         # Run synchronous agent in threadpool
         workflow_plan = await run_in_threadpool(plan_workflow, generalized_workflow, context_text)
         print(f"  > Generated {len(workflow_plan.nodes)} workflow nodes.")
+        if client_id:
+             await manager.send_message(client_id, {
+                "type": "step", 
+                "status": "planned", 
+                "data": {
+                    "node_count": len(workflow_plan.nodes),
+                    "nodes": [n.dict() for n in workflow_plan.nodes]
+                }
+            })
+
         for node in workflow_plan.nodes:
             print(f"    - [{node.id}] {node.function}: {node.description}")
     except Exception as e:
@@ -82,6 +110,7 @@ async def run_workflow_generation(user_query: str):
 
     # --- Step 4: Agent 3 (n8n Generator) ---
     print("\n[Agent 3] Generating n8n JSON Code...")
+    if client_id: await manager.send_message(client_id, {"type": "log", "data": "[Agent 3] Generating n8n JSON Code..."})
     MAX_RETRIES = 3
     retry_count = 0
     valid = False
@@ -118,7 +147,7 @@ async def run_workflow_generation(user_query: str):
                 print(f"   Reason: {cvf}")
                 print("   > Aborting workflow generation immediately.")
                 # Save what we have before returning.
-                save_workflow_to_api(generalized_workflow, last_generated_json)
+                save_workflow_to_api(generalized_workflow, last_generated_json, custom_title=generalized_workflow.title, custom_description=generalized_workflow.intent)
                 return 
             except Exception as ve:
                 print(f"  > Validation Failed: {ve}")
@@ -135,7 +164,7 @@ async def run_workflow_generation(user_query: str):
             print(f"Agent 3 Failed: {e}")
             # If agent 3 fails hard, we might not have json.
             if last_generated_json:
-                 save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan)
+                 save_workflow_to_api(generalized_workflow, last_generated_json, workflow_plan, custom_title=generalized_workflow.title, custom_description=generalized_workflow.intent)
             return
 
     # --- Step 4: Execution & Persistence ---
@@ -159,6 +188,8 @@ async def run_workflow_generation(user_query: str):
             f.write(last_generated_json)
         print(f"  > Saved to {output_file}")
         
+        if client_id: await manager.send_message(client_id, {"type": "step", "status": "generated", "data": {"json_length": len(last_generated_json)}})
+
         if os.getenv("N8N_API_KEY"):
             print("-" * 50)
             print("[Orchestrator] Starting Sequential Deployment...")
@@ -167,6 +198,7 @@ async def run_workflow_generation(user_query: str):
             # Run blocking import in threadpool
             new_workflow = await run_in_threadpool(import_workflow, workflow_json_obj)
             if new_workflow:
+                if client_id: await manager.send_message(client_id, {"type": "log", "data": "Imported to n8n..."})
                 n8n_workflow_id = new_workflow['id']
                 
                 # 3. Crawl & Screenshot (Get Image URL)
@@ -175,6 +207,7 @@ async def run_workflow_generation(user_query: str):
                     uploaded_url = await crawl_and_screenshot_workflow(n8n_workflow_id)
                     if uploaded_url:
                          print(f"  > Screenshot uploaded: {uploaded_url}")
+                         if client_id: await manager.send_message(client_id, {"type": "step", "status": "screenshot", "data": {"url": uploaded_url}})
                 except Exception as e:
                     print(f"❌ Crawler Failed: {e}")
 
@@ -191,7 +224,9 @@ async def run_workflow_generation(user_query: str):
                          user_prompt=user_query, 
                          execution_result=None, # Not executed yet
                          webhook_url=None,      # Not triggered yet (though predictable)
-                         image_url=uploaded_url
+                         image_url=uploaded_url,
+                         custom_title=generalized_workflow.title,
+                         custom_description=generalized_workflow.intent
                      )
                 except Exception as e:
                     print(f"  > Warning: DB Persistence failed: {e}")
@@ -211,7 +246,13 @@ async def run_workflow_generation(user_query: str):
                 # or just log it. 
                 if execution_result:
                      print(f"[Orchestrator] Execution finished. Result obtained.")
+                     if client_id: 
+                         await manager.send_message(client_id, {"type": "step", "status": "executed", "data": {"result": execution_result}})
                      # TODO: Update DB with execution result
+                
+                # Signal completion for auto-redirect regardless of execution success
+                if client_id:
+                     await manager.send_message(client_id, {"type": "complete", "data": "Workflow generation process finished."})
     
     print("\n" + "=" * 50)
     print("Workflow Construction Complete")

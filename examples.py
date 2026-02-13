@@ -8,3 +8,5 @@
 # python main.py --query "find all invoices where status is paid and total is greater than 1000"g
 
 #python main.py --query "can you insert a new employee called Li Man Jie with nationality of uganda and male"
+
+# python main.py --query "send all the employee emails to my email address lijiebiz@gmail.com in a single list"

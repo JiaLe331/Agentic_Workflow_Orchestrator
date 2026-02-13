@@ -47,9 +47,8 @@ class WhatsAppMessage(BaseModel):
 class WhatsAppResponse(BaseModel):
     """Response model for WhatsApp send"""
     success: bool
-    message_sid: Optional[str] = None
-    status: Optional[str] = None
-    to: str
+    output: Optional[str] = None # message_sid
+    metadata: Optional[dict] = None
     error: Optional[str] = None
 
 
@@ -128,9 +127,11 @@ async def send_whatsapp_message(
     ```json
     {
         "success": true,
-        "message_sid": "SM1234567890abcdef",
-        "status": "queued",
-        "to": "+60123456789"
+        "output": "SM1234567890abcdef",
+        "metadata": {
+            "status": "queued",
+            "to": "+60123456789"
+        }
     }
     ```
     """
@@ -174,17 +175,19 @@ async def send_whatsapp_message(
         # Return response
         return WhatsAppResponse(
             success=True,
-            message_sid=message.sid,
-            status=message.status,
-            to=request.to
+            output=message.sid,
+            metadata={
+                "status": message.status,
+                "to": request.to
+            }
         )
     
     except Exception as e:
         # Return error response
         return WhatsAppResponse(
             success=False,
-            to=request.to,
-            error=str(e)
+            error=str(e),
+            metadata={"to": request.to}
         )
 
 

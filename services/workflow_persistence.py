@@ -2,7 +2,7 @@ import requests
 import json
 from agents.models import GeneralizedWorkflow, WorkflowPlan
 
-def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None, webhook_url: str = None, image_url: str = None):
+def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None, webhook_url: str = None, image_url: str = None, custom_title: str = None, custom_description: str = None):
     """
     Saves the generated workflow to the backend API.
     """
@@ -24,9 +24,12 @@ def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: st
     except:
         nodes_json_obj = {}
         
+    final_title = custom_title if custom_title else generalized_workflow.intent
+    final_description = custom_description if custom_description else f"Operation: {generalized_workflow.operation} on {generalized_workflow.target_table}"
+
     payload = {
-        "title": generalized_workflow.intent,
-        "description": f"Operation: {generalized_workflow.operation} on {generalized_workflow.target_table}",
+        "title": final_title,
+        "description": final_description,
         "tablesInvolved": [generalized_workflow.target_table] if generalized_workflow.target_table else [],
         "uiType": generalized_workflow.ui_type if generalized_workflow.ui_type else "dashboard",
         "uiCode": "", # Placeholder

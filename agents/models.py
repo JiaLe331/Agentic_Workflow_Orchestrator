@@ -8,6 +8,7 @@ class GeneralizedWorkflow(BaseModel):
     Represents the user's high-level intent mapped to the schema.
     """
     intent: str = Field(..., description="A concise summary of what the user wants to achieve.")
+    title: str = Field(..., description="A very minimal title (3-5 words) for the workflow. e.g. 'Parse PDF Invoice', 'Send Email Summary'.")
     target_table: Optional[str] = Field(None, description="The primary database table involved, if any.")
     operation: str = Field(..., description="The type of operation: e.g., 'READ', 'CREATE', 'UPDATE', 'DELETE', 'ANALYZE'.")
     fields: List[str] = Field(default_factory=list, description="List of specific fields or columns involved.")

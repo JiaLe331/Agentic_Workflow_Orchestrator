@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import pdf_parser, whatsapp, email, google_calendar, workflow, storage
+from controllers import pdf_parser, whatsapp, email, google_calendar, workflow, storage, llm, ws
 
 from services.firebase_service import initialize_firebase
 
@@ -26,9 +26,11 @@ def create_app() -> FastAPI:
     app.include_router(pdf_parser.router, prefix="/api", tags=["PDF Parser"])
     app.include_router(whatsapp.router, prefix="/api/whatsapp", tags=["WhatsApp"])
     app.include_router(email.router, prefix="/api/email", tags=["Email"])
+    app.include_router(llm.router, prefix="/api/llm", tags=["LLM"])
     app.include_router(google_calendar.router, prefix="/api/calendar", tags=["Google Calendar"])
     app.include_router(storage.router, prefix="/api/storage", tags=["Storage"])
     app.include_router(workflow.router, prefix="", tags=["Workflow"]) # Prefix is empty because endpoint is /generate-workflow
+    app.include_router(ws.router, prefix="", tags=["WebSocket"])
 
     @app.get("/")
     async def root():

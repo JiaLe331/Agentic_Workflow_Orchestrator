@@ -15,6 +15,7 @@ import os
 # found the internal ID for "Supabase account 3"
 # please refer to the notes.md
 SUPABASE_CREDENTIAL_ID = os.getenv("SUPABASE_CREDENTIAL_ID", "uY4ILzHGf3nsKJXd")
+API_KEY_CREDENTIAL_ID = os.getenv("API_KEY_CREDENTIAL_ID", "")
 
 # Using a standard, available model
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
@@ -67,7 +68,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
         4. **Node Type Mapping**:
            - `manual_trigger` -> `n8n-nodes-base.manualTrigger` (trigger node).
            - `display_results` -> `n8n-nodes-base.noOp` (No Operation node, matches user preference).
-           - Database Nodes -> `n8n-nodes-base.supabase`.
+           - Database Nodes -> `n8n-nodes-base.supabase` only.
         4. **Node Versions**:
            - **Supabase**: Use `"typeVersion": 1` (Compatible with user's environment).
            - **NoOp**: Use `"typeVersion": 1`.
@@ -157,6 +158,11 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
            - If the plan says "today", use the current date provided below:
              Current Date: {current_date}
        
+        8. **JSON Body Escaping (CRITICAL)**:
+           - When constructing `jsonBody` (e.g. for Email or LLM nodes), you MUST usage `JSON.stringify()` for any dynamic string variable to ensure safe escaping of quotes and extensive content.
+           - **INCORRECT**: `"html": "{{ $json.response }}"`
+           - **CORRECT**: `"html": {{ JSON.stringify($json.response) }}`
+        
         IMPORTANT: Do NOT include the actual sensitive credential data values in the output. 
         Just include the reference id "{supabase_credential_id}". 
         The top-level "credentials" array can be empty or omitted.
@@ -173,6 +179,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
             "schema": SCHEMA_DEFINITION,
             "feedback_context": feedback_context,
             "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
+            "api_key_credential_id": API_KEY_CREDENTIAL_ID,
             "current_date": datetime.now().strftime("%Y-%m-%d"),
             "context_text": context_text
         })

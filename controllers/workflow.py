@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from services.workflow_orchestrator import run_workflow_generation
 
@@ -6,18 +6,16 @@ router = APIRouter()
 
 class WorkflowRequest(BaseModel):
     prompt: str
+    client_id: str = None
 
 @router.post("/generate-workflow")
-async def generate_workflow(request: WorkflowRequest):
-    print(f"[API] Received prompt: {request.prompt}")
+async def generate_workflow(request: WorkflowRequest, background_tasks: BackgroundTasks):
+    print(f"[API] Received prompt: {request.prompt} Client ID: {request.client_id}")
     try:
-        # run_workflow_generation is async
-        result = await run_workflow_generation(request.prompt)
+        # Enqueue the long-running task
+        background_tasks.add_task(run_workflow_generation, request.prompt, request.client_id)
         
-        if result:
-            return {"status": "success", "message": "Workflow generated and saved successfully."}
-        else:
-            raise HTTPException(status_code=500, detail="Workflow generation failed internal check.")
+        return {"status": "accepted", "message": "Workflow generation started in background."}
             
     except Exception as e:
         print(f"[API] Error: {e}")
