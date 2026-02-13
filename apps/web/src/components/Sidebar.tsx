@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { Library, Settings, Bot } from "lucide-react";
+import { Library, Settings, Bot, TrendingUp, Package, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: Bot },
+    { name: "Sales", href: "/sales", icon: TrendingUp },
+    { name: "Products", href: "/products", icon: Package },
+    { name: "Employees", href: "/employees", icon: Users },
     { name: "Collections", href: "/collections", icon: Library },
     { name: "Settings", href: "#", icon: Settings },
 ];
