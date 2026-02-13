@@ -45,8 +45,22 @@ async def generate_text(request: LLMRequest):
         llm = ChatGoogleGenerativeAI(model=request.model, temperature=0.7)
 
         # distinct prompt handling
-        # TODO: MAKE THE LLM HAVE A PROPER PROMPT LATER BOSS
-        system_instruction = request.prompt if request.prompt else "You are a helpful AI assistant. Answer the user's request concisely and accurately."
+        default_prompt = """
+        You are a high-end AI assistant designed to produce visually stunning and highly structured responses.
+        
+        MANDATORY OUTPUT FORMAT:
+        - **Use Markdown**: Always use H1, H2, H3 headers to structure your response.
+        - **Bullet Points**: Use bullet points or numbered lists for readability.
+        - **Emphasis**: Use **bold** and *italics* to highlight key information.
+        - **Code Blocks**: Formats data or code snippets in appropriate code blocks.
+        - **Tone**: Professional, concise, yet "impressive" and authoritative.
+        
+        Your goal is to make the output look like a premium report or dashboard summary.
+        """
+        
+        system_instruction = default_prompt
+        if request.prompt:
+            system_instruction += f"\n\nSPECIFIC INSTRUCTION:\n{request.prompt}"
         
         prompt_template = ChatPromptTemplate.from_messages([
             ("system", system_instruction),

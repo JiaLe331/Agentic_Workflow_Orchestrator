@@ -1,6 +1,15 @@
 from typing import List, Optional, Any, Dict
 from pydantic import BaseModel, Field
 
+# --- Agent 0 Models ---
+
+class SafetyGuardResponse(BaseModel):
+    """
+    Output from the Safety Guard Agent.
+    """
+    is_safe: bool = Field(..., description="True if the user request is safe to process, False otherwise.")
+    reason: Optional[str] = Field(None, description="Explanation why the request is unsafe (if applicable).")
+
 # --- Agent 1 Models ---
 
 class GeneralizedWorkflow(BaseModel):
@@ -19,6 +28,7 @@ class GeneralizedWorkflow(BaseModel):
     values: Dict[str, Any] = Field(default_factory=dict, description="Explicit values to be used for CREATE or UPDATE operations (e.g. {'status': 'active'}). extract from user query.")
     additional_inputs: Dict[str, Any] = Field(default_factory=dict, description="Values provided by the user that are NOT filters or DB columns (e.g., 'destination_phone', 'alert_threshold', 'email_subject').")
     required_docs: List[str] = Field(default_factory=list, description="List of documentation filenames required for this context (e.g. ['employee.md', 'pay_roll.md']).")
+    tables_involved: List[str] = Field(default_factory=list, description="List of ALL tables (entities) and TOOLS involved. e.g. ['employee', 'salary', 'email_tool', 'whatsapp'].")
 
 
 # --- Agent 2 Models ---

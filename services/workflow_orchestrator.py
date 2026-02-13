@@ -5,6 +5,7 @@ load_dotenv()
 
 from fastapi.concurrency import run_in_threadpool
 
+from agents.agent_0_guard import check_safety
 from agents.agent_1_intent import process_intent
 from agents.agent_2_planner import plan_workflow
 
@@ -23,6 +24,30 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
     print("-" * 50)
     print(f"USER REQUEST: {user_query}")
     print("-" * 50)
+
+    # --- Step 0: Agent 0 (Guard) ---
+    print("\n[Agent 0] Checking Safety...")
+    if client_id: await manager.send_message(client_id, {"type": "log", "data": "[Agent 0] Checking Safety..."})
+    
+    try:
+        safety_response = await run_in_threadpool(check_safety, user_query)
+        
+        if not safety_response.is_safe:
+            msg = f"❌ BLOCKED: Unsafe Request Detected\n   Reason: {safety_response.reason}"
+            print(msg)
+            if client_id: 
+                await manager.send_message(client_id, {"type": "log", "data": msg})
+                await manager.send_message(client_id, {"type": "complete", "data": "Request blocked by safety guard."})
+            return None
+            
+        print("  > Request is Safe. Proceeding...")
+        if client_id: await manager.send_message(client_id, {"type": "log", "data": "  > Request is Safe. Proceeding..."})
+
+    except Exception as e:
+        print(f"Agent 0 Failed: {e}")
+        # Decide here: Fail open or closed? 
+        # For now, let's log and proceed, assuming it's an API error, but maybe warn.
+        print("  > Warning: Guard check failed, proceeding with caution.")
 
     # --- Step 1: Agent 1 (Intent) ---
     print("\n[Agent 1] Analyzing Intent & Schema...")

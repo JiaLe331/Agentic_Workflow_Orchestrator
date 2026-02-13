@@ -29,7 +29,8 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
 
         **MANDATORY DATABASE POLICY: SUPABASE ONLY**
         - You MUST use SUPABASE for all persistence.
-        - No other database (MySQL, SQLite, etc.) is permitted.
+        - **REFER TO `docs/database.md` FOR ALL SYNTAX, FILTERING RULES, AND NODE EXAMPLES.**
+        - The `database.md` file contains the STRICT rules for `eq`, `ilike`, and `getAll` filters. YOU MUST FOLLOW THEM.
         
         Examples / Context:
         {context_text}
@@ -37,16 +38,9 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         CRITICAL RULES:
         1. **DIRECT ACTION**: Simplify the workflow. Do NOT check for existence unless logic requires a branch.
         2. **ID PARSING**: Only separate if necessary.
-        3. **COMPARISON OPERATORS - STRICT ENFORCEMENT**:
-           - **'status' columns**: MUST use 'eq' (exact match). Example: status = 'paid'.
-           - **Text/Name columns**: MUST use 'ilike' (Case-Insensitive) UNLESS user specifies case-sensitive.
-           - **Sub-string search**: Use 'like' (e.g. "%part%").
-        4. **TIMESTAMP EXCLUSION**: Never write to 'created_at' or 'updated_at'.
-        5. **MANDATORY INPUTS**: If a NOT NULL field is missing from user input, mark it as '={{ $json.foo }}' (dynamic input).
-        6. **SCHEMA COMPLIANCE**: 
-           - Reference the Schema for every DB operation.
-           - For `CREATE` (Insert): You MUST include ALL `NOT NULL` columns in the `parameters` -> `data` object.
-           - For `UPDATE`: Identify the row using a Unique Constraint or PK in `filters`.
+        3. **STRICT DB COMPLIANCE**: Follow `docs/database.md` for all node parameters. 
+           - **NEVER** output a `getAll` without filters unless explicitly requested.
+           - **ALWAYS** Use `ilike` for names and `eq` for status/IDs.
         
         MANDATORY STRUCTURE:
         1. **START**: The first node MUST ALWAYS be `manual_trigger`.
@@ -59,20 +53,6 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         - Node 3: `create_record`
         - Node 4: `display_results`
         
-        FOREIGN KEY RULES:
-        - NEVER reference an entity without its UUID.
-        - If you need a Company ID, you must Fetch -> Validate -> Use.
-        
-        PARAMETER STRUCTURE (for DB nodes):
-        When generating a node for Database interactions, the 'parameters' dictionary MUST include a 'query_spec' with:
-        - `table`: "table_name"
-        - `operation`: "select" | "insert" | "update" | "delete"
-        - `columns`: ["field1", "field2"] (for select)
-        - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
-        - `filters`: {{ "column_name": "value" }} (For SELECT/UPDATE)
-        - `data`: {{ "column_name": "value" }} (For INSERT/UPDATE. Must cover all NOT NULL fields!)
-        - **IMPORTANT**: Do NOT include `created_at` or `updated_at` in `data`. They are auto-generated.
-        
         **CRITICAL**: 
         - If `generalized_workflow.values` contains data, you **MUST** use it in the `data` field of the DB node.
         - Example: If inputs has `values={{{{'status': 'active'}}}}`, then `parameters.data` MUST be `{{{{'status': 'active'}}}}`.
@@ -81,16 +61,6 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         **EXTERNAL INPUTS (additional_inputs)**:
         - If `generalized_workflow.additional_inputs` contains values (e.g. 'whatsapp_number', 'email_subject'), you **MUST** use them in usage nodes.
         - Example: If `additional_inputs` has {{'whatsapp_number': '12345'}}, the WhatsApp node `parameters` MUST use '12345' (or map it).
-        
-        Example Parameter Output:
-        {{
-          "query_spec": {{
-             "table": "employee",
-             "operation": "update",
-             "filters": {{ "id": "uuid-1234" }},
-             "data": {{ "role": "manager" }}
-          }}
-        }}
         
         Output valid JSON adhering to the schema.
         

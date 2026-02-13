@@ -63,6 +63,12 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - **PDF + LLM**: If `pdf_reader_tool.md` AND `llm_tool.md` are used -> Add "node_connectors/pdf-to-llm.md".
            - **PDF UPLOAD**: If `pdf_reader_tool.md` is to be used with a file upload -> Add "node_connectors/upload-file-to-pdf.md".
            - **LLM + EMAIL**: If `llm_tool.md` AND `email_tool.md` are used -> Add "node_connectors/llm-to-email.md".
+
+        9. **POPULATE `tables_involved`**:
+           - **MUST** include ALL table names (e.g. "employee", "pay_roll").
+           - **MUST** include ALL tool names (e.g. "email", "whatsapp", "llm", "pdf_parser").
+           - **MIX THEM** into a single list.
+           - Example: ["employee", "pay_roll", "email", "whatsapp"]
         
         Request: {user_input}
         

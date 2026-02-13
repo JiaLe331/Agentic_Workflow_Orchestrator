@@ -30,7 +30,7 @@ def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: st
     payload = {
         "title": final_title,
         "description": final_description,
-        "tablesInvolved": [generalized_workflow.target_table] if generalized_workflow.target_table else [],
+        "tablesInvolved": generalized_workflow.tables_involved if generalized_workflow.tables_involved else ([generalized_workflow.target_table] if generalized_workflow.target_table else []),
         "uiType": generalized_workflow.ui_type if generalized_workflow.ui_type else "dashboard",
         "uiCode": "", # Placeholder
         "workflowUrl": workflow_url,
