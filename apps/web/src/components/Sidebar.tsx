@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Library, Settings, Bot, TrendingUp, Package, Users, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconDeviceLaptop } from "@tabler/icons-react";
@@ -14,33 +17,44 @@ const navigation = [
 ];
 
 export function Sidebar() {
+    const pathname = usePathname();
+
     return (
-        <div className="flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
+        <div className="sticky top-0 flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
             {/* Logo */}
-            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
+            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-md dark:bg-white dark:text-black">
                 <IconDeviceLaptop className="h-6 w-6" />
             </div>
 
             {/* Navigation */}
             <nav className="flex-1 space-y-4 px-2">
-                {navigation.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.href}
-                        className={cn(
-                            "group relative flex h-12 w-12 items-center justify-center rounded-xl text-zinc-500 transition-all hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                        )}
-                    >
-                        <item.icon className="h-6 w-6" />
+                {navigation.map((item) => {
+                    const isActive = item.href === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(item.href);
 
-                        {/* Tooltip */}
-                        <span className="absolute left-16 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
-                            {item.name}
-                            {/* Little triangle pointer for the tooltip */}
-                            <span className="absolute -left-1 top-1/2 -mt-1 h-2 w-2 -rotate-45 bg-zinc-900 dark:bg-white" />
-                        </span>
-                    </Link>
-                ))}
+                    return (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                                "group relative flex h-12 w-12 items-center justify-center rounded-xl transition-all",
+                                isActive
+                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                            )}
+                        >
+                            <item.icon className="h-6 w-6" />
+
+                            {/* Tooltip */}
+                            <span className="absolute left-16 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
+                                {item.name}
+                                {/* Little triangle pointer for the tooltip */}
+                                <span className="absolute -left-1 top-1/2 -mt-1 h-2 w-2 -rotate-45 bg-zinc-900 dark:bg-white" />
+                            </span>
+                        </Link>
+                    );
+                })}
             </nav>
 
             {/* User Profile */}

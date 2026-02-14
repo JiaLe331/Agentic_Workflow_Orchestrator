@@ -97,9 +97,19 @@ export default function ProductsPage() {
                                     key={product.id}
                                     className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-emerald-500 transition-all hover:shadow-xl hover:shadow-emerald-100"
                                 >
-                                    {/* Product Image Placeholder */}
-                                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                        <Package className="text-gray-400" size={64} />
+                                    {/* Product Image */}
+                                    <div className="h-48 bg-gray-100 overflow-hidden relative">
+                                        <img
+                                            src={`https://loremflickr.com/320/240/${product.item_name.split(' - ')[0].trim().toLowerCase()}?lock=${product.id}`}
+                                            alt={product.item_name}
+                                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                e.currentTarget.parentElement!.classList.add('flex', 'items-center', 'justify-center');
+                                                // Create fallback icon element manually or just show text
+                                                e.currentTarget.parentElement!.innerHTML = '<span class="text-gray-400">No Image</span>';
+                                            }}
+                                        />
                                     </div>
 
                                     {/* Product Details */}

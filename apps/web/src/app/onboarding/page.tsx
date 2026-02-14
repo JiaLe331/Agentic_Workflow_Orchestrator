@@ -29,10 +29,10 @@ export default function OnboardingPage() {
             <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                        {candidate.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        {(candidate.full_name || candidate.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                        <h4 className="text-sm font-semibold text-gray-900">{candidate.name}</h4>
+                        <h4 className="text-sm font-semibold text-gray-900">{candidate.full_name || candidate.name}</h4>
                         <p className="text-xs text-gray-500">{candidate.email || 'No email'}</p>
                     </div>
                 </div>
@@ -42,13 +42,11 @@ export default function OnboardingPage() {
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-2">
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-600">
-                        Interview: Stage {candidate.interview_stage || 1}
+                        {candidate.interview_stage === 1 ? 'Screening' :
+                            candidate.interview_stage === 2 ? 'Technical Interview' :
+                                candidate.interview_stage === 3 ? 'Final Interview' :
+                                    `Stage ${candidate.interview_stage}`}
                     </span>
-                    {candidate.filtering && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 text-xs font-medium text-blue-600">
-                            Filtered
-                        </span>
-                    )}
                 </div>
 
                 {/* Footer Info */}
