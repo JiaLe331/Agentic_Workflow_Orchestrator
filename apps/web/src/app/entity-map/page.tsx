@@ -60,9 +60,9 @@ const EntityNode = ({ data }: NodeProps) => {
                         />
                         <div className="flex items-center gap-2">
                             {col.pk && <span className="font-mono text-[10px] text-yellow-600 dark:text-yellow-400">PK</span>}
-                            {col.fk && <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">FK</span>}
+                            {col.fk && <span className="font-mono text-[10px] text-cyan-600 dark:text-cyan-400">FK</span>}
                             <span className="text-zinc-700 dark:text-zinc-300">{col.name}</span>
-                        </div>
+                        </div >
                         <span className="font-mono text-[10px] text-zinc-400">{col.type}</span>
                         <Handle
                             type="source"
@@ -70,10 +70,10 @@ const EntityNode = ({ data }: NodeProps) => {
                             id={`source-${col.name}`}
                             style={{ opacity: 0 }}
                         />
-                    </div>
+                    </div >
                 ))}
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
@@ -89,7 +89,7 @@ export default function EntityMapPage() {
 
         const deptColors: Record<string, string> = {
             HR: "bg-pink-600",
-            Sales: "bg-indigo-600",
+            Sales: "bg-violet-600",
             Finance: "bg-emerald-600"
         };
 
@@ -171,13 +171,13 @@ export default function EntityMapPage() {
                         <span className="block h-3 w-3 rounded-full bg-pink-600"></span> HR
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="block h-3 w-3 rounded-full bg-indigo-600"></span> Sales
-                    </div>
+                        <span className="block h-3 w-3 rounded-full bg-violet-600"></span> Sales
+                    </div >
                     <div className="flex items-center gap-2">
                         <span className="block h-3 w-3 rounded-full bg-emerald-600"></span> Finance
                     </div>
-                </div>
-            </div>
+                </div >
+            </div >
 
             <ReactFlow
                 nodes={nodes}
@@ -188,6 +188,6 @@ export default function EntityMapPage() {
                 <Background color="#71717a" gap={16} size={1} />
                 <Controls />
             </ReactFlow>
-        </div>
+        </div >
     );
 }

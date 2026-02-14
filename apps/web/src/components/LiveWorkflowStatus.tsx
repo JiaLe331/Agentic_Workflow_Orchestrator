@@ -69,7 +69,11 @@ export function LiveWorkflowStatus({
                     <div className="flex items-center gap-2">
                         <div className={`
                             w-2 h-2 rounded-full
+<<<<<<< HEAD
                             ${result ? 'bg-green-500' : 'bg-blue-500 animate-pulse'}
+=======
+                            ${result ? 'bg-green-500' : 'bg-emerald-500 animate-pulse'}
+>>>>>>> f1ba5c8dcbe514b98db99e726855bbc9baa3e294
                         `} />
                         <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
                             {result ? 'Workflow Ready' : 'Building Workflow...'}

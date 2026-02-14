@@ -1,4 +1,4 @@
-import { IconPlayerPlay, IconArrowRight, IconTable, IconBrain, IconMail, IconFileUpload, IconBrandWhatsapp, IconFileTextFilled, IconSquare, IconSquareCheckFilled } from '@tabler/icons-react';
+import { IconPlayerPlay, IconArrowRight, IconTable } from '@tabler/icons-react';
 import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { useState } from 'react';
@@ -9,21 +9,9 @@ interface WorkflowCollectionProps {
     onEdit?: (workflow: Workflow) => void;
     onDelete?: (id: string) => void;
     onRun?: (workflow: Workflow) => void;
-    selectedIds?: Set<string>;
-    onToggleSelect?: (id: string) => void;
 }
 
-const getTableIcon = (tableName: string) => {
-    const lowerName = tableName.toLowerCase();
-    if (lowerName.includes('llm')) return IconBrain;
-    if (lowerName.includes('email')) return IconMail;
-    if (lowerName.includes('file-upload')) return IconFileUpload;
-    if (lowerName.includes('whatsapp')) return IconBrandWhatsapp;
-    if (lowerName.includes('pdf')) return IconFileTextFilled;
-    return IconTable;
-};
-
-export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selectedIds, onToggleSelect }: WorkflowCollectionProps) {
+export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: WorkflowCollectionProps) {
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
 
     if (!workflows || workflows.length === 0) {
@@ -41,28 +29,8 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selecte
                     <div
                         key={workflow.id}
                         onClick={() => setSelectedWorkflow(workflow)}
-                        className={`relative flex flex-col transition-all border shadow-sm rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 hover:-translate-y-1 cursor-pointer overflow-hidden group ${selectedIds?.has(workflow.id)
-                            ? 'border-blue-400 bg-blue-50/50 dark:border-blue-600 ring-2 ring-blue-500/20'
-                            : 'border-gray-200 bg-white/50 hover:bg-white dark:border-gray-700'
-                            }`}
+                        className="relative flex flex-col transition-all border border-gray-200 shadow-sm bg-white/50 hover:bg-white rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 dark:border-gray-700 hover:-translate-y-1 cursor-pointer overflow-hidden group"
                     >
-                        {/* Selection Checkbox */}
-                        {onToggleSelect && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onToggleSelect(workflow.id);
-                                }}
-                                className="absolute top-3 left-3 z-20 p-0.5 rounded-md transition-all hover:scale-110"
-                                title={selectedIds?.has(workflow.id) ? 'Deselect' : 'Select'}
-                            >
-                                {selectedIds?.has(workflow.id) ? (
-                                    <IconSquareCheckFilled size={22} className="text-blue-600 dark:text-blue-400" />
-                                ) : (
-                                    <IconSquare size={22} className="text-gray-300 group-hover:text-gray-400 dark:text-gray-600 dark:group-hover:text-gray-500 transition-colors" />
-                                )}
-                            </button>
-                        )}
                         <div className="relative group/image">
                             {workflow.imageUrl ? (
                                 <div className="h-48 w-full border-b border-gray-100 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
@@ -85,7 +53,7 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selecte
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setSelectedWorkflow(workflow);
+                                    onRun && onRun(workflow);
                                 }}
                                 className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg hover:shadow-xl hover:scale-105 z-10"
                                 title="Run Workflow"
@@ -113,47 +81,17 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selecte
                                 {workflow.description || 'No description provided.'}
                             </p>
 
-                            {/* Tables/Entities Involved - Top Section */}
-                            {(() => {
-                                const toolKeywords = ['llm', 'email', 'whatsapp', 'file-upload', 'pdf'];
-                                const entities = workflow.tablesInvolved?.filter(t => !toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
-                                const tools = workflow.tablesInvolved?.filter(t => toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
-
-                                return (
-                                    (tools.length > 0 || entities.length > 0) && (
-                                        <div className="flex flex-wrap items-center gap-3 mb-4">
-                                            {/* Tools (Circular Icons) */}
-                                            {tools.length > 0 && (
-                                                <div className="flex flex-wrap gap-2">
-                                                    {tools.map((tool) => {
-                                                        const IconComponent = getTableIcon(tool);
-                                                        return (
-                                                            <div
-                                                                key={tool}
-                                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600/50 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm transition-all group/icon relative"
-                                                                title={tool}
-                                                            >
-                                                                <IconComponent size={16} className="opacity-80 group-hover/icon:opacity-100 transition-opacity" />
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                            {/* Entities (Badges) */}
-                                            {entities.length > 0 && (
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {entities.map((entity) => (
-                                                        <div key={entity} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
-                                                            <IconTable size={10} className="mr-1 opacity-70" />
-                                                            {entity}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                            {/* Tables Involved - Middle Section */}
+                            {workflow.tablesInvolved && workflow.tablesInvolved.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mb-4">
+                                    {workflow.tablesInvolved.map((table) => (
+                                        <div key={table} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
+                                            <IconTable size={10} className="mr-1 opacity-70" />
+                                            {table}
                                         </div>
-                                    )
-                                );
-                            })()}
+                                    ))}
+                                </div>
+                            )}
 
                             {/* Add spacer if no tables to maintain consistent vertical rhythm if desired, or let it collapse */}
                             {(!workflow.tablesInvolved || workflow.tablesInvolved.length === 0) && <div className="mb-2" />}
