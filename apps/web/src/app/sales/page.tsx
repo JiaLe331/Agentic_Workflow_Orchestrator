@@ -38,17 +38,17 @@ export default function SalesPage() {
     const chartData = sales.reduce((acc: any[], sale) => {
         const date = new Date(sale.created_at).toLocaleDateString();
         const existing = acc.find(item => item.date === date);
-        const tax = sale.gross_amount - sale.nett_amount;
+        const tax = sale.nett_amount - sale.gross_amount;
 
         if (existing) {
-            existing.revenue += sale.gross_amount;
-            existing.profit += sale.nett_amount;
+            existing.revenue += sale.nett_amount;
+            existing.profit += sale.gross_amount;
             existing.tax += tax;
         } else {
             acc.push({
                 date,
-                revenue: sale.gross_amount,
-                profit: sale.nett_amount,
+                revenue: sale.nett_amount,
+                profit: sale.gross_amount,
                 tax
             });
         }
@@ -57,9 +57,9 @@ export default function SalesPage() {
 
     // Calculate totals for KPI cards
     const totals = sales.reduce((acc, sale) => {
-        acc.revenue += sale.gross_amount;
-        acc.profit += sale.nett_amount;
-        acc.tax += (sale.gross_amount - sale.nett_amount);
+        acc.revenue += sale.nett_amount;
+        acc.profit += sale.gross_amount;
+        acc.tax += (sale.nett_amount - sale.gross_amount);
         return acc;
     }, { revenue: 0, profit: 0, tax: 0 });
 
@@ -159,7 +159,7 @@ export default function SalesPage() {
                                         <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+
                                 <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <Tooltip
@@ -200,7 +200,7 @@ export default function SalesPage() {
                                         <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+
                                 <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <Tooltip
@@ -262,13 +262,13 @@ export default function SalesPage() {
                                                 {sale.unit_number}
                                             </td>
                                             <td className="py-3 px-4 text-sm text-gray-900 text-right font-medium">
-                                                RM {sale.gross_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-600 text-right">
                                                 RM {sale.nett_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </td>
+                                            <td className="py-3 px-4 text-sm text-gray-600 text-right">
+                                                RM {sale.gross_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                                            </td>
                                             <td className="py-3 px-4 text-sm text-purple-600 text-right font-medium">
-                                                RM {(sale.gross_amount - sale.nett_amount).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                                                RM {(sale.nett_amount - sale.gross_amount).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </td>
                                             <td className="py-3 px-4 text-center">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${sale.status === 'paid' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :

@@ -22,9 +22,12 @@ export default function ProductsPage() {
             fetchTopProducts(10)
         ]);
         setProducts(allProducts);
-        setTopProducts(top);
+        // Ensure strictly sorted by sales volume descending
+        setTopProducts(top.sort((a: any, b: any) => b.sales_volume - a.sales_volume));
         setLoading(false);
     };
+
+
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -43,23 +46,28 @@ export default function ProductsPage() {
                     fullWidth
                 >
                     <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={topProducts}>
+                        <BarChart data={topProducts} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
                             <defs>
                                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
                                     <stop offset="95%" stopColor="#059669" stopOpacity={0.6} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                             <XAxis
                                 dataKey="product_name"
+                                tickMargin={14}
+                                axisLine={{ stroke: "#E4E4E7" }}
+                                tick={{ fill: "#71717A", fontSize: 12 }}
+                                tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
+                                interval={0}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
                                 stroke="#94a3b8"
                                 style={{ fontSize: '12px' }}
-                                angle={-45}
-                                textAnchor="end"
-                                height={100}
                             />
-                            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: '#ffffff',
@@ -69,7 +77,7 @@ export default function ProductsPage() {
                                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                 }}
                             />
-                            <Legend />
+                            <Legend wrapperStyle={{ paddingTop: "30px" }} />
                             <Bar dataKey="sales_volume" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
