@@ -62,7 +62,7 @@ const EntityNode = ({ data }: NodeProps) => {
                             {col.pk && <span className="font-mono text-[10px] text-yellow-600 dark:text-yellow-400">PK</span>}
                             {col.fk && <span className="font-mono text-[10px] text-cyan-600 dark:text-cyan-400">FK</span>}
                             <span className="text-zinc-700 dark:text-zinc-300">{col.name}</span>
-                        </div>
+                        </div >
                         <span className="font-mono text-[10px] text-zinc-400">{col.type}</span>
                         <Handle
                             type="source"
@@ -70,10 +70,10 @@ const EntityNode = ({ data }: NodeProps) => {
                             id={`source-${col.name}`}
                             style={{ opacity: 0 }}
                         />
-                    </div>
+                    </div >
                 ))}
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
@@ -172,12 +172,12 @@ export default function EntityMapPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="block h-3 w-3 rounded-full bg-violet-600"></span> Sales
-                    </div>
+                    </div >
                     <div className="flex items-center gap-2">
                         <span className="block h-3 w-3 rounded-full bg-emerald-600"></span> Finance
                     </div>
-                </div>
-            </div>
+                </div >
+            </div >
 
             <ReactFlow
                 nodes={nodes}
@@ -188,6 +188,6 @@ export default function EntityMapPage() {
                 <Background color="#71717a" gap={16} size={1} />
                 <Controls />
             </ReactFlow>
-        </div>
+        </div >
     );
 }

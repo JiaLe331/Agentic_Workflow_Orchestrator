@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { BentoCard } from '@/components/BentoCard';
 import { EmployeeSlideOver } from '@/components/EmployeeSlideOver';
 import { Employee, PayRoll, fetchEmployees, fetchEmployeeById } from '@/lib/supabase';
-import { Users, UserCheck, UserX } from 'lucide-react';
+import { Users, UserCheck, UserX, Banknote } from 'lucide-react';
 
 export default function EmployeesPage() {
     const [employees, setEmployees] = useState<(Employee & { payroll?: PayRoll })[]>([]);
@@ -48,15 +48,30 @@ export default function EmployeesPage() {
     // Calculate stats
     const activeEmployees = employees.filter(emp => emp.payroll).length;
     const totalEmployees = employees.length;
+    const totalSalary = employees.reduce((sum, emp) => sum + (emp.payroll?.total_salary || 0), 0);
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}
-                <div>
-                    <h1 className="text-4xl font-normal text-gray-900 mb-2">Employee Management</h1>
-                    <p className="text-gray-500">Manage employee profiles and payroll information</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-4xl font-normal text-gray-900 mb-2">Employee Management</h1>
+                        <p className="text-gray-500">Manage employee profiles and payroll information</p>
+                    </div>
+
+                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm flex items-center gap-3 min-w-[240px]">
+                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <Banknote className="text-gray-700" size={24} />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 uppercase tracking-wider">Total Salary Issued</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                RM {totalSalary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Stats Cards */}

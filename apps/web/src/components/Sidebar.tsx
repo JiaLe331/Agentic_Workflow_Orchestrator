@@ -2,17 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-    IconDeviceLaptop,
-    IconRobot,
-    IconClipboardList,
-    IconTrendingUp,
-    IconPackage,
-    IconUsers,
-    IconBooks,
-    IconSettings
-} from "@tabler/icons-react";
+import { Library, Bot, TrendingUp, Package, Users, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: IconRobot },
@@ -28,7 +20,7 @@ export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="sticky top-0 flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
+        <div className="sticky top-0 z-50 flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
             {/* Logo */}
             <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-md dark:bg-white dark:text-black">
                 <IconDeviceLaptop className="h-6 w-6" />
@@ -55,7 +47,7 @@ export function Sidebar() {
                             <item.icon className="h-6 w-6" />
 
                             {/* Tooltip */}
-                            <span className="absolute left-16 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
+                            <span className="pointer-events-none select-none absolute left-16 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
                                 {item.name}
                                 {/* Little triangle pointer for the tooltip */}
                                 <span className="absolute -left-1 top-1/2 -mt-1 h-2 w-2 -rotate-45 bg-zinc-900 dark:bg-white" />

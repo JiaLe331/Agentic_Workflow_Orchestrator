@@ -185,7 +185,7 @@ export default function ProductsPage() {
                     <ResponsiveContainer width="100%" height={350}>
                         <BarChart
                             data={topProducts}
-                            margin={{ top: 20, right: 30, left: 0, bottom: 50 }}
+                            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
                         >
                             <defs>
                                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
@@ -224,10 +224,6 @@ export default function ProductsPage() {
                                     marginBottom: '8px'
                                 }}
                             />
-                            <Legend
-                                wrapperStyle={{ paddingTop: '30px' }}
-                                iconType="circle"
-                            />
                             <Bar
                                 dataKey="sales_volume"
                                 fill="url(#barGradient)"
@@ -241,7 +237,7 @@ export default function ProductsPage() {
                 {/* Product Showcase - Horizontal Slide-over Card Gallery */}
                 <div>
                     <h2 className="text-2xl font-medium text-gray-900 mb-4">Product Showcase</h2>
-                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         {loading ? (
                             <div className="text-gray-500">Loading products...</div>
                         ) : products.length === 0 ? (
@@ -281,11 +277,6 @@ export default function ProductsPage() {
                                             <span className="text-2xl font-bold text-emerald-600">
                                                 RM {product.nett_price.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </span>
-                                            {product.gross_price !== product.nett_price && (
-                                                <span className="text-sm text-gray-400 line-through">
-                                                    RM {product.gross_price.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
-                                                </span>
-                                            )}
                                         </div>
 
                                         {/* Stock Status & Details */}
