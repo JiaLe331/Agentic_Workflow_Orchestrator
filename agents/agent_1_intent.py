@@ -40,9 +40,20 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
         6. **GENERATE TITLE**: Create a very minimal `title` (3-5 words) that captures the core action and object. e.g. "Send Email Summary", "Parse PDF Invoice".
         7. **EXTRACT VALUES**: If the user provides specific values, you MUST extract them:
            - **DB COLUMNS**: If the value corresponds to a column in the `target_table` (e.g. "Change status to active"), put it in `values`.
+           - **CRITICAL**: You MUST extract values from the user input even if they are unstructured or multi-line.
+           - **MAPPING**: Map the input to any logical request based on the schema and documentation called.
+             - Infer the correct column name based on the semantic meaning of the value and the table definition.
            - **EXTERNAL INPUTS**: If the value is NOT in the schema (e.g. "Send to 0123456789", "Subject: Hello"), put it in `additional_inputs`.
            - Example: "Send to whatsapp 12345" -> additional_inputs: {{ "whatsapp_number": "12345" }}
            - Example: "Email bob@example.com" -> additional_inputs: {{ "email_to": "bob@example.com", "email_subject": "Notification" }}
+           
+           **IDENTIFICATION RULES**:
+           - **Phone Number** (Malaysia): MUST start with '01' (e.g. 012-3456789). Look for 10-11 digit numbers starting with 01.
+           - **IC Number** (Malaysia): 
+             - Standard: 12-digit numbers (e.g. 990101-10-5555).
+             - Fallback: Any 10-12 digit number that does **NOT** start with '01' should be treated as IC if context implies identity.
+             - Context: If close to "IC", "Identity", "Malaysian", prioritize as IC.
+           - **Date**: Extract dates and format as YYYY-MM-DD.
         8. **SELECT DOCS**: Identify which docs are needed. Add them to 'required_docs'.
         
            **CATEGORY A: ENTITIES (Database Tables)**
@@ -51,12 +62,13 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - Example: Target 'employee' -> ["employee.md", "database.md"]
 
            **CATEGORY B: TOOLS (External Actions)**
-           - Available: [whatsapp.md, email_tool.md, llm_tool.md, pdf_reader_tool.md, upload_file_tool.md]
+           - Available: [whatsapp.md, email_tool.md, llm_tool.md, pdf_reader_tool.md, upload_file_tool.md, image_generation_tool.md]
            - **WHATSAPP**: Use "whatsapp.md" for WhatsApp messages.
            - **EMAIL**: Use "email_tool.md" for sending emails.
            - **LLM/AI**: Use "llm_tool.md" for AI/Intelligence/Summarization.
            - **PDF**: Use "pdf_reader_tool.md" for parsing PDF files.
            - **UPLOAD**: Use "upload_file_tool.md" for generic file uploads.
+           - **IMAGE**: Use "image_generation_tool.md" for generating or editing images.
 
            **CATEGORY C: CONNECTORS (Bridging Tools)**
            - Available: [node_connectors/pdf-to-llm.md, node_connectors/upload-file-to-pdf.md, node_connectors/llm-to-email.md]

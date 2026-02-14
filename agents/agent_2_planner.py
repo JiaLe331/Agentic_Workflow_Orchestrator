@@ -55,6 +55,9 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         
         **CRITICAL**: 
         - If `generalized_workflow.values` contains data, you **MUST** use it in the `data` field of the DB node.
+        - **DESCRIPTION ENRICHMENT**: If `generalized_workflow.values` contains data, you **MUST** include the values in the node `description`.
+          - Example: "Insert the new employee record for 'Li Jie' (IC: 030902...) into the 'employee' table."
+          - Example: "Update status to 'active' for user ID 123."
         - Example: If inputs has `values={{{{'status': 'active'}}}}`, then `parameters.data` MUST be `{{{{'status': 'active'}}}}`.
         - Do NOT default to `{{input.field}}` if a specific value is provided in `generalized_workflow.values`.
         

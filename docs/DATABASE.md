@@ -96,14 +96,15 @@ To prevent full table scans and Ensure data integrity, you **MUST** apply filter
   "parameters": {
     "operation": "create",
     "tableId": "sale",
-    "columns": {
-      "mappingMode": "defineBelow",
-      "value": {
-        "product_id": "={{ $json.product_id }}",
-        "customer_id": "={{ $json.customer_id }}",
-        "quantity": "={{ $json.quantity }}",
-        "total_amount": "={{ $json.total_amount }}"
-      }
+    "operation": "create",
+    "tableId": "sale",
+    "fieldsUi": {
+      "fieldValues": [
+        { "fieldId": "product_id", "fieldValue": "={{ $json.product_id }}" },
+        { "fieldId": "customer_id", "fieldValue": "={{ $json.customer_id }}" },
+        { "fieldId": "quantity", "fieldValue": "={{ $json.quantity }}" },
+        { "fieldId": "total_amount", "fieldValue": "={{ $json.total_amount }}" }
+      ]
     }
   },
   "id": "create_sale",
@@ -124,11 +125,12 @@ To prevent full table scans and Ensure data integrity, you **MUST** apply filter
     "tableId": "sale",
     "updateKey": "id",
     "value": "={{ $json.sale_id }}",
-    "columns": {
-      "mappingMode": "defineBelow",
-      "value": {
-        "status": "completed"
-      }
+    "updateKey": "id",
+    "value": "={{ $json.sale_id }}",
+    "fieldsUi": {
+      "fieldValues": [
+        { "fieldId": "status", "fieldValue": "completed" }
+      ]
     }
   },
   "id": "update_sale",
