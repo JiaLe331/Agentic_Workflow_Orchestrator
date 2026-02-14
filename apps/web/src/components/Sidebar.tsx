@@ -8,12 +8,11 @@ import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: Bot },
-    { name: "Onboarding", href: "/onboarding", icon: ClipboardList },
+    { name: "Collections", href: "/collections", icon: Library },
     { name: "Sales", href: "/sales", icon: TrendingUp },
     { name: "Products", href: "/products", icon: Package },
     { name: "Employees", href: "/employees", icon: Users },
-    { name: "Collections", href: "/collections", icon: Library },
-    { name: "Settings", href: "#", icon: Settings },
+    { name: "Onboarding", href: "/onboarding", icon: ClipboardList },
 ];
 
 export function Sidebar() {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BentoCard } from '@/components/BentoCard';
 import { Product, fetchProducts, fetchTopProducts } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Package, TrendingUp, DollarSign, Smartphone, Home, Dumbbell, Sparkles, Gamepad2, Coffee, Shirt, BookOpen, Car, Briefcase } from 'lucide-react';
+import { Package, TrendingUp, DollarSign, Smartphone, Home, Dumbbell, Sparkles, Gamepad2, Coffee, Shirt, BookOpen, Car, Briefcase, ListFilter } from 'lucide-react';
 
 // Category mapping based on product name keywords
 type CategoryInfo = {
@@ -131,6 +131,7 @@ export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [topProducts, setTopProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState<'revenue' | 'volume'>('revenue');
 
     useEffect(() => {
         loadProducts();
@@ -148,7 +149,20 @@ export default function ProductsPage() {
         setLoading(false);
     };
 
+    const sortedTopProducts = useMemo(() => {
+        const sorted = [...topProducts];
+        if (sortBy === 'revenue') {
+            return sorted.sort((a, b) => {
+                const revenueA = (a.sales_volume || 0) * (a.nett_price || 0);
+                const revenueB = (b.sales_volume || 0) * (b.nett_price || 0);
+                return revenueB - revenueA;
+            });
+        } else {
+            return sorted.sort((a, b) => (b.sales_volume || 0) - (a.sales_volume || 0));
+        }
+    }, [topProducts, sortBy]);
 
+    // ... (rest of the component)
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
@@ -161,6 +175,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Hero Section - Top Performing Products Histogram */}
+                {/* ... (Hero chart remains using topProducts or sortedTopProducts? The request implies "Product Performance" table, but maybe histogram too? Usually histogram follows same logic. Let's use sortedTopProducts for histogram too for consistency, or keep it volume based if it specifically says "Sales volume by product". The subtitle says "Sales volume by product". I'll keep the histogram on volume for now unless requested, to match subtitle.) */}
                 <BentoCard
                     title="Top Performing Products of the Week"
                     subtitle="Sales volume by product"
@@ -286,11 +301,25 @@ export default function ProductsPage() {
                 {/* Performance Table */}
                 <BentoCard
                     title="Product Performance"
-                    subtitle="Ranked by sales volume (Last 30 Days)"
+                    subtitle={`Ranked by ${sortBy === 'revenue' ? 'revenue' : 'sales volume'} (Last 30 Days)`}
                     fullWidth
+                    headerAction={
+                        <div className="flex items-center gap-2">
+                            <ListFilter className="w-4 h-4 text-gray-500" />
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value as 'revenue' | 'volume')}
+                                className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
+                            >
+                                <option value="revenue">Sort by Revenue</option>
+                                <option value="volume">Sort by Volume</option>
+                            </select>
+                        </div>
+                    }
                 >
                     <div className="overflow-x-auto">
                         <table className="w-full">
+                            {/* ... (thead) */}
                             <thead>
                                 <tr className="border-b border-gray-200">
                                     <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Rank</th>
@@ -306,13 +335,14 @@ export default function ProductsPage() {
                                     <tr>
                                         <td colSpan={6} className="text-center py-8 text-gray-500">Loading product data...</td>
                                     </tr>
-                                ) : topProducts.length === 0 ? (
+                                ) : sortedTopProducts.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="text-center py-8 text-gray-500">No product data available</td>
                                     </tr>
                                 ) : (
-                                    topProducts.map((product, index) => (
+                                    sortedTopProducts.map((product, index) => (
                                         <tr key={product.id || index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                            {/* ... (rows) */}
                                             <td className="py-3 px-4">
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
                                                     index === 1 ? 'bg-gray-200 text-gray-700 border border-gray-300' :

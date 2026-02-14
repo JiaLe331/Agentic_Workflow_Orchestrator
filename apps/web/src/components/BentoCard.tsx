@@ -7,9 +7,10 @@ interface BentoCardProps {
     title?: string;
     subtitle?: string;
     fullWidth?: boolean;
+    headerAction?: ReactNode;
 }
 
-export function BentoCard({ children, className, title, subtitle, fullWidth = false }: BentoCardProps) {
+export function BentoCard({ children, className, title, subtitle, fullWidth = false, headerAction }: BentoCardProps) {
     return (
         <div
             className={cn(
@@ -18,13 +19,20 @@ export function BentoCard({ children, className, title, subtitle, fullWidth = fa
                 className
             )}
         >
-            {(title || subtitle) && (
-                <div className="mb-4">
-                    {title && (
-                        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-                    )}
-                    {subtitle && (
-                        <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+            {(title || subtitle || headerAction) && (
+                <div className="mb-4 flex items-start justify-between">
+                    <div>
+                        {title && (
+                            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                        )}
+                        {subtitle && (
+                            <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+                        )}
+                    </div>
+                    {headerAction && (
+                        <div className="flex-shrink-0 ml-4">
+                            {headerAction}
+                        </div>
                     )}
                 </div>
             )}
