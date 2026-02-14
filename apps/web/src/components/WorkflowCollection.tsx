@@ -1,4 +1,4 @@
-import { IconTrash, IconPlayerPlay, IconArrowRight, IconTable } from '@tabler/icons-react';
+import { IconPlayerPlay, IconArrowRight, IconTable, IconBrain, IconMail, IconFileUpload, IconBrandWhatsapp, IconFileTextFilled, IconSquare, IconSquareCheckFilled } from '@tabler/icons-react';
 import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { useState } from 'react';
@@ -9,9 +9,21 @@ interface WorkflowCollectionProps {
     onEdit?: (workflow: Workflow) => void;
     onDelete?: (id: string) => void;
     onRun?: (workflow: Workflow) => void;
+    selectedIds?: Set<string>;
+    onToggleSelect?: (id: string) => void;
 }
 
-export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: WorkflowCollectionProps) {
+const getTableIcon = (tableName: string) => {
+    const lowerName = tableName.toLowerCase();
+    if (lowerName.includes('llm')) return IconBrain;
+    if (lowerName.includes('email')) return IconMail;
+    if (lowerName.includes('file-upload')) return IconFileUpload;
+    if (lowerName.includes('whatsapp')) return IconBrandWhatsapp;
+    if (lowerName.includes('pdf')) return IconFileTextFilled;
+    return IconTable;
+};
+
+export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selectedIds, onToggleSelect }: WorkflowCollectionProps) {
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
 
     if (!workflows || workflows.length === 0) {
@@ -29,28 +41,61 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                     <div
                         key={workflow.id}
                         onClick={() => setSelectedWorkflow(workflow)}
-                        className="relative flex flex-col transition-all border border-gray-200 shadow-sm bg-white/50 hover:bg-white rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 dark:border-gray-700 hover:-translate-y-1 cursor-pointer overflow-hidden group"
+                        className={`relative flex flex-col transition-all border shadow-sm rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 hover:-translate-y-1 cursor-pointer overflow-hidden group ${selectedIds?.has(workflow.id)
+                            ? 'border-blue-400 bg-blue-50/50 dark:border-blue-600 ring-2 ring-blue-500/20'
+                            : 'border-gray-200 bg-white/50 hover:bg-white dark:border-gray-700'
+                            }`}
                     >
-                        {workflow.imageUrl ? (
-                            <div className="h-48 w-full border-b border-gray-100 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
-                                <div
-                                    className="absolute inset-0 transition-transform duration-500 scale-[2]"
-                                    style={{
-                                        backgroundImage: `url(${workflow.imageUrl})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        backgroundRepeat: 'no-repeat'
-                                    }}
-                                />
-                            </div>
-                        ) : (
-                            <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-center">
-                                <IconTable className="w-10 h-10 text-gray-200 dark:text-gray-700" stroke={1.5} />
-                            </div>
+                        {/* Selection Checkbox */}
+                        {onToggleSelect && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleSelect(workflow.id);
+                                }}
+                                className="absolute top-3 left-3 z-20 p-0.5 rounded-md transition-all hover:scale-110"
+                                title={selectedIds?.has(workflow.id) ? 'Deselect' : 'Select'}
+                            >
+                                {selectedIds?.has(workflow.id) ? (
+                                    <IconSquareCheckFilled size={22} className="text-blue-600 dark:text-blue-400" />
+                                ) : (
+                                    <IconSquare size={22} className="text-gray-300 group-hover:text-gray-400 dark:text-gray-600 dark:group-hover:text-gray-500 transition-colors" />
+                                )}
+                            </button>
                         )}
+                        <div className="relative group/image">
+                            {workflow.imageUrl ? (
+                                <div className="h-48 w-full border-b border-gray-100 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+                                    <div
+                                        className="absolute inset-0 transition-transform duration-500 scale-[2]"
+                                        style={{
+                                            backgroundImage: `url(${workflow.imageUrl})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                            backgroundRepeat: 'no-repeat'
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="h-48 w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-center">
+                                    <IconTable className="w-10 h-10 text-gray-200 dark:text-gray-700" stroke={1.5} />
+                                </div>
+                            )}
+
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedWorkflow(workflow);
+                                }}
+                                className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg hover:shadow-xl hover:scale-105 z-10"
+                                title="Run Workflow"
+                            >
+                                <IconPlayerPlay className="w-5 h-5 ml-0.5" stroke={2} />
+                            </button>
+                        </div>
 
                         {/* Content Area - Padded */}
-                        <div className="flex flex-col flex-1 p-5">
+                        <div className="flex flex-col flex-1 p-4">
                             <div className="flex items-start justify-between mb-1">
                                 <div className="flex-1 pr-4">
                                     <h3 className="text-lg tracking-tight text-gray-900 dark:text-white">
@@ -64,65 +109,57 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                                 </div>
                             </div>
 
-                            <p className="mb-5 w-full text-xs rounded-lg font-light leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2 dark:bg-gray-800">
+                            <p className="mb-3 w-full text-xs rounded-lg font-light leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2 dark:bg-gray-800">
                                 {workflow.description || 'No description provided.'}
                             </p>
 
-                            {/* Tables Involved - Middle Section */}
-                            {workflow.tablesInvolved && workflow.tablesInvolved.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-4">
-                                    {workflow.tablesInvolved.map((table) => (
-                                        <div key={table} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
-                                            <IconTable size={10} className="mr-1 opacity-70" />
-                                            {table}
+                            {/* Tables/Entities Involved - Top Section */}
+                            {(() => {
+                                const toolKeywords = ['llm', 'email', 'whatsapp', 'file-upload', 'pdf'];
+                                const entities = workflow.tablesInvolved?.filter(t => !toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
+                                const tools = workflow.tablesInvolved?.filter(t => toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
+
+                                return (
+                                    (tools.length > 0 || entities.length > 0) && (
+                                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                                            {/* Tools (Circular Icons) */}
+                                            {tools.length > 0 && (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {tools.map((tool) => {
+                                                        const IconComponent = getTableIcon(tool);
+                                                        return (
+                                                            <div
+                                                                key={tool}
+                                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600/50 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm transition-all group/icon relative"
+                                                                title={tool}
+                                                            >
+                                                                <IconComponent size={16} className="opacity-80 group-hover/icon:opacity-100 transition-opacity" />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                            {/* Entities (Badges) */}
+                                            {entities.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {entities.map((entity) => (
+                                                        <div key={entity} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
+                                                            <IconTable size={10} className="mr-1 opacity-70" />
+                                                            {entity}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    )
+                                );
+                            })()}
 
                             {/* Add spacer if no tables to maintain consistent vertical rhythm if desired, or let it collapse */}
                             {(!workflow.tablesInvolved || workflow.tablesInvolved.length === 0) && <div className="mb-2" />}
 
-                            <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onDelete && onDelete(workflow.id);
-                                        }}
-                                        className="p-2 text-gray-400 transition-colors rounded-lg hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-                                        title="Delete Workflow"
-                                    >
-                                        <IconTrash size={16} />
-                                    </button>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onRun && onRun(workflow);
-                                        }}
-                                        className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm hover:shadow"
-                                    >
-                                        <IconPlayerPlay className="w-3 h-3 mr-1.5" />
-                                        Run
-                                    </button>
-
-                                    {workflow.workflowUrl && (
-                                        <a
-                                            href={workflow.workflowUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="inline-flex text-xs items-center justify-center p-1.5 text-gray-400 transition-colors rounded-sm hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                                            title="View n8n workflow"
-                                        >
-                                            N8N Workflow
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
+                            {/* Spacer if no tables for better visual balance */}
+                            {(!workflow.tablesInvolved || workflow.tablesInvolved.length === 0) && <div className="mb-1" />}
                         </div>
                     </div>
                 ))}

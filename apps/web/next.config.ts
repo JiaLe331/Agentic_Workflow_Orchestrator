@@ -2,14 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  reactCompiler: true,
   experimental: {
-    reactCompiler: true,
   },
   async rewrites() {
     return [
       {
         source: '/generate-workflow',
         destination: 'http://localhost:8000/generate-workflow',
+      },
+      {
+        source: '/trigger-workflow',
+        destination: 'http://localhost:8000/api/trigger-workflow',
       },
       {
         source: '/api/:path*',

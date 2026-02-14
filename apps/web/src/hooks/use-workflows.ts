@@ -55,6 +55,7 @@ export interface Workflow {
     userPrompt?: string;
     imageUrl?: string;
     executionPlan?: ExecutionStep[];
+    inputRequirements?: Record<string, any> | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -93,19 +94,18 @@ export function useWorkflows() {
         return res.json();
     };
 
-    const generate = async (prompt: string) => {
-        // Use relative path to leverage Next.js rewrites (proxies to http://localhost:8000/generate-workflow)
-        // Fire and forget - just trigger the generation and don't wait for the result
-        fetch('/generate-workflow', {
+    const generate = async (prompt: string, clientId?: string) => {
+        const response = await fetch('/generate-workflow', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt }),
-        }).catch(err => {
-            console.error('Error triggering workflow generation:', err);
+            body: JSON.stringify({ prompt, client_id: clientId }), // Updated to include client_id
         });
 
-        // Resolve immediately
-        return Promise.resolve();
+        if (!response.ok) {
+            throw new Error('Failed to trigger workflow generation');
+        }
+
+        return response.json();
     };
 
     return {
