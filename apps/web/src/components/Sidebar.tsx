@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Library, Bot, TrendingUp, Package, Users, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { IconDeviceLaptop } from "@tabler/icons-react";
+import { IconDeviceLaptop, IconBooks, IconSettings, IconClipboardList, IconTrendingUp, IconPackage, IconUsers, IconActivity, IconMessage } from "@tabler/icons-react";
 
 const navigation = [
-    { name: "Agent Creator", href: "/", icon: IconRobot },
+    { name: "Agent Creator", href: "/", icon: IconMessage },
+    { name: "Collections", href: "/collections", icon: IconBooks },
     { name: "Onboarding", href: "/onboarding", icon: IconClipboardList },
     { name: "Sales", href: "/sales", icon: IconTrendingUp },
     { name: "Products", href: "/products", icon: IconPackage },
     { name: "Employees", href: "/employees", icon: IconUsers },
-    { name: "Collections", href: "/collections", icon: IconBooks },
-    { name: "Settings", href: "#", icon: IconSettings },
 ];
 
 export function Sidebar() {
@@ -22,8 +20,8 @@ export function Sidebar() {
     return (
         <div className="sticky top-0 z-50 flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
             {/* Logo */}
-            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-md dark:bg-white dark:text-black">
-                <IconDeviceLaptop className="h-6 w-6" />
+            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-inherit text-black font-bold">
+                JJKL
             </div>
 
             {/* Navigation */}

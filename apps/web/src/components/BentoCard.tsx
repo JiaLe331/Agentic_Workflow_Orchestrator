@@ -18,7 +18,7 @@ export function BentoCard({ children, className, title, subtitle, fullWidth = fa
                 className
             )}
         >
-            {(title || subtitle || headerAction) && (
+            {(title || subtitle) && (
                 <div className="mb-4 flex items-start justify-between">
                     <div>
                         {title && (
@@ -28,9 +28,6 @@ export function BentoCard({ children, className, title, subtitle, fullWidth = fa
                             <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
                         )}
                     </div>
-                    {headerAction && (
-                        <div>{headerAction}</div>
-                    )}
                 </div>
             )}
             {children}

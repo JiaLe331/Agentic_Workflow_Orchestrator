@@ -313,19 +313,6 @@ export default function ProductsPage() {
                     title="Product Performance"
                     subtitle={`Ranked by ${sortBy === 'revenue' ? 'revenue' : 'sales volume'} (Last 30 Days)`}
                     fullWidth
-                    headerAction={
-                        <div className="flex items-center gap-2">
-                            <ListFilter className="w-4 h-4 text-gray-500" />
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value as 'revenue' | 'volume')}
-                                className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
-                            >
-                                <option value="revenue">Sort by Revenue</option>
-                                <option value="volume">Sort by Volume</option>
-                            </select>
-                        </div>
-                    }
                 >
                     <div className="overflow-x-auto">
                         <table className="w-full">
