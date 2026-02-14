@@ -2,17 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Library, Settings, Bot, TrendingUp, Package, Users, ClipboardList } from "lucide-react";
+import {
+    IconDeviceLaptop,
+    IconRobot,
+    IconClipboardList,
+    IconTrendingUp,
+    IconPackage,
+    IconUsers,
+    IconBooks,
+    IconSettings
+} from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
-import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
-    { name: "Agent Creator", href: "/", icon: Bot },
-    { name: "Collections", href: "/collections", icon: Library },
-    { name: "Sales", href: "/sales", icon: TrendingUp },
-    { name: "Products", href: "/products", icon: Package },
-    { name: "Employees", href: "/employees", icon: Users },
-    { name: "Onboarding", href: "/onboarding", icon: ClipboardList },
+    { name: "Agent Creator", href: "/", icon: IconRobot },
+    { name: "Onboarding", href: "/onboarding", icon: IconClipboardList },
+    { name: "Sales", href: "/sales", icon: IconTrendingUp },
+    { name: "Products", href: "/products", icon: IconPackage },
+    { name: "Employees", href: "/employees", icon: IconUsers },
+    { name: "Collections", href: "/collections", icon: IconBooks },
+    { name: "Settings", href: "#", icon: IconSettings },
 ];
 
 export function Sidebar() {

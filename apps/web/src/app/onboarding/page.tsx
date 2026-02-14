@@ -90,7 +90,7 @@ export default function OnboardingPage() {
             <div className="max-w-7xl mx-auto h-full flex flex-col">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Onboarding Board</h1>
+                    <h1 className="text-4xl font-normal text-gray-900 mb-2">Onboarding Board</h1>
                     <p className="text-gray-500">Track candidate progress from interview to onboarding</p>
                 </div>
 

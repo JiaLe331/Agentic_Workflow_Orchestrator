@@ -170,7 +170,7 @@ export default function ProductsPage() {
 
                 {/* Header */}
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Products Inventory</h1>
+                    <h1 className="text-4xl font-normal text-gray-900 mb-2">Products Inventory</h1>
                     <p className="text-gray-500">Visual inventory and performance tracking</p>
                 </div>
 
@@ -180,48 +180,67 @@ export default function ProductsPage() {
                     title="Top Performing Products of the Week"
                     subtitle="Sales volume by product"
                     fullWidth
+
                 >
                     <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={topProducts} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+                        <BarChart
+                            data={topProducts}
+                            margin={{ top: 20, right: 30, left: 0, bottom: 50 }}
+                        >
                             <defs>
                                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#059669" stopOpacity={0.6} />
+                                    <stop offset="5%" stopColor="hsl(142.1 76.2% 36.3%)" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="hsl(142.1 70% 30%)" stopOpacity={0.6} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                vertical={false}
+                                stroke="hsl(240 5.9% 90%)"
+                                horizontal={true}
+                            />
                             <XAxis
                                 dataKey="product_name"
                                 tickMargin={14}
-                                axisLine={{ stroke: "#E4E4E7" }}
-                                tick={{ fill: "#71717A", fontSize: 12 }}
-                                tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
-                                interval={0}
-                            />
-                            <YAxis
                                 axisLine={false}
                                 tickLine={false}
-                                stroke="#94a3b8"
-                                style={{ fontSize: '12px' }}
+                                stroke="hsl(240 5.3% 26.1%)"
+                                fontSize={11}
+                                tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
+                                interval={0}
+                                minTickGap={10}
                             />
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: '#ffffff',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '12px',
-                                    color: '#0f172a',
-                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                    backgroundColor: 'hsl(0 0% 100%)',
+                                    border: '1px solid hsl(240 5.9% 90%)',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                                    padding: '12px'
+                                }}
+                                labelStyle={{
+                                    color: 'hsl(240 10% 3.9%)',
+                                    fontWeight: 600,
+                                    marginBottom: '8px'
                                 }}
                             />
-                            <Legend wrapperStyle={{ paddingTop: "30px" }} />
-                            <Bar dataKey="sales_volume" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
+                            <Legend
+                                wrapperStyle={{ paddingTop: '30px' }}
+                                iconType="circle"
+                            />
+                            <Bar
+                                dataKey="sales_volume"
+                                fill="url(#barGradient)"
+                                radius={[8, 8, 0, 0]}
+                                name="Sales Volume"
+                            />
                         </BarChart>
                     </ResponsiveContainer>
                 </BentoCard>
 
                 {/* Product Showcase - Horizontal Slide-over Card Gallery */}
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Showcase</h2>
+                    <h2 className="text-2xl font-medium text-gray-900 mb-4">Product Showcase</h2>
                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         {loading ? (
                             <div className="text-gray-500">Loading products...</div>

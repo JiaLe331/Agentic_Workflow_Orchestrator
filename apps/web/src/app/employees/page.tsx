@@ -55,44 +55,44 @@ export default function EmployeesPage() {
 
                 {/* Header */}
                 <div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Employee Management</h1>
+                    <h1 className="text-4xl font-normal text-gray-900 mb-2">Employee Management</h1>
                     <p className="text-gray-500">Manage employee profiles and payroll information</p>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100 shadow-sm">
+                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-emerald-100 rounded-xl">
-                                <Users className="text-emerald-600" size={24} />
+                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <Users className="text-gray-700" size={24} />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider">Total Employees</p>
-                                <p className="text-3xl font-bold text-gray-900">{totalEmployees}</p>
+                                <p className="text-3xl font-semibold text-gray-900">{totalEmployees}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-6 border border-cyan-100 shadow-sm">
+                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-cyan-100 rounded-xl">
-                                <UserCheck className="text-cyan-600" size={24} />
+                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <UserCheck className="text-gray-700" size={24} />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider">Active</p>
-                                <p className="text-3xl font-bold text-gray-900">{activeEmployees}</p>
+                                <p className="text-3xl font-semibold text-gray-900">{activeEmployees}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gray-200 rounded-xl">
+                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <UserX className="text-gray-500" size={24} />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider">Inactive</p>
-                                <p className="text-3xl font-bold text-gray-900">{totalEmployees - activeEmployees}</p>
+                                <p className="text-3xl font-semibold text-gray-900">{totalEmployees - activeEmployees}</p>
                             </div>
                         </div>
                     </div>
