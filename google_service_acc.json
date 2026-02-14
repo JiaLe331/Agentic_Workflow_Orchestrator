@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "derivhack-calendar",
+  "private_key_id": "b7ac848624a914776f0482f7d476d72412d74694",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC1Az+6rmqM3zoZ\ndDPyyMvSzacPqtj2gbVF/qD0LaDGbEaSWQtXRuhX0AoUYpVtgAIEKAi/3OeggOye\nnoiheOsp8+il0qyodDXuxNMm9Ii3zBM+wkyGQzWeh7kURFZ97VMEOOIALnGgad1G\nheGV80AW+p1yx3PSSbYI8q/+5wejNRLx2VOgV0Z2HuMXWDw6/BGrJ4uCWgOZo0Np\ncPftV9xeyw1KCLelc+G/Sa8yn77G0HxP6TrF714nox9hGEr8Ukd5b3swtyiO6IU/\nM1JzC4pO6H/+c9bV1DCi83q8BCcBlO0DCNGsn508DqrU589WvfLScQ5X8NI5NQOQ\nqI4Cqx9hAgMBAAECggEABRWcIM42sKuYUImetO52Qf7w6jdL3iUeEAmBmi8KHoPn\nk10V1oPnt+6GysEX8YOznf8rrouR5DfPp0cmNaNPHbZPCsT2ALEejuaiux8jlCzf\npIPLwPpN0DZmDAW9Ls8JMpIdEDeKjW1nBjMk0NpMkRve6zZJg7bHOqcDq3BwJ6G+\nAp7Wv+jl06niubMJ3vgPD08er3X4ewmgZab7MSMLrop9YTxsLYSZy/kdg5FBOfXJ\n72jtJaNisOrmLW7Kf96PWAEMkcyzwL19ESw0FIGPTzpiKMj7bOAT5fYu2fyK7qry\ndf8SnuQ4H2rYcDw48N1+UD/RBPV5oid4boiw810SfQKBgQDt3jnzXpS/DCku1E10\nVI+C0DOyk3BMy4kBB22F9hcWWv43Bnz8SANOE2do8Tuq6g2f8KM5LXJW2NCqcJix\nKqFv0R/lkk80+YjWfvnwEZCQEe+eO9JEjYVKsMJJao/q9EDunxrSz5N/rO+d5McS\nMsLum6iU/NltDccAkXNM2WfkrQKBgQDCz4r3Gid41pNhAUooToLN+11fILuJ0Odc\n+3K9m74Dj3momQ6q8U4LbpFjbU4wfncZJO7/nm+XNpIAE+NiIOwlNnVYNtq3LJh0\nk/MXyMtHcwyPvlB3cQ+ly9qtgGdR1dfzGyUK5AXcynVTjvmITdd1z6zd53Of/ZYF\n440wL/9IBQKBgQC3A9yim4rm03x8Q2y0rLsecwLTyw0EiTWITSa/g3CQCsK9o4hW\nszGXyOYvoCvAfQSuon9zZrwqhfdGrAtPhPVhCw33nHLE15mpL1kulNUdhC9RF8XY\naOq9ZPKXeh3xMK0k69W/jWZ3PZ+/ZF6madgBrlIvD7xaY9dRYJfN8Rg2oQKBgHvc\nw8mK6o/tNnWWAVWRXZ+j8+EZCcR9e61l/rVJwc23uq2U63uKw4mHOo+SHwW8UvM8\nxWzniqIFQ10jSA7LSfn7Hy8AaZ3Pj/uHWifENmNuZg06/ySCUWWkMJziKE8i/RQI\nLUw4YPXaEDEZldSxUY4JhirtD1opPOrvnISH7/MVAoGBAOcFSUQxHZLtypmNhIeA\nsHKFALnuSq3V1Z7aHReCaXemZZiPfh1vnMvUL2nVUjeey8kuPZiRdbZ1IZhWfo30\nqSLl2mZIOD6xpAm1yTKZmYQze3ZiMV74QEqgvphGwbX7cpJtS8ziDNkTE5A/R4Sq\n/MKmMF5P5GeUFHPm37JrLzFO\n-----END PRIVATE KEY-----\n",
+  "client_email": "derivhack-calendar@derivhack-calendar.iam.gserviceaccount.com",
+  "client_id": "106463597504012485869",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/derivhack-calendar%40derivhack-calendar.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -16,3 +16,9 @@ __pycache__/
 
 # Ignore local VS Code settings (optional)
 .vscode/
+google_service_acc.json
+workflow_output.json
+endpoints_catalog.json
+# Ignore scripts and test folders (Lalit's content)
+scripts/
+test/
