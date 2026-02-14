@@ -1,5 +1,5 @@
 
-import { IconX, IconTrash, IconPencil, IconPlayerPlay, IconArrowRight, IconTable, IconRobot, IconDatabase, IconCheck, IconLoader2, IconBrain, IconAi, IconSettings, IconCode, IconFileTextFilled, IconFileTextAi, IconMessageDots, IconTerminal, IconCopy, IconJson, IconChevronDown } from '@tabler/icons-react';
+import { IconX, IconTrash, IconPencil, IconPlayerPlay, IconArrowRight, IconTable, IconRobot, IconDatabase, IconCheck, IconLoader2, IconBrain, IconAi, IconSettings, IconCode, IconFileTextFilled, IconFileTextAi, IconMessageDots, IconTerminal, IconCopy, IconJson, IconChevronDown, IconEdit } from '@tabler/icons-react';
 import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { Fragment, useState, useEffect } from 'react';
@@ -283,7 +283,7 @@ export function WorkflowDetailsSlideOver({
                                 className="flex-1 flex items-center justify-center px-4 py-3.5 text-sm font-bold text-white transition-all bg-blue-600 rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
                                 <IconPlayerPlay className="w-5 h-5 mr-2" />
-                                Run Agent
+                                Run
                             </button>
 
                             {/* 2. View n8n workflow (Visible if URL exists, RHS of Run) */}
@@ -295,8 +295,8 @@ export function WorkflowDetailsSlideOver({
                                     className="flex-1 flex items-center justify-center px-4 py-3.5 text-sm font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm hover:shadow dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:text-blue-400 group"
                                     title="View n8n workflow"
                                 >
-                                    <span>View n8n workflow</span>
-                                    <IconArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                                    <IconPencil className="w-4 h-4 mr-2 transition-transform group-hover:translate-x-1" />
+                                    <span>Customize</span>
                                 </a>
                             )}
 

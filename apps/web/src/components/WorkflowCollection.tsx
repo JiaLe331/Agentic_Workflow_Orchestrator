@@ -1,4 +1,4 @@
-import { IconPlayerPlay, IconArrowRight, IconTable } from '@tabler/icons-react';
+import { IconPlayerPlay, IconArrowRight, IconTable, IconBrain, IconMail, IconFileUpload, IconBrandWhatsapp, IconFileTextFilled } from '@tabler/icons-react';
 import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { useState } from 'react';
@@ -10,6 +10,16 @@ interface WorkflowCollectionProps {
     onDelete?: (id: string) => void;
     onRun?: (workflow: Workflow) => void;
 }
+
+const getTableIcon = (tableName: string) => {
+    const lowerName = tableName.toLowerCase();
+    if (lowerName.includes('llm')) return IconBrain;
+    if (lowerName.includes('email')) return IconMail;
+    if (lowerName.includes('file-upload')) return IconFileUpload;
+    if (lowerName.includes('whatsapp')) return IconBrandWhatsapp;
+    if (lowerName.includes('pdf')) return IconFileTextFilled;
+    return IconTable;
+};
 
 export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: WorkflowCollectionProps) {
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
@@ -81,17 +91,47 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                                 {workflow.description || 'No description provided.'}
                             </p>
 
-                            {/* Tables Involved - Middle Section */}
-                            {workflow.tablesInvolved && workflow.tablesInvolved.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-4">
-                                    {workflow.tablesInvolved.map((table) => (
-                                        <div key={table} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
-                                            <IconTable size={10} className="mr-1 opacity-70" />
-                                            {table}
+                            {/* Tables/Entities Involved - Top Section */}
+                            {(() => {
+                                const toolKeywords = ['llm', 'email', 'whatsapp', 'file-upload', 'pdf'];
+                                const entities = workflow.tablesInvolved?.filter(t => !toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
+                                const tools = workflow.tablesInvolved?.filter(t => toolKeywords.some(k => t.toLowerCase().includes(k))) || [];
+
+                                return (
+                                    (tools.length > 0 || entities.length > 0) && (
+                                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                                            {/* Tools (Circular Icons) */}
+                                            {tools.length > 0 && (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {tools.map((tool) => {
+                                                        const IconComponent = getTableIcon(tool);
+                                                        return (
+                                                            <div
+                                                                key={tool}
+                                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600/50 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm transition-all group/icon relative"
+                                                                title={tool}
+                                                            >
+                                                                <IconComponent size={16} className="opacity-80 group-hover/icon:opacity-100 transition-opacity" />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                            {/* Entities (Badges) */}
+                                            {entities.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {entities.map((entity) => (
+                                                        <div key={entity} className="inline-flex items-center px-2 py-0.5 text-[10px] font-medium text-gray-600 bg-gray-100 rounded-md dark:bg-gray-700/50 dark:text-gray-300 border border-gray-200 dark:border-gray-600/50">
+                                                            <IconTable size={10} className="mr-1 opacity-70" />
+                                                            {entity}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    )
+                                );
+                            })()}
 
                             {/* Add spacer if no tables to maintain consistent vertical rhythm if desired, or let it collapse */}
                             {(!workflow.tablesInvolved || workflow.tablesInvolved.length === 0) && <div className="mb-2" />}
