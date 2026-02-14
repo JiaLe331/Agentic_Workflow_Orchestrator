@@ -64,23 +64,23 @@ export default function SalesPage() {
     }, { revenue: 0, profit: 0, tax: 0 });
 
     return (
-        <div className="min-h-screen bg-slate-950 p-8">
+        <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-bold text-white mb-2">Sales Dashboard</h1>
-                        <p className="text-slate-400">Track revenue, profit, and tax metrics</p>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Sales Dashboard</h1>
+                        <p className="text-gray-500">Track revenue, profit, and tax metrics</p>
                     </div>
 
                     {/* Time Range Toggle */}
-                    <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                    <div className="flex gap-2 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
                         <button
                             onClick={() => setTimeRange('24h')}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${timeRange === '24h'
-                                ? 'bg-emerald-600 text-white shadow-lg'
-                                : 'text-slate-400 hover:text-white'
+                                ? 'bg-emerald-600 text-white shadow-md'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                 }`}
                         >
                             Last 24 Hours
@@ -88,8 +88,8 @@ export default function SalesPage() {
                         <button
                             onClick={() => setTimeRange('7d')}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${timeRange === '7d'
-                                ? 'bg-emerald-600 text-white shadow-lg'
-                                : 'text-slate-400 hover:text-white'
+                                ? 'bg-emerald-600 text-white shadow-md'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                 }`}
                         >
                             Last 7 Days
@@ -99,38 +99,38 @@ export default function SalesPage() {
 
                 {/* KPI Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 rounded-3xl p-6 border border-emerald-800/50">
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100 shadow-sm">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="p-3 bg-emerald-600/20 rounded-xl">
-                                <DollarSign className="text-emerald-400" size={24} />
+                            <div className="p-3 bg-emerald-100 rounded-xl">
+                                <DollarSign className="text-emerald-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Revenue</p>
-                                <p className="text-2xl font-bold text-white">RM {totals.revenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Revenue</p>
+                                <p className="text-2xl font-bold text-gray-900">RM {totals.revenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-3xl p-6 border border-blue-800/50">
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-6 border border-blue-100 shadow-sm">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="p-3 bg-blue-600/20 rounded-xl">
-                                <TrendingUp className="text-blue-400" size={24} />
+                            <div className="p-3 bg-blue-100 rounded-xl">
+                                <TrendingUp className="text-blue-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Profit</p>
-                                <p className="text-2xl font-bold text-white">RM {totals.profit.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Profit</p>
+                                <p className="text-2xl font-bold text-gray-900">RM {totals.profit.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-3xl p-6 border border-purple-800/50">
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl p-6 border border-purple-100 shadow-sm">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="p-3 bg-purple-600/20 rounded-xl">
-                                <Receipt className="text-purple-400" size={24} />
+                            <div className="p-3 bg-purple-100 rounded-xl">
+                                <Receipt className="text-purple-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Tax</p>
-                                <p className="text-2xl font-bold text-white">RM {totals.tax.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Tax</p>
+                                <p className="text-2xl font-bold text-gray-900">RM {totals.tax.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</p>
                             </div>
                         </div>
                     </div>
@@ -164,10 +164,11 @@ export default function SalesPage() {
                                 <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: '#1e293b',
-                                        border: '1px solid #334155',
+                                        backgroundColor: '#ffffff',
+                                        border: '1px solid #e2e8f0',
                                         borderRadius: '12px',
-                                        color: '#fff'
+                                        color: '#0f172a',
+                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                     }}
                                 />
                                 <Legend />
@@ -204,10 +205,11 @@ export default function SalesPage() {
                                 <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: '#1e293b',
-                                        border: '1px solid #334155',
+                                        backgroundColor: '#ffffff',
+                                        border: '1px solid #e2e8f0',
                                         borderRadius: '12px',
-                                        color: '#fff'
+                                        color: '#0f172a',
+                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                     }}
                                 />
                                 <Legend />
@@ -224,54 +226,54 @@ export default function SalesPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-slate-800">
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Product</th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Customer</th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Units</th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Gross</th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Nett</th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Tax</th>
-                                    <th className="text-center py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                                <tr className="border-b border-gray-200">
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Units</th>
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Gross</th>
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nett</th>
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tax</th>
+                                    <th className="text-center py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={8} className="text-center py-8 text-slate-500">Loading sales data...</td>
+                                        <td colSpan={8} className="text-center py-8 text-gray-500">Loading sales data...</td>
                                     </tr>
                                 ) : sales.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="text-center py-8 text-slate-500">No sales data available</td>
+                                        <td colSpan={8} className="text-center py-8 text-gray-500">No sales data available</td>
                                     </tr>
                                 ) : (
                                     sales.map((sale) => (
-                                        <tr key={sale.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                                            <td className="py-3 px-4 text-sm text-slate-300">
+                                        <tr key={sale.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <td className="py-3 px-4 text-sm text-gray-600">
                                                 {new Date(sale.created_at).toLocaleDateString()}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-white font-medium">
+                                            <td className="py-3 px-4 text-sm text-gray-900 font-medium">
                                                 {sale.product?.item_name || `Product ${sale.product_id.slice(0, 8)}`}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-slate-300">
+                                            <td className="py-3 px-4 text-sm text-gray-600">
                                                 {sale.customer?.name || `Customer ${sale.customer_id.slice(0, 8)}`}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-slate-300 text-right">
+                                            <td className="py-3 px-4 text-sm text-gray-600 text-right">
                                                 {sale.unit_number}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-white text-right font-medium">
+                                            <td className="py-3 px-4 text-sm text-gray-900 text-right font-medium">
                                                 RM {sale.gross_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-slate-300 text-right">
+                                            <td className="py-3 px-4 text-sm text-gray-600 text-right">
                                                 RM {sale.nett_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </td>
-                                            <td className="py-3 px-4 text-sm text-purple-400 text-right font-medium">
+                                            <td className="py-3 px-4 text-sm text-purple-600 text-right font-medium">
                                                 RM {(sale.gross_amount - sale.nett_amount).toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                                             </td>
                                             <td className="py-3 px-4 text-center">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${sale.status === 'paid' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800/50' :
-                                                    sale.status === 'unpaid' ? 'bg-red-900/30 text-red-400 border border-red-800/50' :
-                                                        'bg-yellow-900/30 text-yellow-400 border border-yellow-800/50'
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${sale.status === 'paid' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
+                                                    sale.status === 'unpaid' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                                        'bg-yellow-100 text-yellow-700 border border-yellow-200'
                                                     }`}>
                                                     {sale.status}
                                                 </span>

@@ -82,6 +82,20 @@ export interface Customer {
     updated_at: string;
 }
 
+export interface Onboarding {
+    id: string;
+    name: string;
+    email: string;
+    filtering: boolean;
+    interview_stage: number;
+    technical_assessment: boolean;
+    passed: boolean;
+    onboarded: boolean;
+    employee_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
 // Fetch sales data with time range and relational joins
 export async function fetchSales(timeRange: '24h' | '7d' = '7d'): Promise<Sale[]> {
     try {
@@ -282,6 +296,25 @@ export async function fetchEmployeeById(employeeId: string): Promise<(Employee &
     } catch (error) {
         console.error('Error fetching employee by ID:', error);
         return null;
+    }
+}
+
+// Fetch all onboarding records
+export async function fetchOnboardings(): Promise<Onboarding[]> {
+    try {
+        const { data, error } = await supabase
+            .from('onboarding')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching onboarding data:', error);
+            return [];
+        }
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching onboarding data:', error);
+        return [];
     }
 }
 

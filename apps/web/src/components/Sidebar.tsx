@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Library, Settings, Bot, TrendingUp, Package, Users } from "lucide-react";
+import { Library, Settings, Bot, TrendingUp, Package, Users, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconDeviceLaptop } from "@tabler/icons-react";
 
 const navigation = [
     { name: "Agent Creator", href: "/", icon: Bot },
+    { name: "Onboarding", href: "/onboarding", icon: ClipboardList },
     { name: "Sales", href: "/sales", icon: TrendingUp },
     { name: "Products", href: "/products", icon: Package },
     { name: "Employees", href: "/employees", icon: Users },
@@ -14,38 +15,45 @@ const navigation = [
 
 export function Sidebar() {
     return (
-        <div className="flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
-            <div className="flex h-16 items-center px-6">
-                <IconDeviceLaptop className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                <span className="ml-3 text-lg font-bold text-zinc-900 dark:text-white">
-                    n8n Agents
-                </span>
+        <div className="flex h-screen w-20 flex-col items-center border-r border-zinc-200 bg-white py-6 dark:border-zinc-800 dark:bg-black transition-all duration-300">
+            {/* Logo */}
+            <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
+                <IconDeviceLaptop className="h-6 w-6" />
             </div>
-            <nav className="flex-1 px-4 py-6 space-y-1">
+
+            {/* Navigation */}
+            <nav className="flex-1 space-y-4 px-2">
                 {navigation.map((item) => (
                     <Link
                         key={item.name}
                         href={item.href}
                         className={cn(
-                            "group flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                            "group relative flex h-12 w-12 items-center justify-center rounded-xl text-zinc-500 transition-all hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
                         )}
                     >
-                        <item.icon className="mr-3 h-5 w-5 flex-shrink-0 text-zinc-500 group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-white" />
-                        {item.name}
+                        <item.icon className="h-6 w-6" />
+
+                        {/* Tooltip */}
+                        <span className="absolute left-16 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
+                            {item.name}
+                            {/* Little triangle pointer for the tooltip */}
+                            <span className="absolute -left-1 top-1/2 -mt-1 h-2 w-2 -rotate-45 bg-zinc-900 dark:bg-white" />
+                        </span>
                     </Link>
                 ))}
             </nav>
-            <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
-                <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700" />
-                    <div className="ml-3">
-                        <p className="text-sm font-medium text-zinc-700 dark:text-white">
-                            User
-                        </p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            user@example.com
-                        </p>
-                    </div>
+
+            {/* User Profile */}
+            <div className="mt-auto border-t border-zinc-200 p-4 dark:border-zinc-800">
+                <div className="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-zinc-200 hover:ring-2 hover:ring-zinc-300 dark:bg-zinc-700 dark:hover:ring-zinc-600">
+                    <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">US</span>
+
+                    {/* User Tooltip */}
+                    <span className="absolute left-14 z-[100] ml-2 hidden w-max rounded-md bg-zinc-900 px-3 py-2 text-xs text-white shadow-lg opacity-0 transition-opacity group-hover:block group-hover:opacity-100 dark:bg-white dark:text-black">
+                        <p className="font-semibold">User</p>
+                        <p className="text-zinc-400 dark:text-zinc-500">user@example.com</p>
+                        <span className="absolute -left-1 top-1/2 -mt-1 h-2 w-2 -rotate-45 bg-zinc-900 dark:bg-white" />
+                    </span>
                 </div>
             </div>
         </div>

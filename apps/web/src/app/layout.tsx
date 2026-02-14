@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <WorkflowProvider>
           <LiveStatusProvider>
-            <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">
+            <div className="flex min-h-screen bg-zinc-50">
               <Sidebar />
               <main className="flex-1 overflow-y-auto">
                 {children}

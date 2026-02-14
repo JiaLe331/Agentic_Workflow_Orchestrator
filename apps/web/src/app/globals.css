@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* Bento Grid Color Scheme */
   --slate-950: #020617;
   --slate-900: #0f172a;
@@ -20,12 +20,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Disabled dark mode - keeping light theme only */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
   background: var(--background);
@@ -39,12 +40,12 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: var(--slate-900);
+  background: #f1f5f9;
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--slate-800);
+  background: #cbd5e1;
   border-radius: 3px;
 }
 

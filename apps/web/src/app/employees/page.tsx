@@ -50,49 +50,49 @@ export default function EmployeesPage() {
     const totalEmployees = employees.length;
 
     return (
-        <div className="min-h-screen bg-slate-950 p-8">
+        <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}
                 <div>
-                    <h1 className="text-4xl font-bold text-white mb-2">Employee Management</h1>
-                    <p className="text-slate-400">Manage employee profiles and payroll information</p>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Employee Management</h1>
+                    <p className="text-gray-500">Manage employee profiles and payroll information</p>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 rounded-3xl p-6 border border-emerald-800/50">
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100 shadow-sm">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-emerald-600/20 rounded-xl">
-                                <Users className="text-emerald-400" size={24} />
+                            <div className="p-3 bg-emerald-100 rounded-xl">
+                                <Users className="text-emerald-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Total Employees</p>
-                                <p className="text-3xl font-bold text-white">{totalEmployees}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Employees</p>
+                                <p className="text-3xl font-bold text-gray-900">{totalEmployees}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-3xl p-6 border border-blue-800/50">
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-6 border border-blue-100 shadow-sm">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-blue-600/20 rounded-xl">
-                                <UserCheck className="text-blue-400" size={24} />
+                            <div className="p-3 bg-blue-100 rounded-xl">
+                                <UserCheck className="text-blue-600" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Active</p>
-                                <p className="text-3xl font-bold text-white">{activeEmployees}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Active</p>
+                                <p className="text-3xl font-bold text-gray-900">{activeEmployees}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-slate-800/30 to-slate-900/30 rounded-3xl p-6 border border-slate-700/50">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-6 border border-gray-200 shadow-sm">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-slate-600/20 rounded-xl">
-                                <UserX className="text-slate-400" size={24} />
+                            <div className="p-3 bg-gray-200 rounded-xl">
+                                <UserX className="text-gray-500" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-400 uppercase tracking-wider">Inactive</p>
-                                <p className="text-3xl font-bold text-white">{totalEmployees - activeEmployees}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider">Inactive</p>
+                                <p className="text-3xl font-bold text-gray-900">{totalEmployees - activeEmployees}</p>
                             </div>
                         </div>
                     </div>
@@ -103,30 +103,30 @@ export default function EmployeesPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-slate-800">
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Employee</th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Email</th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Phone</th>
-                                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</th>
-                                    <th className="text-center py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Salary</th>
+                                <tr className="border-b border-gray-200">
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</th>
+                                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                                    <th className="text-center py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="text-right py-3 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Salary</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-8 text-slate-500">Loading employee data...</td>
+                                        <td colSpan={6} className="text-center py-8 text-gray-500">Loading employee data...</td>
                                     </tr>
                                 ) : employees.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-8 text-slate-500">No employee data available</td>
+                                        <td colSpan={6} className="text-center py-8 text-gray-500">No employee data available</td>
                                     </tr>
                                 ) : (
                                     employees.map((employee) => (
                                         <tr
                                             key={employee.id}
                                             onClick={() => handleEmployeeClick(employee)}
-                                            className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors cursor-pointer"
+                                            className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
                                         >
                                             <td className="py-4 px-4">
                                                 <div className="flex items-center gap-3">
@@ -135,29 +135,29 @@ export default function EmployeesPage() {
                                                         {employee.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-medium text-white">{employee.name}</p>
-                                                        <p className="text-xs text-slate-500">{employee.title || 'Employee'}</p>
+                                                        <p className="text-sm font-medium text-gray-900">{employee.name}</p>
+                                                        <p className="text-xs text-gray-500">{employee.title || 'Employee'}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-4 text-sm text-slate-300">
+                                            <td className="py-4 px-4 text-sm text-gray-600">
                                                 {employee.email || 'N/A'}
                                             </td>
-                                            <td className="py-4 px-4 text-sm text-slate-300">
+                                            <td className="py-4 px-4 text-sm text-gray-600">
                                                 {employee.phone || 'N/A'}
                                             </td>
-                                            <td className="py-4 px-4 text-sm text-white font-medium">
+                                            <td className="py-4 px-4 text-sm text-gray-900 font-medium">
                                                 {employee.payroll?.role || employee.title || 'N/A'}
                                             </td>
                                             <td className="py-4 px-4 text-center">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${employee.payroll
-                                                    ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800/50'
-                                                    : 'bg-slate-700/30 text-slate-400 border border-slate-600/50'
+                                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                                    : 'bg-gray-100 text-gray-500 border border-gray-200'
                                                     }`}>
                                                     {employee.payroll ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-4 text-sm text-white text-right font-semibold">
+                                            <td className="py-4 px-4 text-sm text-gray-900 text-right font-semibold">
                                                 {employee.payroll
                                                     ? `RM ${employee.payroll.total_salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
                                                     : '-'}
