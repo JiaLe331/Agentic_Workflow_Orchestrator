@@ -40,7 +40,7 @@ export function Sidebar() {
                             className={cn(
                                 "group relative flex h-12 w-12 items-center justify-center rounded-xl transition-all",
                                 isActive
-                                    ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
                                     : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
                             )}
                         >

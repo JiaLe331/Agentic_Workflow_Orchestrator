@@ -34,7 +34,7 @@ export default function Home() {
           </p>
 
           <form onSubmit={handleSubmit} className="relative mx-auto w-full">
-            <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm focus-within:border-indigo-600 focus-within:ring-1 focus-within:ring-indigo-600 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600 dark:border-zinc-800 dark:bg-zinc-900">
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -57,7 +57,7 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={!prompt.trim()}
-                  className="inline-flex items-center gap-x-2 rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-x-2 rounded-md bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Generate Agent
                   <Sparkles className="-mr-0.5 h-4 w-4" aria-hidden="true" />

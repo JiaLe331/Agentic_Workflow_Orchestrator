@@ -36,8 +36,8 @@ export function AgentVisualization({ onComplete }: AgentVisualizationProps) {
     return (
         <div className="mx-auto w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-8 shadow-lg dark:border-zinc-800 dark:bg-black">
             <div className="mb-8 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-                    <Unplug className="h-8 w-8 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                    <Unplug className="h-8 w-8 text-emerald-600 dark:text-emerald-400 animate-pulse" />
                 </div>
                 <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
                     Building your Agent
@@ -60,7 +60,7 @@ export function AgentVisualization({ onComplete }: AgentVisualizationProps) {
                             {index < currentStep ? (
                                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                             ) : index === currentStep ? (
-                                <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
+                                <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
                             ) : (
                                 <div className="h-2 w-2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                             )}

@@ -111,10 +111,10 @@ export default function SalesPage() {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-6 border border-blue-100 shadow-sm">
+                    <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-6 border border-cyan-100 shadow-sm">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="p-3 bg-blue-100 rounded-xl">
-                                <TrendingUp className="text-blue-600" size={24} />
+                            <div className="p-3 bg-cyan-100 rounded-xl">
+                                <TrendingUp className="text-cyan-600" size={24} />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider">Total Profit</p>
@@ -151,8 +151,8 @@ export default function SalesPage() {
                                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#0891b2" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#0891b2" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorTax" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
@@ -173,7 +173,7 @@ export default function SalesPage() {
                                 />
                                 <Legend />
                                 <Area type="monotone" dataKey="revenue" stroke="#10b981" fillOpacity={1} fill="url(#colorRevenue)" />
-                                <Area type="monotone" dataKey="profit" stroke="#3b82f6" fillOpacity={1} fill="url(#colorProfit)" />
+                                <Area type="monotone" dataKey="profit" stroke="#0891b2" fillOpacity={1} fill="url(#colorProfit)" />
                                 <Area type="monotone" dataKey="tax" stroke="#a855f7" fillOpacity={1} fill="url(#colorTax)" />
                             </AreaChart>
                         </ResponsiveContainer>
@@ -192,8 +192,8 @@ export default function SalesPage() {
                                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorProfit2" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#0891b2" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#0891b2" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorTax2" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
@@ -214,7 +214,7 @@ export default function SalesPage() {
                                 />
                                 <Legend />
                                 <Area type="monotone" dataKey="revenue" stroke="#10b981" fillOpacity={1} fill="url(#colorRevenue2)" />
-                                <Area type="monotone" dataKey="profit" stroke="#3b82f6" fillOpacity={1} fill="url(#colorProfit2)" />
+                                <Area type="monotone" dataKey="profit" stroke="#0891b2" fillOpacity={1} fill="url(#colorProfit2)" />
                                 <Area type="monotone" dataKey="tax" stroke="#a855f7" fillOpacity={1} fill="url(#colorTax2)" />
                             </AreaChart>
                         </ResponsiveContainer>

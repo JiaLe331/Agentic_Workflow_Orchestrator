@@ -69,7 +69,7 @@ export function LiveWorkflowStatus({
                     <div className="flex items-center gap-2">
                         <div className={`
                             w-2 h-2 rounded-full
-                            ${result ? 'bg-green-500' : 'bg-blue-500 animate-pulse'}
+                            ${result ? 'bg-green-500' : 'bg-emerald-500 animate-pulse'}
                         `} />
                         <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
                             {result ? 'Workflow Ready' : 'Building Workflow...'}
@@ -162,7 +162,7 @@ export function LiveWorkflowStatus({
                                             <div className={`
                         relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5
                         ${status === 'completed' ? 'bg-green-500 text-white' :
-                                                    status === 'active' ? 'bg-blue-500 text-white ring-4 ring-blue-500/20' :
+                                                    status === 'active' ? 'bg-emerald-500 text-white ring-4 ring-emerald-500/20' :
                                                         'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'}
                       `}>
                                                 {status === 'completed' ? <CheckCircle2 className="w-4 h-4" /> :
@@ -171,7 +171,7 @@ export function LiveWorkflowStatus({
                                             </div>
 
                                             <div>
-                                                <h3 className={`font-medium ${status === 'active' ? 'text-blue-600 dark:text-blue-400' :
+                                                <h3 className={`font-medium ${status === 'active' ? 'text-emerald-600 dark:text-emerald-400' :
                                                     status === 'completed' ? 'text-zinc-900 dark:text-zinc-100' :
                                                         'text-zinc-400 dark:text-zinc-600'
                                                     }`}>
@@ -210,7 +210,7 @@ export function LiveWorkflowStatus({
                                     <div key={i} className="break-words">
                                         <span className="text-zinc-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{' '}
                                         {log.type === 'log' && <span className="text-zinc-300">{log.data}</span>}
-                                        {log.type === 'step' && <span className="text-blue-400 font-bold">Step: {log.status}</span>}
+                                        {log.type === 'step' && <span className="text-cyan-400 font-bold">Step: {log.status}</span>}
                                         {log.type === 'step' && typeof log.data === 'object' && (
                                             <pre className="text-xs text-zinc-500 mt-1 pl-4 overflow-x-auto">
                                                 {JSON.stringify(log.data, null, 2)}

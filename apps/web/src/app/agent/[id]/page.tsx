@@ -69,7 +69,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                     <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300">
                         {workflow.department}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400">
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                         v2.1.0-dynamic
                     </span>
                 </div>
@@ -82,7 +82,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/80 dark:backdrop-blur-xl">
                             <div className="border-b border-zinc-100 bg-zinc-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/50">
                                 <h2 className="flex items-center text-lg font-semibold text-zinc-900 dark:text-white">
-                                    <Terminal className="mr-2 h-5 w-5 text-indigo-500" />
+                                    <Terminal className="mr-2 h-5 w-5 text-emerald-500" />
                                     Input Parameters
                                 </h2>
                             </div>
@@ -109,7 +109,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                                                                 }
                                                             }}
                                                         />
-                                                        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 py-6 text-center transition-all peer-hover:border-indigo-500 peer-hover:bg-indigo-50/50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:peer-hover:border-indigo-500/50 dark:peer-hover:bg-indigo-900/20">
+                                                        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 py-6 text-center transition-all peer-hover:border-emerald-500 peer-hover:bg-emerald-50/50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:peer-hover:border-emerald-500/50 dark:peer-hover:bg-emerald-900/20">
                                                             <div className="mb-2 rounded-full bg-zinc-100 p-2 dark:bg-zinc-800">
                                                                 <ArrowLeft className="h-5 w-5 rotate-90 text-zinc-500 dark:text-zinc-400" />
                                                             </div>
@@ -127,7 +127,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                                                             type={input.type || "text"}
                                                             value={inputs[input.key] as string || ""}
                                                             onChange={(e) => setInputs({ ...inputs, [input.key]: e.target.value })}
-                                                            className="block w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-zinc-900"
+                                                            className="block w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-white dark:focus:border-emerald-500 dark:focus:bg-zinc-900"
                                                             placeholder={`Enter ${input.label.toLowerCase()}...`}
                                                         />
                                                     </div>
@@ -146,7 +146,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                                     <button
                                         onClick={handleExecute}
                                         disabled={isExecuting}
-                                        className="group relative flex w-full items-center justify-center overflow-hidden rounded-lg bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-500 hover:shadow-indigo-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="group relative flex w-full items-center justify-center overflow-hidden rounded-lg bg-emerald-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-emerald-500 hover:shadow-emerald-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
                                         <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                                         {isExecuting ? (
@@ -177,7 +177,7 @@ export default function AgentExecutionPage({ params }: { params: Promise<{ id: s
                             <div className="flex h-full flex-col items-center justify-center text-zinc-500">
                                 {isExecuting ? (
                                     <div className="flex flex-col items-center space-y-4">
-                                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+                                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
                                         <p>Processing with n8n agents...</p>
                                     </div>
                                 ) : (

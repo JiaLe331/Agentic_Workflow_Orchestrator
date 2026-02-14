@@ -226,7 +226,7 @@ function PipelineView({ title, source, process, target }: {
                     </div>
                     {process.steps.map((step, i) => (
                         <div key={i} className="flex w-full items-center gap-3 rounded bg-white px-4 py-3 shadow-sm dark:bg-zinc-800">
-                            <div className="h-2 w-2 animate-pulse rounded-full bg-indigo-500" style={{ animationDelay: `${i * 200}ms` }} />
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" style={{ animationDelay: `${i * 200}ms` }} />
                             <span className="text-xs text-zinc-700 dark:text-zinc-300">{step}</span>
                         </div>
                     ))}

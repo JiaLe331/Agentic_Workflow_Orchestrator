@@ -24,8 +24,8 @@ const getCategoryInfo = (productName: string): CategoryInfo => {
         return {
             name: 'Electronics',
             icon: Smartphone,
-            gradient: 'from-blue-400 to-blue-600',
-            bgColor: 'bg-blue-50'
+            gradient: 'from-cyan-400 to-cyan-600',
+            bgColor: 'bg-cyan-50'
         };
     }
 
@@ -91,8 +91,8 @@ const getCategoryInfo = (productName: string): CategoryInfo => {
         return {
             name: 'Clothing & Fashion',
             icon: Shirt,
-            gradient: 'from-indigo-400 to-indigo-600',
-            bgColor: 'bg-indigo-50'
+            gradient: 'from-violet-400 to-violet-600',
+            bgColor: 'bg-violet-50'
         };
     }
 

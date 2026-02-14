@@ -73,10 +73,10 @@ export default function EmployeesPage() {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-6 border border-blue-100 shadow-sm">
+                    <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-3xl p-6 border border-cyan-100 shadow-sm">
                         <div className="flex items-center gap-3">
-                            <div className="p-3 bg-blue-100 rounded-xl">
-                                <UserCheck className="text-blue-600" size={24} />
+                            <div className="p-3 bg-cyan-100 rounded-xl">
+                                <UserCheck className="text-cyan-600" size={24} />
                             </div>
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider">Active</p>

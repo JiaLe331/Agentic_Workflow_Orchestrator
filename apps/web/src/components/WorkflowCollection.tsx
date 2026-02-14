@@ -87,7 +87,7 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selecte
                                     e.stopPropagation();
                                     setSelectedWorkflow(workflow);
                                 }}
-                                className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg hover:shadow-xl hover:scale-105 z-10"
+                                className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 text-white transition-all bg-emerald-600 rounded-full hover:bg-emerald-700 shadow-lg hover:shadow-xl hover:scale-105 z-10"
                                 title="Run Workflow"
                             >
                                 <IconPlayerPlay className="w-5 h-5 ml-0.5" stroke={2} />

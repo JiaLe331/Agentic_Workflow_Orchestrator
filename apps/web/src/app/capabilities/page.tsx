@@ -23,7 +23,7 @@ export default function CapabilitiesPage() {
             before: "HR spends 4 hours manually creating accounts, drafting emails, and scheduling training sessions.",
             after: "Workflow executes in 2 minutes. Accounts created, welcome email sent, training scheduled automatically.",
             entities: ["HR.Employees", "HR.Statutory_Rates", "IT.Accounts"],
-            color: "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+            color: "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300"
         },
         {
             title: "Sales Commission Payout",
@@ -81,7 +81,7 @@ export default function CapabilitiesPage() {
                 {/* Scenarios */}
                 <section className="mb-16">
                     <h2 className="mb-6 flex items-center text-lg font-semibold text-zinc-900 dark:text-white">
-                        <FileText className="mr-2 h-5 w-5 text-indigo-500" />
+                        <FileText className="mr-2 h-5 w-5 text-emerald-500" />
                         Real-World Scenarios
                     </h2>
                     <div className="space-y-6">
@@ -111,13 +111,13 @@ export default function CapabilitiesPage() {
                                         <div className="mb-2 text-xs font-medium text-zinc-500">Touched Entities</div>
                                         <div className="flex flex-wrap gap-2">
                                             {scenario.entities.map((entity, i) => (
-                                                <Link href="/entity-map" key={i} className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs font-mono text-zinc-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:text-indigo-400">
+                                                <Link href="/entity-map" key={i} className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs font-mono text-zinc-600 hover:border-emerald-300 hover:text-emerald-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:text-emerald-400">
                                                     {entity}
                                                 </Link>
                                             ))}
                                         </div>
                                         <div className="mt-4 flex items-center justify-end">
-                                            <Link href="/collections" className="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+                                            <Link href="/collections" className="text-xs font-medium text-emerald-600 hover:underline dark:text-emerald-400">
                                                 Try automating this →
                                             </Link>
                                         </div>

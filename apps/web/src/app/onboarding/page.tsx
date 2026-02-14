@@ -43,7 +43,7 @@ export default function OnboardingPage() {
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow mb-3 relative group">
             <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
                         {(candidate.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
                     <div>
@@ -101,7 +101,7 @@ export default function OnboardingPage() {
                     <div className="flex flex-col h-full">
                         <div className="flex items-center justify-between mb-4 px-1">
                             <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                                <span className="h-2 w-2 rounded-full bg-teal-500"></span>
                                 Interview Stage
                             </h3>
                             <span className="bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs font-medium">
