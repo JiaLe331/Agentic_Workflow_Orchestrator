@@ -4,7 +4,128 @@ import { useState, useEffect } from 'react';
 import { BentoCard } from '@/components/BentoCard';
 import { Product, fetchProducts, fetchTopProducts } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Package, TrendingUp, DollarSign } from 'lucide-react';
+import { Package, TrendingUp, DollarSign, Smartphone, Home, Dumbbell, Sparkles, Gamepad2, Coffee, Shirt, BookOpen, Car, Briefcase } from 'lucide-react';
+
+// Category mapping based on product name keywords
+type CategoryInfo = {
+    name: string;
+    icon: React.ElementType;
+    gradient: string;
+    bgColor: string;
+};
+
+const getCategoryInfo = (productName: string): CategoryInfo => {
+    const name = productName.toLowerCase();
+
+    // Electronics
+    if (name.includes('phone') || name.includes('computer') || name.includes('laptop') ||
+        name.includes('tablet') || name.includes('camera') || name.includes('headphone') ||
+        name.includes('mouse') || name.includes('keyboard') || name.includes('monitor')) {
+        return {
+            name: 'Electronics',
+            icon: Smartphone,
+            gradient: 'from-blue-400 to-blue-600',
+            bgColor: 'bg-blue-50'
+        };
+    }
+
+    // Home & Garden
+    if (name.includes('table') || name.includes('chair') || name.includes('sofa') ||
+        name.includes('lamp') || name.includes('garden') || name.includes('plant') ||
+        name.includes('furniture') || name.includes('home')) {
+        return {
+            name: 'Home & Garden',
+            icon: Home,
+            gradient: 'from-green-400 to-green-600',
+            bgColor: 'bg-green-50'
+        };
+    }
+
+    // Sports & Outdoors
+    if (name.includes('bike') || name.includes('ball') || name.includes('sport') ||
+        name.includes('fitness') || name.includes('outdoor') || name.includes('camping')) {
+        return {
+            name: 'Sports & Outdoors',
+            icon: Dumbbell,
+            gradient: 'from-orange-400 to-orange-600',
+            bgColor: 'bg-orange-50'
+        };
+    }
+
+    // Beauty & Health
+    if (name.includes('beauty') || name.includes('cosmetic') || name.includes('health') ||
+        name.includes('skincare') || name.includes('makeup') || name.includes('perfume')) {
+        return {
+            name: 'Beauty & Health',
+            icon: Sparkles,
+            gradient: 'from-pink-400 to-pink-600',
+            bgColor: 'bg-pink-50'
+        };
+    }
+
+    // Toys & Games
+    if (name.includes('toy') || name.includes('game') || name.includes('puzzle') ||
+        name.includes('doll') || name.includes('lego') || name.includes('play')) {
+        return {
+            name: 'Toys & Games',
+            icon: Gamepad2,
+            gradient: 'from-purple-400 to-purple-600',
+            bgColor: 'bg-purple-50'
+        };
+    }
+
+    // Food & Beverage
+    if (name.includes('food') || name.includes('drink') || name.includes('coffee') ||
+        name.includes('tea') || name.includes('snack') || name.includes('beverage')) {
+        return {
+            name: 'Food & Beverage',
+            icon: Coffee,
+            gradient: 'from-amber-400 to-amber-600',
+            bgColor: 'bg-amber-50'
+        };
+    }
+
+    // Clothing & Fashion
+    if (name.includes('shirt') || name.includes('pants') || name.includes('dress') ||
+        name.includes('shoes') || name.includes('fashion') || name.includes('clothing')) {
+        return {
+            name: 'Clothing & Fashion',
+            icon: Shirt,
+            gradient: 'from-indigo-400 to-indigo-600',
+            bgColor: 'bg-indigo-50'
+        };
+    }
+
+    // Books & Media
+    if (name.includes('book') || name.includes('magazine') || name.includes('media') ||
+        name.includes('dvd') || name.includes('music')) {
+        return {
+            name: 'Books & Media',
+            icon: BookOpen,
+            gradient: 'from-teal-400 to-teal-600',
+            bgColor: 'bg-teal-50'
+        };
+    }
+
+    // Automotive
+    if (name.includes('car') || name.includes('auto') || name.includes('vehicle') ||
+        name.includes('tire') || name.includes('motor')) {
+        return {
+            name: 'Automotive',
+            icon: Car,
+            gradient: 'from-red-400 to-red-600',
+            bgColor: 'bg-red-50'
+        };
+    }
+
+    // Office Supplies (default)
+    return {
+        name: 'Office Supplies',
+        icon: Briefcase,
+        gradient: 'from-emerald-400 to-emerald-600',
+        bgColor: 'bg-emerald-50'
+    };
+};
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -97,20 +218,20 @@ export default function ProductsPage() {
                                     key={product.id}
                                     className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-emerald-500 transition-all hover:shadow-xl hover:shadow-emerald-100"
                                 >
-                                    {/* Product Image */}
-                                    <div className="h-48 bg-gray-100 overflow-hidden relative">
-                                        <img
-                                            src={`https://loremflickr.com/320/240/${product.item_name.split(' - ')[0].trim().toLowerCase()}?lock=${product.id}`}
-                                            alt={product.item_name}
-                                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                                e.currentTarget.parentElement!.classList.add('flex', 'items-center', 'justify-center');
-                                                // Create fallback icon element manually or just show text
-                                                e.currentTarget.parentElement!.innerHTML = '<span class="text-gray-400">No Image</span>';
-                                            }}
-                                        />
-                                    </div>
+                                    {/* Product Image - Category Based Illustration */}
+                                    {(() => {
+                                        const category = getCategoryInfo(product.item_name);
+                                        const CategoryIcon = category.icon;
+                                        return (
+                                            <div className={`h-48 ${category.bgColor} overflow-hidden relative flex items-center justify-center group`}>
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                                                <CategoryIcon className="w-24 h-24 text-gray-400 group-hover:text-gray-500 transition-all duration-300 group-hover:scale-110" strokeWidth={1.5} />
+                                                <div className="absolute bottom-3 right-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700 border border-gray-200">
+                                                    {category.name}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Product Details */}
                                     <div className="p-4">
