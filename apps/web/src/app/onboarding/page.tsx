@@ -19,33 +19,52 @@ export default function OnboardingPage() {
         setLoading(false);
     };
 
-    // Filter candidates into columns
-    const interviewStage = candidates.filter(c => !c.onboarded && !c.technical_assessment);
-    const techAssessmentStage = candidates.filter(c => !c.onboarded && c.technical_assessment);
-    const onboardedStage = candidates.filter(c => c.onboarded);
+    // Filter candidates based on stage numbers
+    const interviewStage = candidates.filter(c => c.interview_stage === 1 || c.interview_stage === 2);
+    const techAssessmentStage = candidates.filter(c => c.interview_stage === 3 || c.interview_stage === 4);
+    const onboardedStage = candidates.filter(c => c.interview_stage >= 5);
 
-    const CandidateCard = ({ candidate }: { candidate: Onboarding }) => (
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow mb-3">
+    const removeCandidate = (id: string) => {
+        setCandidates(prev => prev.filter(c => c.id !== id));
+    };
+
+    const getStageLabel = (stage: number) => {
+        switch (stage) {
+            case 1: return 'HR Screening';
+            case 2: return 'Manager Interview';
+            case 3: return 'Take-home Assignment';
+            case 4: return 'Technical Review';
+            case 5: return 'Onboarding Completed';
+            default: return `Stage ${stage}`;
+        }
+    };
+
+    const CandidateCard = ({ candidate, onRemove }: { candidate: Onboarding; onRemove: (id: string) => void }) => (
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow mb-3 relative group">
             <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                        {(candidate.full_name || candidate.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                        {(candidate.name || '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                        <h4 className="text-sm font-semibold text-gray-900">{candidate.full_name || candidate.name}</h4>
+                        <h4 className="text-sm font-semibold text-gray-900">{candidate.name}</h4>
                         <p className="text-xs text-gray-500">{candidate.email || 'No email'}</p>
                     </div>
                 </div>
+                <button
+                    onClick={() => onRemove(candidate.id)}
+                    className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                    title="Remove candidate"
+                >
+                    <XCircle size={16} />
+                </button>
             </div>
 
             <div className="space-y-2 mt-3">
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-2">
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-600">
-                        {candidate.interview_stage === 1 ? 'Screening' :
-                            candidate.interview_stage === 2 ? 'Technical Interview' :
-                                candidate.interview_stage === 3 ? 'Final Interview' :
-                                    `Stage ${candidate.interview_stage}`}
+                        {getStageLabel(candidate.interview_stage)}
                     </span>
                 </div>
 
@@ -97,7 +116,7 @@ export default function OnboardingPage() {
                                     <p className="text-sm">No candidates in interview</p>
                                 </div>
                             ) : (
-                                interviewStage.map(c => <CandidateCard key={c.id} candidate={c} />)
+                                interviewStage.map(c => <CandidateCard key={c.id} candidate={c} onRemove={removeCandidate} />)
                             )}
                         </div>
                     </div>
@@ -121,7 +140,7 @@ export default function OnboardingPage() {
                                     <p className="text-sm">No candidates in assessment</p>
                                 </div>
                             ) : (
-                                techAssessmentStage.map(c => <CandidateCard key={c.id} candidate={c} />)
+                                techAssessmentStage.map(c => <CandidateCard key={c.id} candidate={c} onRemove={removeCandidate} />)
                             )}
                         </div>
                     </div>
@@ -145,7 +164,7 @@ export default function OnboardingPage() {
                                     <p className="text-sm">No onboarded candidates</p>
                                 </div>
                             ) : (
-                                onboardedStage.map(c => <CandidateCard key={c.id} candidate={c} />)
+                                onboardedStage.map(c => <CandidateCard key={c.id} candidate={c} onRemove={removeCandidate} />)
                             )}
                         </div>
                     </div>
