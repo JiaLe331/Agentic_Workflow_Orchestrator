@@ -55,6 +55,7 @@ export interface Workflow {
     userPrompt?: string;
     imageUrl?: string;
     executionPlan?: ExecutionStep[];
+    inputRequirements?: Record<string, any> | null;
     createdAt: string;
     updatedAt: string;
 }

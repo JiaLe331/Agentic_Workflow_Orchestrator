@@ -1,4 +1,4 @@
-import { IconPlayerPlay, IconArrowRight, IconTable, IconBrain, IconMail, IconFileUpload, IconBrandWhatsapp, IconFileTextFilled } from '@tabler/icons-react';
+import { IconPlayerPlay, IconArrowRight, IconTable, IconBrain, IconMail, IconFileUpload, IconBrandWhatsapp, IconFileTextFilled, IconSquare, IconSquareCheckFilled } from '@tabler/icons-react';
 import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { useState } from 'react';
@@ -9,6 +9,8 @@ interface WorkflowCollectionProps {
     onEdit?: (workflow: Workflow) => void;
     onDelete?: (id: string) => void;
     onRun?: (workflow: Workflow) => void;
+    selectedIds?: Set<string>;
+    onToggleSelect?: (id: string) => void;
 }
 
 const getTableIcon = (tableName: string) => {
@@ -21,7 +23,7 @@ const getTableIcon = (tableName: string) => {
     return IconTable;
 };
 
-export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: WorkflowCollectionProps) {
+export function WorkflowCollection({ workflows, onEdit, onDelete, onRun, selectedIds, onToggleSelect }: WorkflowCollectionProps) {
     const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
 
     if (!workflows || workflows.length === 0) {
@@ -39,8 +41,28 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                     <div
                         key={workflow.id}
                         onClick={() => setSelectedWorkflow(workflow)}
-                        className="relative flex flex-col transition-all border border-gray-200 shadow-sm bg-white/50 hover:bg-white rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 dark:border-gray-700 hover:-translate-y-1 cursor-pointer overflow-hidden group"
+                        className={`relative flex flex-col transition-all border shadow-sm rounded-xl hover:shadow-lg dark:bg-gray-800/50 dark:hover:bg-gray-800 hover:-translate-y-1 cursor-pointer overflow-hidden group ${selectedIds?.has(workflow.id)
+                            ? 'border-blue-400 bg-blue-50/50 dark:border-blue-600 ring-2 ring-blue-500/20'
+                            : 'border-gray-200 bg-white/50 hover:bg-white dark:border-gray-700'
+                            }`}
                     >
+                        {/* Selection Checkbox */}
+                        {onToggleSelect && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleSelect(workflow.id);
+                                }}
+                                className="absolute top-3 left-3 z-20 p-0.5 rounded-md transition-all hover:scale-110"
+                                title={selectedIds?.has(workflow.id) ? 'Deselect' : 'Select'}
+                            >
+                                {selectedIds?.has(workflow.id) ? (
+                                    <IconSquareCheckFilled size={22} className="text-blue-600 dark:text-blue-400" />
+                                ) : (
+                                    <IconSquare size={22} className="text-gray-300 group-hover:text-gray-400 dark:text-gray-600 dark:group-hover:text-gray-500 transition-colors" />
+                                )}
+                            </button>
+                        )}
                         <div className="relative group/image">
                             {workflow.imageUrl ? (
                                 <div className="h-48 w-full border-b border-gray-100 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
@@ -63,7 +85,7 @@ export function WorkflowCollection({ workflows, onEdit, onDelete, onRun }: Workf
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onRun && onRun(workflow);
+                                    setSelectedWorkflow(workflow);
                                 }}
                                 className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg hover:shadow-xl hover:scale-105 z-10"
                                 title="Run Workflow"

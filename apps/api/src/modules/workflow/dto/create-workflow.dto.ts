@@ -41,4 +41,7 @@ export class CreateWorkflowDto {
     @IsOptional()
     @IsArray()
     executionPlan?: any[];
+
+    @IsOptional()
+    inputRequirements?: any;
 }
