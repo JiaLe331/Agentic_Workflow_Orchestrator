@@ -80,7 +80,8 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                     "intent": generalized_workflow.intent, 
                     "title": generalized_workflow.title, 
                     "operation": generalized_workflow.operation,
-                    "target_table": generalized_workflow.target_table
+                    "target_table": generalized_workflow.target_table,
+                    "required_docs": generalized_workflow.required_docs or []
                 }
             })
 
@@ -124,7 +125,7 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
             for doc_name in generalized_workflow.required_docs:
                 doc_path = os.path.join("docs", doc_name)
                 if os.path.exists(doc_path):
-                    with open(doc_path, "r") as f:
+                    with open(doc_path, "r", encoding="utf-8") as f:
                         context_text += f"\n\n--- {doc_name} ---\n{f.read()}"
                 else:
                     print(f"  > Warning: Doc {doc_name} not found.")

@@ -81,10 +81,11 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - **IMAGE**: Use "image_generation_tool.md" for generating or editing images.
 
            **CATEGORY C: CONNECTORS (Bridging Tools)**
-           - Available: [node_connectors/pdf-to-llm.md, node_connectors/upload-file-to-pdf.md, node_connectors/llm-to-email.md]
+           - Available: [node_connectors/pdf-to-llm.md, node_connectors/upload-file-to-pdf.md, node_connectors/llm-to-email.md, node_connectors/image-to-email.md]
            - **PDF + LLM**: If `pdf_reader_tool.md` AND `llm_tool.md` are used -> Add "node_connectors/pdf-to-llm.md".
            - **PDF UPLOAD**: If `pdf_reader_tool.md` is to be used with a file upload -> Add "node_connectors/upload-file-to-pdf.md".
            - **LLM + EMAIL**: If `llm_tool.md` AND `email_tool.md` are used -> Add "node_connectors/llm-to-email.md".
+           - **IMAGE + EMAIL**: If `image_generation_tool.md` AND `email_tool.md` are used -> Add "node_connectors/image-to-email.md".
 
         10. **POPULATE `tables_involved`**:
            - **MUST** include ALL table names (e.g. "employee", "pay_roll").

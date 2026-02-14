@@ -121,7 +121,7 @@ def execute_workflow_via_api():
         return None, None, None
 
     print(f"Loading {workflow_file}...")
-    with open(workflow_file, "r") as f:
+    with open(workflow_file, "r", encoding="utf-8") as f:
         workflow_json = json.load(f)
 
     # 1. Import

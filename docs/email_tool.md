@@ -5,7 +5,7 @@ GOAL:
 Always output a valid n8n node JSON that sends an Email using the internal API.
 
 ENDPOINT:
-POST <http://host.docker.internal:8000/api/email/send>
+POST http://host.docker.internal:8000/api/email/send
 
 PAYLOAD FIELDS:
 
@@ -21,16 +21,24 @@ CRITICAL RULES FOR jsonBody:
 3) NEVER use single quotes (').
 4) NEVER use JSON.stringify().
 5) NEVER wrap the entire object in an expression like ={{ ... }}.
-6) Use n8n expressions ONLY inside JSON string values:
-   - Correct: "{{ $json.to }}"
-   - Correct: "{{ $json.subject }}"
+6) Use n8n expressions ONLY inside JSON string values.
 7) Because jsonBody is inside JSON, escape inner quotes with backslashes (\").
 
-MANDATORY jsonBody FORMAT (DO NOT CHANGE):
+IMAGE WORKFLOW RULE (CRITICAL):
+- If upstream includes an image URL in `{{ $json.output }}` (from Image Generator),
+  DO NOT create a "Prepare Email" Set node.
+- Connect `Image Generator -> Send Email` directly.
+- Build html directly from the URL:
+  `{{ '<img src=\"' + $json.output + '\" alt=\"Generated Image\" />' }}`
+- Never use `data:image/png;base64,` in html for image workflows.
 
+GENERIC EMAIL MODE (when upstream already has to/subject/html):
 "jsonBody": "={ \"to\": \"{{ $json.to }}\", \"subject\": \"{{ $json.subject }}\", \"html\": \"{{ $json.html || $json.body }}\" }"
 
-MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
+IMAGE TO EMAIL MODE (when upstream is Image Generator):
+"jsonBody": "={ \"to\": \"lijiebiz@gmail.com\", \"subject\": \"Happy Chinese New Year\", \"html\": \"{{ '<img src=\\\"' + $json.output + '\\\" alt=\\\"Generated Image\\\" />' }}\" }"
+
+SEND EMAIL NODE TEMPLATE (REQUIRED STRUCTURE):
 
 ### Response
 
@@ -47,7 +55,7 @@ MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
 {
   "parameters": {
     "method": "POST",
-    "url": "<http://host.docker.internal:8000/api/email/send>",
+    "url": "http://host.docker.internal:8000/api/email/send",
     "authentication": "genericCredentialType",
     "genericAuthType": "httpHeaderAuth",
     "sendBody": true,
@@ -69,9 +77,10 @@ MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
 VALIDATION CHECK BEFORE OUTPUT:
 
 - jsonBody contains double quotes only.
-- jsonBody contains {{ $json.to }} and {{ $json.subject }}.
 - jsonBody does NOT contain JSON.stringify.
 - jsonBody does NOT contain single quotes.
-- The node matches the template exactly.
+- For image workflows, html uses `<img src="...">` from `{{ $json.output }}`.
+- For image workflows, there is no "Prepare Email" Set node.
+- The node uses `n8n-nodes-base.httpRequest` with `typeVersion: 4.2`.
 
 If any rule is violated, regenerate the output.

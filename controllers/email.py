@@ -9,8 +9,10 @@ import os
 import smtplib
 import ssl
 import uuid
+from html import escape
 from typing import Optional, List, Dict, Any
 from pathlib import Path
+from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from email.message import EmailMessage
@@ -74,6 +76,36 @@ def validate_api_key(x_api_key: Optional[str] = Header(None)):
 
 def smtp_configured() -> bool:
     return bool(SMTP_HOST and SMTP_PORT and SMTP_USER and SMTP_PASSWORD)
+
+
+def _is_valid_http_url(url: str) -> bool:
+    """Allow only absolute http/https URLs."""
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+    return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+
+
+def _build_safe_image_html(image_url: str) -> str:
+    """Render a safe HTML wrapper for remote images."""
+    safe_url = escape(image_url, quote=True)
+    return (
+        "<html><body>"
+        '<img src="{}" alt="Generated Image" style="max-width:100%;height:auto;" />'
+        "</body></html>"
+    ).format(safe_url)
+
+
+def normalize_html_input(html_value: str) -> str:
+    """
+    Normalize incoming HTML content.
+    If caller sends only a URL, treat it as an image URL and wrap in <img>.
+    """
+    value = html_value.strip()
+    if _is_valid_http_url(value):
+        return _build_safe_image_html(value)
+    return html_value
 
 
 def load_template(template_name: str):
@@ -152,9 +184,10 @@ async def send_email(request: EmailRequest, x_api_key: Optional[str] = Header(No
     try:
         if request.html:
             # Add plain text fallback
-            text_body = request.body or ""
+            safe_html = normalize_html_input(request.html)
+            text_body = request.body or request.html
             msg.set_content(text_body)
-            msg.add_alternative(request.html, subtype="html")
+            msg.add_alternative(safe_html, subtype="html")
         else:
             msg.set_content(request.body or "")
 

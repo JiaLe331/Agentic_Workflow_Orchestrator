@@ -1,45 +1,51 @@
 ROLE:
-You are generating an n8n HTTP Request node for calling an Image Generation Tool (Gemini).
+You are generating an n8n HTTP Request node for the internal Image Generation API.
 
 GOAL:
-Always output a valid n8n node JSON that calls the internal Image Generation API.
+Always output a valid n8n node JSON that generates an image and returns a public Firebase URL.
 
 ENDPOINT:
-POST [http://host.docker.internal:8000/api/image](http://host.docker.internal:8000/api/image)
+POST http://host.docker.internal:8000/api/image
 
 PAYLOAD FIELDS:
+- prompt: Required. Text description of the image to generate.
+- image: Optional. Input image file for image editing mode.
+- workflow_id: Optional. Used as Firebase folder key. If omitted, backend auto-generates one.
+- filename: Optional. Output file name in Firebase. If omitted, backend auto-generates one.
 
-- prompt: (Required) The text description of the image to generate.
-- image: (Optional) Base64 encoded image or binary file if editing an image (multipart/form-data). **Note**: For n8n, we typically send JSON. If the API requires form-data, ensure the node is configured for `multipart/form-data`. However, to keep it simple for this tool, we will primarily support text-to-image via form fields if possible, or assume the API handles standard form-data.
-  *Self-correction*: The controller uses `Form(...)` and `UploadFile`. N8n's HTTP Request node handles multipart/form-data.
-
-### Response
-
+RESPONSE:
 ```json
 {
   "success": true,
-  "output": "<base64_encoded_image_string>",
+  "output": "https://firebasestorage.googleapis.com/.../image.png",
   "metadata": {
-      "model": "gemini-2.5-flash-image",
-      "content_type": "image/png"
+    "model": "gemini-2.5-flash-image",
+    "content_type": "image/png",
+    "workflow_id": "abc123",
+    "filename": "cny_image.png",
+    "path": "workflow/abc123/cny_image.png"
   }
 }
 ```
 
-### Important
+IMPORTANT:
+- `output` is already a PUBLIC IMAGE URL.
+- Do NOT add a separate upload node after Image Generator.
+- Use `{{ $json.output }}` directly in Email/WhatsApp/image URL fields.
+- If email is also required, follow `docs/node_connectors/image-to-email.md`.
 
-- The generated image is returned as a specific Base64 string in the `output` field.
-- Map `{{ $json.output }}` to subsequent nodes (e.g., Upload to Firebase, Send via WhatsApp).
+EMAIL MAPPING EXAMPLE:
+```json
+{
+  "html": "={{ '<img src=\"' + $json.output + '\" alt=\"Generated Image\" />' }}"
+}
+```
 
-CRITICAL RULES FOR jsonBody (If using JSON):
-*Actually, since the controller expects `Form` and `UploadFile`, we should use `multipart/form-data`.*
-
-MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
-
+MANDATORY IMAGE GENERATOR NODE TEMPLATE (REPRODUCE EXACTLY):
 {
   "parameters": {
     "method": "POST",
-    "url": "[http://host.docker.internal:8000/api/image](http://host.docker.internal:8000/api/image)",
+    "url": "http://host.docker.internal:8000/api/image",
     "sendBody": true,
     "contentType": "multipart-form-data",
     "bodyParameters": {
@@ -47,6 +53,14 @@ MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
         {
           "name": "prompt",
           "value": "={{ $json.prompt || $json.user_input || 'A futuristic city' }}"
+        },
+        {
+          "name": "workflow_id",
+          "value": "={{ $execution.id }}"
+        },
+        {
+          "name": "filename",
+          "value": "={{ 'image_' + $now.format('YYYY-MM-DD_HH-mm-ss') + '.png' }}"
         }
       ]
     },
@@ -58,9 +72,9 @@ MANDATORY NODE TEMPLATE (REPRODUCE EXACTLY):
 }
 
 VALIDATION CHECK BEFORE OUTPUT:
-
-- content type is `multipart-form-data`.
-- prompt parameter is set.
-- The node matches the template exactly.
+- Content type is `multipart-form-data`.
+- Prompt is mapped.
+- For workflows that send email/whatsapp, downstream nodes use `{{ $json.output }}` as URL.
+- There is no extra base64 upload step after Image Generator.
 
 If any rule is violated, regenerate the output.
