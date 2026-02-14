@@ -3,7 +3,13 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { LiveLog, LiveStatusStep } from "@/components/LiveWorkflowStatus";
 import { useWorkflows } from "@/hooks/use-workflows";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
+const STEP_MIN_DISPLAY_MS: Partial<Record<LiveStatusStep, number>> = {
+    guard_passed: 1200,
+    screenshot: 1400,
+    executed: 1800,
+};
 
 interface LiveStatusContextType {
     liveLogs: LiveLog[];
@@ -29,13 +35,102 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
     const [isOpen, setIsOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const webSocketRef = useRef<WebSocket | null>(null);
+    const activeSessionRef = useRef(0);
+    const stepQueueRef = useRef<Promise<void>>(Promise.resolve());
+    const stepDisplayStateRef = useRef<{ lastStep: LiveStatusStep | null; lastStepAt: number }>({
+        lastStep: null,
+        lastStepAt: 0,
+    });
 
     const { generate } = useWorkflows();
     const router = useRouter();
+    const pathname = usePathname();
+    const isInitialPathRef = useRef(true);
 
-    const connectWebSocket = useCallback((clientId: string) => {
+    const enqueueStepTransition = useCallback((sessionId: number, status: LiveStatusStep, resultData?: any) => {
+        const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+        stepQueueRef.current = stepQueueRef.current
+            .then(async () => {
+                if (sessionId !== activeSessionRef.current) return;
+
+                const previousStep = stepDisplayStateRef.current.lastStep;
+                if (previousStep) {
+                    const minVisibleMs = STEP_MIN_DISPLAY_MS[previousStep] ?? 0;
+                    if (minVisibleMs > 0) {
+                        const elapsed = Date.now() - stepDisplayStateRef.current.lastStepAt;
+                        const remaining = minVisibleMs - elapsed;
+                        if (remaining > 0) {
+                            await wait(remaining);
+                            if (sessionId !== activeSessionRef.current) return;
+                        }
+                    }
+                }
+
+                setCurrentStep(status);
+                stepDisplayStateRef.current = { lastStep: status, lastStepAt: Date.now() };
+
+                if (status === 'executed' && resultData) {
+                    const executedVisibleMs = STEP_MIN_DISPLAY_MS.executed ?? 0;
+                    if (executedVisibleMs > 0) {
+                        await wait(executedVisibleMs);
+                        if (sessionId !== activeSessionRef.current) return;
+                    }
+                    setGenerationResult(resultData);
+                    setIsGenerating(false);
+                }
+            })
+            .catch((error) => {
+                console.error("Step transition queue error", error);
+            });
+    }, []);
+
+    const enqueueCompletionTransition = useCallback((sessionId: number, completionMessage?: string) => {
+        const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+        stepQueueRef.current = stepQueueRef.current
+            .then(async () => {
+                if (sessionId !== activeSessionRef.current) return;
+
+                const previousStep = stepDisplayStateRef.current.lastStep;
+                if (previousStep) {
+                    const minVisibleMs = STEP_MIN_DISPLAY_MS[previousStep] ?? 0;
+                    if (minVisibleMs > 0) {
+                        const elapsed = Date.now() - stepDisplayStateRef.current.lastStepAt;
+                        const remaining = minVisibleMs - elapsed;
+                        if (remaining > 0) {
+                            await wait(remaining);
+                            if (sessionId !== activeSessionRef.current) return;
+                        }
+                    }
+                }
+
+                if (stepDisplayStateRef.current.lastStep !== 'executed') {
+                    setCurrentStep('executed');
+                    stepDisplayStateRef.current = { lastStep: 'executed', lastStepAt: Date.now() };
+
+                    const executedVisibleMs = STEP_MIN_DISPLAY_MS.executed ?? 0;
+                    if (executedVisibleMs > 0) {
+                        await wait(executedVisibleMs);
+                        if (sessionId !== activeSessionRef.current) return;
+                    }
+                }
+
+                setGenerationResult((prev) => prev ?? {
+                    completed: true,
+                    success: false,
+                    message: completionMessage || "Workflow generation process finished.",
+                });
+                setIsGenerating(false);
+            })
+            .catch((error) => {
+                console.error("Completion transition queue error", error);
+            });
+    }, []);
+
+    const connectWebSocket = useCallback((clientId: string, sessionId: number) => {
         // Determine WS URL (assume localhost:8000 for now, or use logic to match API_URL)
-        const wsUrl = `ws://localhost:8000/ws/${clientId}`;
+        const wsUrl = `ws://127.0.0.1:8000/ws/${clientId}`;
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -45,22 +140,16 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
 
         ws.onmessage = (event) => {
             try {
+                if (sessionId !== activeSessionRef.current) return;
                 const message = JSON.parse(event.data);
                 setLiveLogs(prev => [...prev, { ...message, timestamp: Date.now() }]);
 
                 if (message.type === 'step') {
-                    setCurrentStep(message.status);
-                    if (message.status === 'executed' && message.data?.result) {
-                        setGenerationResult(message.data.result);
-                        setIsGenerating(false); // Stop generating when executed
-                    }
+                    enqueueStepTransition(sessionId, message.status, message.data?.result);
                 } else if (message.type === 'log') {
                     // Just logging
                 } else if (message.type === 'complete') {
-                    // Auto-redirect after a short delay
-                    setTimeout(() => {
-                        closeLiveStatus();
-                    }, 2000);
+                    enqueueCompletionTransition(sessionId, typeof message.data === "string" ? message.data : undefined);
                 }
             } catch (e) {
                 console.error("Error parsing WS message", e);
@@ -72,21 +161,25 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
         };
 
         webSocketRef.current = ws;
-    }, []);
+    }, [enqueueStepTransition, enqueueCompletionTransition]);
 
     const generateAgent = useCallback(async (prompt: string) => {
         if (!prompt.trim()) return;
 
         // Reset state
+        activeSessionRef.current += 1;
+        const sessionId = activeSessionRef.current;
+        stepQueueRef.current = Promise.resolve();
+        stepDisplayStateRef.current = { lastStep: null, lastStepAt: Date.now() };
         setIsGenerating(true);
         setLiveLogs([]);
-        setCurrentStep('intent_analyzed'); // Start at first step visually
+        setCurrentStep(null); // Will be set by WebSocket (guard_passed first)
         setGenerationResult(null);
         setIsOpen(true); // Open the modal immediately
         setIsCollapsed(false); // Ensure it starts expanded
 
         const clientId = crypto.randomUUID();
-        connectWebSocket(clientId);
+        connectWebSocket(clientId, sessionId);
 
         try {
             await generate(prompt, clientId);
@@ -98,6 +191,9 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
     }, [generate, connectWebSocket]);
 
     const closeLiveStatus = useCallback(() => {
+        activeSessionRef.current += 1;
+        stepQueueRef.current = Promise.resolve();
+        stepDisplayStateRef.current = { lastStep: null, lastStepAt: 0 };
         setIsOpen(false);
         setIsGenerating(false);
         if (webSocketRef.current) {
@@ -105,7 +201,7 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
         }
         // Redirect if successful
         if (generationResult) {
-            router.push("/collections");
+            router.push("/");
         }
     }, [generationResult, router]);
 
@@ -120,6 +216,17 @@ export function LiveStatusProvider({ children }: { children: React.ReactNode }) 
     const expand = useCallback(() => {
         setIsCollapsed(false);
     }, []);
+
+    // When user navigates to another tab while agent is working, minimize to small card
+    useEffect(() => {
+        if (isInitialPathRef.current) {
+            isInitialPathRef.current = false;
+            return;
+        }
+        if (isOpen && !isCollapsed) {
+            setIsCollapsed(true);
+        }
+    }, [pathname]);
 
     // Clean up WS on unmount
     useEffect(() => {
