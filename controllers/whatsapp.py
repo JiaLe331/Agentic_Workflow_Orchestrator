@@ -22,8 +22,7 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")  # Format: whatsapp:+14155238886
 
-# Optional: API key validation
-API_KEY = os.getenv("API_KEY", None)
+
 
 
 # ============================================
@@ -56,14 +55,7 @@ class WhatsAppResponse(BaseModel):
 # HELPER FUNCTIONS
 # ============================================
 
-def validate_api_key(x_api_key: Optional[str] = Header(None)):
-    """
-    Optional API key validation.
-    Only validates if API_KEY is set in .env
-    """
-    if API_KEY and x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid API key")
-    return True
+
 
 
 def get_twilio_client() -> Client:
@@ -97,8 +89,7 @@ def format_whatsapp_number(phone: str) -> str:
 
 @router.post("/send", response_model=WhatsAppResponse)
 async def send_whatsapp_message(
-    request: WhatsAppMessage,
-    x_api_key: Optional[str] = Header(None)
+    request: WhatsAppMessage
 ):
     """
     Send a WhatsApp message via Twilio.
@@ -135,10 +126,6 @@ async def send_whatsapp_message(
     }
     ```
     """
-    # Validate API key if set
-    if API_KEY:
-        validate_api_key(x_api_key)
-    
     # Validate phone number
     if not request.to or not request.to.startswith('+'):
         raise HTTPException(
@@ -194,8 +181,7 @@ async def send_whatsapp_message(
 @router.post("/send-template", response_model=WhatsAppResponse)
 async def send_whatsapp_template(
     to: str,
-    template_name: str,
-    x_api_key: Optional[str] = Header(None)
+    template_name: str
 ):
     """
     Send a pre-approved WhatsApp template message.
@@ -211,9 +197,6 @@ async def send_whatsapp_template(
     }
     ```
     """
-    if API_KEY:
-        validate_api_key(x_api_key)
-    
     # For now, this is a placeholder
     # In production, you'd send actual template messages
     raise HTTPException(
@@ -240,14 +223,11 @@ async def health_check():
 
 
 @router.get("/test-config")
-async def test_configuration(x_api_key: Optional[str] = Header(None)):
+async def test_configuration():
     """
     Test Twilio configuration without sending a message.
     Returns account info if credentials are valid.
     """
-    if API_KEY:
-        validate_api_key(x_api_key)
-    
     try:
         client = get_twilio_client()
         account = client.api.accounts(TWILIO_ACCOUNT_SID).fetch()
