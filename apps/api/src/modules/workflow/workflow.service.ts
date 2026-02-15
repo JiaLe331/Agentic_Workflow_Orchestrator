@@ -39,4 +39,9 @@ export class WorkflowService {
         }
         return deleted;
     }
+
+    async removeBulk(ids: string[]): Promise<{ id: string }[]> {
+        return this.workflowRepository.removeBulk(ids);
+    }
 }
+

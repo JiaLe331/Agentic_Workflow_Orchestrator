@@ -32,4 +32,10 @@ export class WorkflowController {
     remove(@Param('id') id: string): Promise<{ id: string }> {
         return this.workflowService.remove(id);
     }
+
+    @Post('delete-bulk')
+    deleteBulk(@Body('ids') ids: string[]): Promise<{ id: string }[]> {
+        return this.workflowService.removeBulk(ids);
+    }
 }
+

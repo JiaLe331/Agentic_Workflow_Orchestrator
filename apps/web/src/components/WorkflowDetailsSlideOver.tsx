@@ -366,40 +366,56 @@ export function WorkflowDetailsSlideOver({
                                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                                     Input Requirements
                                 </h3>
-                                {workflow.inputRequirements && typeof workflow.inputRequirements === 'object' && Object.keys(workflow.inputRequirements).length > 0 ? (
+                                {workflow.inputRequirements && (
+                                    (Array.isArray(workflow.inputRequirements) && workflow.inputRequirements.length > 0) ||
+                                    (typeof workflow.inputRequirements === 'object' && Object.keys(workflow.inputRequirements).length > 0)
+                                ) ? (
                                     <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:bg-gray-800/50 dark:border-gray-700 space-y-3">
-                                        {Object.entries(workflow.inputRequirements).map(([key, value]) => (
-                                            <div key={key} className="flex items-start gap-3">
-                                                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide min-w-[100px] pt-0.5 shrink-0">
-                                                    {key.replace(/_/g, ' ')}
-                                                </span>
-                                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                                    {typeof value === 'object' ? (
-                                                        <pre className="text-xs font-mono bg-white dark:bg-gray-900 p-2 rounded-lg border border-gray-100 dark:border-gray-700 overflow-x-auto">
-                                                            {JSON.stringify(value, null, 2)}
-                                                        </pre>
-                                                    ) : (
-                                                        String(value)
-                                                    )}
-                                                </span>
-                                            </div>
-                                        ))}
+                                        {Array.isArray(workflow.inputRequirements) ? (
+                                            workflow.inputRequirements.map((req: any, index: number) => (
+                                                <div key={index} className="flex items-center justify-between py-1 first:pt-0 last:pb-0 border-b border-gray-100 dark:border-gray-700/50 last:border-0">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                                                            {req.name || `Field ${index + 1}`}
+                                                        </span>
+                                                        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 uppercase">
+                                                            {req.type || 'string'}
+                                                        </span>
+                                                    </div>
+                                                    <span className={cn(
+                                                        "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                                                        req.required
+                                                            ? "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/20"
+                                                            : "text-gray-400 bg-gray-100 dark:text-gray-500 dark:bg-gray-800"
+                                                    )}>
+                                                        {req.required ? 'Required' : 'Optional'}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            Object.entries(workflow.inputRequirements).map(([key, value]) => (
+                                                <div key={key} className="flex items-start gap-3">
+                                                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide min-w-[100px] pt-0.5 shrink-0">
+                                                        {key.replace(/_/g, ' ')}
+                                                    </span>
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                        {typeof value === 'object' ? (
+                                                            <pre className="text-xs font-mono bg-white dark:bg-gray-900 p-2 rounded-lg border border-gray-100 dark:border-gray-700 overflow-x-auto">
+                                                                {JSON.stringify(value, null, 2)}
+                                                            </pre>
+                                                        ) : (
+                                                            String(value)
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:bg-gray-800/50 dark:border-gray-700 min-h-[60px] flex items-center justify-center text-gray-400 text-sm italic">
                                         No input requirements specified.
                                     </div>
                                 )}
-                            </div>
-
-                            {/* Results */}
-                            <div>
-                                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                                    Results
-                                </h3>
-                                <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:bg-gray-800/50 dark:border-gray-700 min-h-[100px] flex items-center justify-center text-gray-500 text-sm italic">
-                                    {workflow.result || "No results available yet."}
-                                </div>
                             </div>
                         </div>
 
