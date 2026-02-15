@@ -2,7 +2,7 @@ import requests
 import json
 from agents.models import GeneralizedWorkflow, WorkflowPlan
 
-def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None, webhook_url: str = None, image_url: str = None, custom_title: str = None, custom_description: str = None):
+def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: str, workflow_plan: WorkflowPlan = None, n8n_workflow_id: str = None, user_prompt: str = None, execution_result: object = None, webhook_url: str = None, image_url: str = None, custom_title: str = None, custom_description: str = None, input_requirements: dict = None):
     """
     Saves the generated workflow to the backend API.
     """
@@ -39,10 +39,12 @@ def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: st
         "userPrompt": user_prompt,
         "result": execution_result,
         "webhookUrl": webhook_url,
-        "imageUrl": image_url
+        "imageUrl": image_url,
+        "inputRequirements": input_requirements
     }
     
     print(f"\n[System] Persisting workflow to {API_URL}...")
+    print(f"  > inputRequirements being saved: {input_requirements}")
     try:
         response = requests.post(API_URL, json=payload)
         response.raise_for_status()
@@ -51,8 +53,29 @@ def save_workflow_to_api(generalized_workflow: GeneralizedWorkflow, n8n_json: st
         print("✅ Workflow saved successfully!")
         print(f"   ID: {new_workflow.get('id')}")
         print(f"   Title: {new_workflow.get('title')}")
+        print(f"   inputRequirements in response: {new_workflow.get('inputRequirements', 'FIELD NOT IN RESPONSE')}")
         if 'workflowUrl' in new_workflow:
              print(f"   URL: {new_workflow['workflowUrl']}")
              
     except requests.exceptions.RequestException as e:
         print(f"❌ Error saving workflow to API: {e}")
+    
+    return new_workflow if 'new_workflow' in dir() else None
+
+
+def update_workflow_in_api(workflow_id: str, **fields):
+    """
+    Updates specific fields of an existing workflow record via PATCH.
+    Usage: update_workflow_in_api("uuid", webhookUrl="http://...", result="success")
+    """
+    API_URL = f"http://localhost:4000/workflows/{workflow_id}"
+    
+    try:
+        response = requests.patch(API_URL, json=fields)
+        response.raise_for_status()
+        updated = response.json()
+        print(f"✅ Workflow {workflow_id} updated: {list(fields.keys())}")
+        return updated
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error updating workflow: {e}")
+        return None

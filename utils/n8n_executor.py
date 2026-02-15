@@ -72,27 +72,27 @@ def trigger_webhook(workflow_json: dict) -> tuple:
     Determines the webhook URL from the JSON and triggers it.
     Returns (result_json, webhook_url)
     """
-    webhook_path = "webhook" # Default
+    webhook_path = ""
     if "nodes" in workflow_json:
         for node in workflow_json["nodes"]:
             if node.get("type") == "n8n-nodes-base.webhook":
-                webhook_path = node.get("parameters", {}).get("path", "webhook")
+                params = node.get("parameters", {})
+                # Priority: path parameter > webhookId
+                webhook_path = params.get("path") or node.get("webhookId")
                 break
     
-    webhook_url = f"{N8N_HOST}/webhook/{webhook_path}"
-    print(f"⚡ Triggering Webhook: {webhook_url}")
+    if not webhook_path:
+        webhook_path = "webhook" # Fallback
+        
+    test_webhook_url = f"{N8N_HOST}/webhook-test/{webhook_path}"
+    
+    print(f"⚡ Triggering Test Webhook: {test_webhook_url}")
     
     result_json = None
     try:
-        # Try Production URL First
-        resp = requests.post(webhook_url, json={"trigger": "auto-executor"})
-        
-        # If 404, try Test URL
-        if resp.status_code == 404:
-            print(f"⚠️ Production webhook 404. Trying Test Webhook...")
-            test_webhook_url = f"{N8N_HOST}/webhook-test/{webhook_path}"
-            print(f"⚡ Triggering Test Webhook: {test_webhook_url}")
-            resp = requests.post(test_webhook_url, json={"trigger": "auto-executor"})
+        # Prioritize Test URL as requested
+        resp = requests.post(test_webhook_url, json={"trigger": "auto-executor"})
+        webhook_url = test_webhook_url
 
         if resp.ok:
              print("✅ Execution Triggered & Completed Successfully!")
@@ -107,6 +107,7 @@ def trigger_webhook(workflow_json: dict) -> tuple:
              print(resp.text)
     except Exception as e:
          print(f"❌ Webhook Trigger Failed: {e}")
+         webhook_url = test_webhook_url # Fallback for return
          
     return result_json, webhook_url
 

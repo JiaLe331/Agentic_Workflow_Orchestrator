@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import pdf_parser, whatsapp, email, google_calendar, workflow, storage, llm, ws
+from controllers import pdf_parser, whatsapp, email, google_calendar, workflow, storage, llm, ws, image_generation, trigger_workflow_endpoint
 
 from services.firebase_service import initialize_firebase
 
@@ -30,7 +30,9 @@ def create_app() -> FastAPI:
     app.include_router(google_calendar.router, prefix="/api/calendar", tags=["Google Calendar"])
     app.include_router(storage.router, prefix="/api/storage", tags=["Storage"])
     app.include_router(workflow.router, prefix="", tags=["Workflow"]) # Prefix is empty because endpoint is /generate-workflow
+    app.include_router(image_generation.router, prefix="/api/image", tags=["Image Generation"])
     app.include_router(ws.router, prefix="", tags=["WebSocket"])
+    app.include_router(trigger_workflow_endpoint.router, prefix="/api", tags=["Trigger Workflow"])
 
     @app.get("/")
     async def root():
@@ -45,7 +47,8 @@ def create_app() -> FastAPI:
                 "email": "/api/email/send",
                 "email": "/api/email/send",
                 "google_calendar": "/api/calendar/create",
-                "storage": "/api/storage/upload"
+                "storage": "/api/storage/upload",
+                "trigger_workflow": "/api/trigger-workflow"
             }
         }
 

@@ -1,7 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
-from agents.models import WorkflowPlan
+from agents.models import WorkflowPlan, GeneralizedWorkflow
 from agents.json_validator import validate_and_inject_credentials
 from prompts.schema import SCHEMA_DEFINITION
 from datetime import datetime
@@ -20,10 +20,11 @@ API_KEY_CREDENTIAL_ID = os.getenv("API_KEY_CREDENTIAL_ID", "")
 # Using a standard, available model
 llm = ChatGoogleGenerativeAI(model="gemini-3-pro-preview", temperature=0)
 
-def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = None, previous_json: str = None, context_text: str = "") -> str:
+def generate_n8n_workflow(workflow_plan: WorkflowPlan, generalized_workflow: GeneralizedWorkflow, feedback_error: str = None, previous_json: str = None, context_text: str = "") -> str:
     """
     Agent 3: Generates the actual n8n JSON code based on the WorkflowPlan.
     """
+    print(f"\n[Agent 3 Debug] Extracted Values passed to prompt: {generalized_workflow.values}")
     
     # Check if we are in a Retry/Feedback Loop
     feedback_context = ""
@@ -48,6 +49,16 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
         
         Workflow Plan:
         {workflow_plan}
+
+        EXTRACTED VALUES (DB COLUMNS) - **PRIORITY USE**:
+        {extracted_values}
+        
+        **CRITICAL INSTRUCTION FOR EXTRACTED VALUES**:
+        - You **MUST** use the values above to populate the `fieldValues` of Supabase nodes.
+        - **DO NOT IGNORE THIS.** If `name` is in EXTRACTED VALUES, you MUST output it in the JSON.
+        - The `WorkflowPlan` might be abstract, but `EXTRACTED VALUES` are the REAL data.
+        - If `extracted_values` has `{{ 'name': 'Li Jie', 'ic': '...' }}`, your Supabase node MUST have:
+          `"fieldsUi": {{ "fieldValues": [ {{ "fieldId": "name", "fieldValue": "Li Jie" }}, {{ "fieldId": "ic", "fieldValue": "..." }} ] }}`
         
         Documentation Context (USE THIS FOR NODE STRUCTURES):
         {context_text}
@@ -62,11 +73,13 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
            - **Partial match**: Use 'like'.
         2. **Do NOT** include `created_at` or `updated_at` in any `fieldValues` for `create` or `update` operations.
         3. **Do NOT** output any markdown. Return raw JSON only.
-        4. **Do NOT** use 'START' node. Use 'n8n-nodes-base.manualTrigger'.
+        4. **Do NOT** use 'START' node or 'n8n-nodes-base.manualTrigger'. ALWAYS use 'n8n-nodes-base.webhook' as the trigger.
+        5. **NEVER** use 'n8n-nodes-base.formTrigger'. It is deprecated. Use 'n8n-nodes-base.webhook' (POST) instead.
         5. **Always** check `generalized_workflow.values` for explicit values.
         3. **Structure**: MUST include `nodes`, `connections`, and empty `settings` object `{{}}`.
         4. **Node Type Mapping**:
-           - `manual_trigger` -> `n8n-nodes-base.manualTrigger` (trigger node).
+           - `webhook` -> `n8n-nodes-base.webhook` (POST trigger node). NEVER use manualTrigger or formTrigger. 
+             **CRITICAL**: You MUST include a unique UUID string for the `webhookId` field at the top level of the node object (outside `parameters`). This is essential for n8n to generate a unique webhook path.
            - `display_results` -> `n8n-nodes-base.noOp` (No Operation node, matches user preference).
            - Database Nodes -> `n8n-nodes-base.supabase` only.
         4. **Node Versions**:
@@ -147,7 +160,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
         5. **Update**: Do NOT use `matcherColumn`. Use `filters` to select the row to update.
         6. **Static vs Dynamic**: 
            - If the plan has exact values (e.g. "Ali Baba"), use them as **STATIC STRINGS** (e.g. `"fieldValue": "Ali Baba"`).
-           - **NEVER** use `{{ $('Manual Trigger')... }}` unless the user explicitly requested a form-based workflow. (The Manual Trigger usually has no data).
+           - **NEVER** use `{{ $('Manual Trigger')... }}`. All data flows through the Webhook node body.
         
         7. **DATE FORMATTING (CRITICAL)**:
            - You MUST use one of the following formats for dates:
@@ -176,6 +189,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
     try:
         n8n_json = chain.invoke({
             "workflow_plan": workflow_plan.json(),
+            "extracted_values": generalized_workflow.values,
             "schema": SCHEMA_DEFINITION,
             "feedback_context": feedback_context,
             "supabase_credential_id": SUPABASE_CREDENTIAL_ID,
@@ -190,6 +204,8 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, feedback_error: str = Non
             cleaned_result = cleaned_result[7:]
         if cleaned_result.endswith("```"):
             cleaned_result = cleaned_result[:-3]
+        
+        print(f"\n[Agent 3 Debug] Generated JSON (Pre-Validation): {cleaned_result[:500]}...") # Print first 500 chars
         
         # Use the validator to inject credentials
         return validate_and_inject_credentials(cleaned_result)
