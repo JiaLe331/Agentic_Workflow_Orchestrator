@@ -43,12 +43,30 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
            - **ALWAYS** Use `ilike` for names and `eq` for status/IDs.
         
         MANDATORY STRUCTURE:
-        1. **START**: The first node MUST ALWAYS be `manual_trigger`.
+        1. **START**: The first node MUST ALWAYS be `webhook` (POST method).
         2. **LOGIC**: The operational nodes (fetch, create, update, etc).
         3. **END**: The last node MUST ALWAYS be `display_results`.
         
+        **INPUT HANDLING RULES (MANDATORY - Read `webhook_input_block.md`)**:
+        - **EVERY WORKFLOW** starts with a Webhook node (POST method). NEVER use `formTrigger` or `manualTrigger`.
+        - **IF `is_recyclable` is True** (user provides input at runtime):
+          1. **Webhook** (POST): Accepts ALL input (JSON body + binary file).
+          2. **Extract PDF Text** (`extractFromFile`): ONLY if PDF file input exists. Skip otherwise.
+          3. **Data Splitter** (Set Node): Maps ALL webhook body fields + extracted content into clean variables.
+             - Reference text fields: `$node["Webhook"].json.body.FieldName`
+             - Reference extracted PDF: `$json.text`
+          4. Then continue to Logic nodes -> Display Results.
+        - **IF `is_recyclable` is False**:
+          - Webhook (POST) -> Logic nodes -> Display Results.
+        
+        **input_requirements OUTPUT (MANDATORY)**:
+        - You MUST output `input_requirements` — a list of what the user provides at runtime.
+        - If the workflow needs a file upload: add `{{"name": "file", "type": "pdf", "required": true}}`
+        - If the workflow needs text input (email, name, etc): add `{{"name": "Email", "type": "string", "required": true}}`
+        - If `is_recyclable` is False: output an empty list `[]`.
+        
         STRICT SEQUENCE EXAMPLE (Creating a new employee):
-        - Node 1: `manual_trigger`
+        - Node 1: `webhook` (POST)
         - Node 2: `fetch_record_by_filter` (Check duplicates or get FKs)
         - Node 3: `create_record`
         - Node 4: `display_results`

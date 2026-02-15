@@ -73,11 +73,13 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, generalized_workflow: Gen
            - **Partial match**: Use 'like'.
         2. **Do NOT** include `created_at` or `updated_at` in any `fieldValues` for `create` or `update` operations.
         3. **Do NOT** output any markdown. Return raw JSON only.
-        4. **Do NOT** use 'START' node. Use 'n8n-nodes-base.manualTrigger'.
+        4. **Do NOT** use 'START' node or 'n8n-nodes-base.manualTrigger'. ALWAYS use 'n8n-nodes-base.webhook' as the trigger.
+        5. **NEVER** use 'n8n-nodes-base.formTrigger'. It is deprecated. Use 'n8n-nodes-base.webhook' (POST) instead.
         5. **Always** check `generalized_workflow.values` for explicit values.
         3. **Structure**: MUST include `nodes`, `connections`, and empty `settings` object `{{}}`.
         4. **Node Type Mapping**:
-           - `manual_trigger` -> `n8n-nodes-base.manualTrigger` (trigger node).
+           - `webhook` -> `n8n-nodes-base.webhook` (POST trigger node). NEVER use manualTrigger or formTrigger. 
+             **CRITICAL**: You MUST include a unique UUID string for the `webhookId` field at the top level of the node object (outside `parameters`). This is essential for n8n to generate a unique webhook path.
            - `display_results` -> `n8n-nodes-base.noOp` (No Operation node, matches user preference).
            - Database Nodes -> `n8n-nodes-base.supabase` only.
         4. **Node Versions**:
@@ -158,7 +160,7 @@ def generate_n8n_workflow(workflow_plan: WorkflowPlan, generalized_workflow: Gen
         5. **Update**: Do NOT use `matcherColumn`. Use `filters` to select the row to update.
         6. **Static vs Dynamic**: 
            - If the plan has exact values (e.g. "Ali Baba"), use them as **STATIC STRINGS** (e.g. `"fieldValue": "Ali Baba"`).
-           - **NEVER** use `{{ $('Manual Trigger')... }}` unless the user explicitly requested a form-based workflow. (The Manual Trigger usually has no data).
+           - **NEVER** use `{{ $('Manual Trigger')... }}`. All data flows through the Webhook node body.
         
         7. **DATE FORMATTING (CRITICAL)**:
            - You MUST use one of the following formats for dates:

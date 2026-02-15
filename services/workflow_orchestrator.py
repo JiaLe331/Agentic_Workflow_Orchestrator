@@ -10,7 +10,7 @@ from agents.agent_1_intent import process_intent
 from agents.agent_2_planner import plan_workflow
 
 from agents.agent_3_n8n import generate_n8n_workflow
-from services.workflow_persistence import save_workflow_to_api
+from services.workflow_persistence import save_workflow_to_api, update_workflow_in_api
 from utils.n8n_executor import import_workflow, activate_workflow, trigger_webhook
 from utils.n8n_crawler import crawl_and_screenshot_workflow
 from utils.validators import validate_phone_number
@@ -99,7 +99,9 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
 
             if generalized_workflow.values:
                 print(f"  > Values (DB Columns): {generalized_workflow.values}")
-                await safe_send({"type": "log", "data": f"  > Extracted Values: {generalized_workflow.values}"})   
+                await safe_send({"type": "log", "data": f"  > Extracted Values: {generalized_workflow.values}"})
+            
+            print(f"  > [Agent 1] is_recyclable: {generalized_workflow.is_recyclable}")   
         except Exception as e:
             print(f"Agent 1 Failed: {e}")
             return
@@ -110,6 +112,12 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
         context_text = ""
         if generalized_workflow.required_docs is None:
             generalized_workflow.required_docs = []
+        
+        # ALWAYS load webhook_input_block.md as mandatory context
+        webhook_doc_path = os.path.join("docs", "webhook_input_block.md")
+        if os.path.exists(webhook_doc_path):
+            with open(webhook_doc_path, "r") as f:
+                context_text += f"\n\n--- webhook_input_block.md (MANDATORY) ---\n{f.read()}"
         
         if generalized_workflow.required_docs:
             print(f"  > Required Docs: {generalized_workflow.required_docs}")
@@ -130,6 +138,7 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
             # Run synchronous agent in threadpool
             workflow_plan = await run_in_threadpool(plan_workflow, generalized_workflow, context_text)
             print(f"  > Generated {len(workflow_plan.nodes)} workflow nodes.")
+            print(f"  > [Agent 2] input_requirements: {workflow_plan.input_requirements}")
             await safe_send({
                 "type": "step", 
                 "status": "planned", 
@@ -167,11 +176,15 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                 # Run synchronous agent in threadpool
                 n8n_json = await run_in_threadpool(generate_n8n_workflow, workflow_plan, generalized_workflow, feedback_error, previous_json, context_text)
                 
-                # Post-Processing: Inject Webhook
-                from agents.utils import inject_webhook_node
-                n8n_json = inject_webhook_node(n8n_json)
+                # Webhook is now generated natively by Agent 3 (no inject needed)
                 
                 last_generated_json = n8n_json # Capture for persistence
+                
+                # Analyze Input Requirements from Agent 2
+                input_reqs = workflow_plan.input_requirements
+                if input_reqs:
+                    print(f"  > Detected Input Requirements: {input_reqs}")
+                    await safe_send({"type": "log", "data": f"Detected Inputs: {input_reqs}"})
                 
                 # --- VALIDATION ---
                 print(f"  > Validating generated workflow (Attempt {retry_count + 1})...")
@@ -261,7 +274,8 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                              webhook_url=None,      # Not triggered yet (though predictable)
                              image_url=uploaded_url,
                              custom_title=generalized_workflow.title,
-                             custom_description=generalized_workflow.intent
+                             custom_description=generalized_workflow.intent,
+                             input_requirements=workflow_plan.input_requirements
                          )
                     except Exception as e:
                         print(f"  > Warning: DB Persistence failed: {e}")
@@ -275,11 +289,21 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                     # Run blocking webhook trigger in threadpool
                     execution_result, webhook_url = await run_in_threadpool(trigger_webhook, workflow_json_obj)
                     
-                    # 6. Update DB (POST-EXECUTION) - Optional but good for completeness
+                    # 6. Update DB (POST-EXECUTION) with webhook_url
+                    if saved_db_record and saved_db_record.get('id'):
+                         db_id = saved_db_record['id']
+                         update_fields = {}
+                         if webhook_url:
+                              update_fields['webhookUrl'] = webhook_url
+                         if execution_result:
+                              update_fields['result'] = str(execution_result) if not isinstance(execution_result, str) else execution_result
+                         if update_fields:
+                              print(f"[Orchestrator] Updating DB record {db_id} with webhook_url...")
+                              await run_in_threadpool(update_workflow_in_api, db_id, **update_fields)
+                    
                     if execution_result:
                          print(f"[Orchestrator] Execution finished. Result obtained.")
                          await safe_send({"type": "step", "status": "executed", "data": {"result": execution_result}})
-                         # TODO: Update DB with execution result
                     
                     # Signal completion
                     await safe_send({"type": "complete", "data": "Workflow generation process finished."})

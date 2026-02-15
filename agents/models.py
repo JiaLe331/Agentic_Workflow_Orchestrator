@@ -29,6 +29,7 @@ class GeneralizedWorkflow(BaseModel):
     additional_inputs: Dict[str, Any] = Field(default_factory=dict, description="Values provided by the user that are NOT filters or DB columns (e.g., 'destination_phone', 'alert_threshold', 'email_subject').")
     required_docs: List[str] = Field(default_factory=list, description="List of documentation filenames required for this context (e.g. ['employee.md', 'pay_roll.md']).")
     tables_involved: List[str] = Field(default_factory=list, description="List of ALL tables (entities) and TOOLS involved. e.g. ['employee', 'salary', 'email_tool', 'whatsapp'].")
+    is_recyclable: bool = Field(default=False, description="True if the workflow is designed to be reused with different inputs (e.g. file upload, form submission). False for one-off tasks.")
 
 
 # --- Agent 2 Models ---
@@ -48,3 +49,4 @@ class WorkflowPlan(BaseModel):
     The complete sequence of nodes to execute the user's intent.
     """
     nodes: List[WorkflowNode]
+    input_requirements: List[Dict[str, Any]] = Field(default_factory=list, description="List of required inputs for the workflow. E.g. [{'name': 'file', 'type': 'pdf', 'required': True}]")

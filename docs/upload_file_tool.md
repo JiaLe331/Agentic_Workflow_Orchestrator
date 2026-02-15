@@ -1,38 +1,49 @@
 ROLE:
-You are generating an n8n Form Trigger node for file uploads.
+You are generating the file upload handling for an n8n workflow.
 
 GOAL:
-Always output a valid n8n node JSON that creates a web form for users to upload files.
+Accept file uploads via a Webhook POST request. Files are sent as binary multipart data.
 
-TRIGGER NODE:
-Use the n8n Form Trigger to allow file uploads.
+IMPORTANT: The old `formTrigger` approach is DEPRECATED. Always use the Webhook node.
 
-MANDATORY TRIGGER TEMPLATE (REPRODUCE EXACTLY):
+TRIGGER NODE (Webhook):
+Use the n8n Webhook node to accept file uploads via POST.
+
+MANDATORY TRIGGER TEMPLATE:
+
+```json
 {
   "parameters": {
-    "path": "upload-file",
-    "formTitle": "Upload File",
-    "formDescription": "Upload a file to process.",
-    "formFields": {
-      "values": [
-        {
-          "fieldLabel": "File",
-          "fieldType": "file",
-          "required": true
-        }
-      ]
-    },
+    "httpMethod": "POST",
+    "options": {
+      "rawBody": false
+    }
+  },
+  "name": "Webhook",
+  "type": "n8n-nodes-base.webhook",
+  "typeVersion": 1,
+  "onError": "continueErrorOutput"
+}
+```
+
+AFTER WEBHOOK — EXTRACT FILE:
+If the user uploads a PDF file, use `extractFromFile` to get the text content:
+
+```json
+{
+  "parameters": {
+    "operation": "pdf",
+    "binaryPropertyName": "file",
     "options": {}
   },
-  "name": "Upload File Trigger",
-  "type": "n8n-nodes-base.formTrigger",
+  "name": "Extract PDF Text",
+  "type": "n8n-nodes-base.extractFromFile",
   "typeVersion": 1
 }
+```
 
-VALIDATION CHECK BEFORE OUTPUT:
+VALIDATION CHECK:
 
-- Type is "n8n-nodes-base.formTrigger".
-- fieldType is "file".
-- The node matches the template exactly.
-
-If any rule is violated, regenerate the output.
+- Type is `n8n-nodes-base.webhook` (NOT `formTrigger`).
+- File extraction uses `extractFromFile`.
+- NEVER use `formTrigger`. It is deprecated.

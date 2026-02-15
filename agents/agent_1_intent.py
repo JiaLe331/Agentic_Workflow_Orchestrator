@@ -54,7 +54,17 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
              - Fallback: Any 10-12 digit number that does **NOT** start with '01' should be treated as IC if context implies identity.
              - Context: If close to "IC", "Identity", "Malaysian", prioritize as IC.
            - **Date**: Extract dates and format as YYYY-MM-DD.
-        8. **SELECT DOCS**: Identify which docs are needed. Add them to 'required_docs'.
+        8. **RECYCLABLE WORKFLOW DETECTION (is_recyclable)**:
+           - Set `is_recyclable = True` IF the user implies a reusable process or dynamic input.
+           - Keywords: "my file", "upload", "provided", "input", "any file", "a file".
+           - **CONSTRAINT**: We ONLY support **PDF** files for upload. 
+             - If user asks for Word/Excel/Image, you can theoretically allow it but prefer PDF or assume PDF if unspecified.
+             - If user says "parse my document", assumption is PDF.
+           - Example: "Summarize *my* PDF" -> is_recyclable=True.
+           - Example: "Parse *uploaded* invoices" -> is_recyclable=True.
+           - Example: "Run specific query" -> is_recyclable=False.
+
+        9. **SELECT DOCS**: Identify which docs are needed. Add them to 'required_docs'.
         
            **CATEGORY A: ENTITIES (Database Tables)**
            - Available: [company.md, customer.md, employee.md, onboarding.md, pay_roll.md, product.md, sale.md]
@@ -76,7 +86,7 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - **PDF UPLOAD**: If `pdf_reader_tool.md` is to be used with a file upload -> Add "node_connectors/upload-file-to-pdf.md".
            - **LLM + EMAIL**: If `llm_tool.md` AND `email_tool.md` are used -> Add "node_connectors/llm-to-email.md".
 
-        9. **POPULATE `tables_involved`**:
+        10. **POPULATE `tables_involved`**:
            - **MUST** include ALL table names (e.g. "employee", "pay_roll").
            - **MUST** include ALL tool names (e.g. "email", "whatsapp", "llm", "pdf_parser").
            - **MIX THEM** into a single list.
