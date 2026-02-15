@@ -3,6 +3,7 @@ import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { useState } from 'react';
 import { WorkflowDetailsSlideOver } from './WorkflowDetailsSlideOver';
+import Image from 'next/image';
 
 interface WorkflowCollectionProps {
     workflows: Workflow[];
@@ -68,14 +69,12 @@ export function WorkflowCollection({
                         <div className="relative group/image">
                             {workflow.imageUrl ? (
                                 <div className="h-48 w-full border-b border-gray-100 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
-                                    <div
-                                        className="absolute inset-0 transition-transform duration-500 scale-[2]"
-                                        style={{
-                                            backgroundImage: `url(${workflow.imageUrl})`,
-                                            backgroundSize: 'cover',
-                                            backgroundPosition: 'center',
-                                            backgroundRepeat: 'no-repeat'
-                                        }}
+                                    <Image
+                                        src={workflow.imageUrl}
+                                        alt={workflow.title || 'Workflow image'}
+                                        fill
+                                        className="object-cover scale-[2] transition-transform duration-500"
+                                        unoptimized
                                     />
                                 </div>
                             ) : (

@@ -108,60 +108,65 @@ export function EmployeeSlideOver({ employee, isOpen, onClose }: EmployeeSlideOv
                     </div>
 
                     {/* Payslip */}
-                    {employee.payroll && (
-                        <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <IconBriefcase size={16} />
-                                Payslip - {new Date(0, employee.payroll.month - 1).toLocaleString('default', { month: 'long' })} {employee.payroll.year}
-                            </h3>
+                    {employee.payroll && (() => {
+                        const fmt = (val: number | null | undefined) =>
+                            val != null ? val.toLocaleString('en-MY', { minimumFractionDigits: 2 }) : '0.00';
+                        const p = employee.payroll;
+                        return (
+                            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <IconBriefcase size={16} />
+                                    Payslip - {new Date(0, p.month - 1).toLocaleString('default', { month: 'long' })} {p.year}
+                                </h3>
 
-                            <div className="space-y-4">
-                                {/* Basic Salary */}
-                                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                                    <span className="text-sm text-gray-600">Basic Salary</span>
-                                    <span className="text-lg font-semibold text-gray-900">RM {employee.payroll.salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
-                                </div>
-
-                                {/* Deductions */}
-                                <div className="space-y-2">
-                                    <p className="text-xs text-gray-400 font-semibold uppercase">Deductions</p>
-
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">EPF Employee ({employee.payroll.epf_percentage_employee}%)</span>
-                                        <span className="text-sm text-red-500">- RM {employee.payroll.epf_individual_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
+                                <div className="space-y-4">
+                                    {/* Basic Salary */}
+                                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                                        <span className="text-sm text-gray-600">Basic Salary</span>
+                                        <span className="text-lg font-semibold text-gray-900">RM {fmt(p.salary)}</span>
                                     </div>
 
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">Tax Amount</span>
-                                        <span className="text-sm text-red-500">- RM {employee.payroll.tax_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                </div>
+                                    {/* Deductions */}
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-gray-400 font-semibold uppercase">Deductions</p>
 
-                                {/* Company Contribution */}
-                                <div className="space-y-2 pt-3 border-t border-gray-200">
-                                    <p className="text-xs text-gray-400 font-semibold uppercase">Company Contribution</p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">EPF Employee ({p.epf_percentage_employee ?? 0}%)</span>
+                                            <span className="text-sm text-red-500">- RM {fmt(p.epf_individual_amount)}</span>
+                                        </div>
 
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">EPF Company ({employee.payroll.epf_percentage_company}%)</span>
-                                        <span className="text-sm text-emerald-600">+ RM {employee.payroll.epf_company_amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                </div>
-
-                                {/* Totals */}
-                                <div className="space-y-2 pt-4 border-t border-gray-200">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-600">Gross Salary</span>
-                                        <span className="text-base font-medium text-gray-900">RM {employee.payroll.gross_salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">Tax Amount</span>
+                                            <span className="text-sm text-red-500">- RM {fmt(p.tax_amount)}</span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                                        <span className="text-base font-semibold text-gray-900">Net Salary</span>
-                                        <span className="text-xl font-bold text-gray-900">RM {employee.payroll.total_salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
+                                    {/* Company Contribution */}
+                                    <div className="space-y-2 pt-3 border-t border-gray-200">
+                                        <p className="text-xs text-gray-400 font-semibold uppercase">Company Contribution</p>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-500">EPF Company ({p.epf_percentage_company ?? 0}%)</span>
+                                            <span className="text-sm text-emerald-600">+ RM {fmt(p.epf_company_amount)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Totals */}
+                                    <div className="space-y-2 pt-4 border-t border-gray-200">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm text-gray-600">Gross Salary</span>
+                                            <span className="text-base font-medium text-gray-900">RM {fmt(p.gross_salary)}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                                            <span className="text-base font-semibold text-gray-900">Net Salary</span>
+                                            <span className="text-xl font-bold text-gray-900">RM {fmt(p.total_salary)}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </div>
         </div>

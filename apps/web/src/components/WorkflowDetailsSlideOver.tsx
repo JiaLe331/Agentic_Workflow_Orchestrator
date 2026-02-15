@@ -4,6 +4,7 @@ import { Workflow } from '@/hooks/use-workflows';
 import { formatTimeAgo } from '@/lib/utils';
 import { Fragment, useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface InputRequirement {
     name: string;
@@ -294,13 +295,14 @@ export function WorkflowDetailsSlideOver({
                         {workflow.imageUrl ? (
                             <div
                                 className="h-48 w-full border-b border-gray-100 dark:border-gray-800 relative group shrink-0"
-                                style={{
-                                    backgroundImage: `url(${workflow.imageUrl})`,
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                    backgroundRepeat: 'no-repeat'
-                                }}
                             >
+                                <Image
+                                    src={workflow.imageUrl}
+                                    alt={workflow.title || 'Workflow image'}
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                />
                                 <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent z-10 dark:from-gray-900/40"></div>
                             </div>
                         ) : (

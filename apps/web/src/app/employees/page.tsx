@@ -171,8 +171,8 @@ export default function EmployeesPage() {
                                                 </span>
                                             </td>
                                             <td className="py-4 px-4 text-sm text-gray-900 text-right font-semibold">
-                                                {employee.payroll
-                                                    ? `RM ${employee.payroll.total_salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+                                                {employee.payroll?.salary != null
+                                                    ? `RM ${employee.payroll.salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
                                                     : '-'}
                                             </td>
                                         </tr>
