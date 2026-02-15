@@ -70,7 +70,7 @@ async def trigger_workflow_endpoint(request: Request):
                 # String/number/boolean — pass as-is
                 user_inputs[field_name] = str(field_value)
 
-        # Activate n8n workflow to listen for events
+        # Activate n8n workflow to listen for events (must complete before trigger)
         if webhook_url:
             print(f"[Endpoint] Priming n8n test webhook: {webhook_url}")
             await prime_n8n_test_execution(webhook_url)

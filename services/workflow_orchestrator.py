@@ -245,7 +245,12 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
 
                 # 2. Import to n8n (Get ID)
                 # Run blocking import in threadpool
-                new_workflow = await run_in_threadpool(import_workflow, workflow_json_obj)
+                try:
+                    new_workflow = await run_in_threadpool(import_workflow, workflow_json_obj)
+                except Exception as e:
+                    print(f"❌ Import to n8n Failed: {e}")
+                    new_workflow = None
+
                 if new_workflow:
                     await safe_send({"type": "log", "data": "Imported to n8n..."})
                     n8n_workflow_id = new_workflow['id']
@@ -285,10 +290,16 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                     print(f"[Orchestrator] Activating and Triggering Workflow {n8n_workflow_id}...")
                     
                     # Run blocking activation in threadpool
-                    await run_in_threadpool(activate_workflow, n8n_workflow_id)
+                    try:
+                        await run_in_threadpool(activate_workflow, n8n_workflow_id)
+                    except Exception as e:
+                        print(f"❌ Activate Workflow Failed: {e}")
                     
                     # Run blocking webhook trigger in threadpool
-                    execution_result, webhook_url = await run_in_threadpool(trigger_webhook, workflow_json_obj)
+                    try:
+                        execution_result, webhook_url = await run_in_threadpool(trigger_webhook, workflow_json_obj)
+                    except Exception as e:
+                        print(f"❌ Trigger Webhook Failed: {e}")
                     
                     # 6. Update DB (POST-EXECUTION) with webhook_url
                     if saved_db_record and saved_db_record.get('id'):
@@ -300,7 +311,10 @@ async def run_workflow_generation(user_query: str, client_id: str = None):
                               update_fields['result'] = str(execution_result) if not isinstance(execution_result, str) else execution_result
                          if update_fields:
                               print(f"[Orchestrator] Updating DB record {db_id} with webhook_url...")
-                              await run_in_threadpool(update_workflow_in_api, db_id, **update_fields)
+                              try:
+                                  await run_in_threadpool(update_workflow_in_api, db_id, **update_fields)
+                              except Exception as e:
+                                  print(f"❌ DB Update Failed: {e}")
                     
                     if execution_result:
                          print(f"[Orchestrator] Execution finished. Result obtained.")

@@ -76,10 +76,15 @@ SEND EMAIL NODE TEMPLATE (REQUIRED STRUCTURE):
   "typeVersion": 4.2
 }
 
+### Markdown Support
+
+- The email controller now automatically converts Markdown to HTML.
+- **CRITICAL**: For Markdown content (e.g., AI summaries), you **MUST** use `{{ JSON.stringify(...) }}` in the `jsonBody` to handle newlines correctly.
+
 VALIDATION CHECK BEFORE OUTPUT:
 
 - jsonBody contains double quotes only.
-- jsonBody does NOT contain JSON.stringify.
+- jsonBody uses {{ JSON.stringify(...) }} for multi-line content.
 - jsonBody does NOT contain single quotes.
 - For image workflows, html uses only the raw URL from `{{ $json.output }}`.
 - For image workflows, there is no "Prepare Email" Set node.

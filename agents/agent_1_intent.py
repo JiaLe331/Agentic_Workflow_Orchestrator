@@ -48,8 +48,8 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - Example: "Email bob@example.com" -> additional_inputs: {{ "email_to": "bob@example.com", "email_subject": "Notification" }}
            
            **IDENTIFICATION RULES**:
-            - **Phone Number** (Malaysia): MUST be a local formatted number starting with '01' (e.g. 0123456789). Look for 10-11 digit numbers starting with 01.
-            - **WA/WhatsApp**: When extracting for WhatsApp, ONLY use the local formatted phone number. NEVER use an email address.
+            - **Phone Number** (Malaysia): MUST be a Malaysian formatted number (e.g., 0123456789, 60123456789, or +60123456789). Look for 10-11 digit numbers or numbers starting with +60/60.
+            - **WA/WhatsApp**: When extracting for WhatsApp, ONLY use the Malaysian formatted phone number. NEVER use an email address.
             - **IC Number** (Malaysia): 
              - Standard: 12-digit numbers (e.g. 990101-10-5555).
              - Fallback: Any 10-12 digit number that does **NOT** start with '01' should be treated as IC if context implies identity.

@@ -100,12 +100,16 @@ def _build_safe_image_html(image_url: str) -> str:
 def normalize_html_input(html_value: str) -> str:
     """
     Normalize incoming HTML content.
-    If caller sends only a URL, treat it as an image URL and wrap in <img>.
+    1. If caller sends only a URL, treat it as an image URL and wrap in <img>.
+    2. Otherwise, treat as Markdown and convert to HTML.
     """
+    import markdown
     value = html_value.strip()
     if _is_valid_http_url(value):
         return _build_safe_image_html(value)
-    return html_value
+    
+    # Convert Markdown to HTML
+    return markdown.markdown(value, extensions=['extra', 'nl2br', 'sane_lists'])
 
 
 def load_template(template_name: str):

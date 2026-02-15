@@ -75,9 +75,17 @@ def get_twilio_client() -> Client:
 def format_whatsapp_number(phone: str) -> str:
     """
     Format phone number for WhatsApp.
+    Normalizes Malaysian numbers: 01... -> +601... and 60... -> +60...
     Converts +60123456789 to whatsapp:+60123456789
     """
-    phone = phone.strip()
+    phone = phone.strip().replace(" ", "").replace("-", "")
+    
+    # Handle Malaysian normalization
+    if phone.startswith("01"):
+        phone = f"+60{phone[1:]}"
+    elif phone.startswith("60") and not phone.startswith("+"):
+        phone = f"+{phone}"
+        
     if not phone.startswith("whatsapp:"):
         phone = f"whatsapp:{phone}"
     return phone
@@ -127,10 +135,10 @@ async def send_whatsapp_message(
     ```
     """
     # Validate phone number
-    if not request.to or not request.to.startswith('+'):
+    if not request.to:
         raise HTTPException(
             status_code=400,
-            detail="Phone number must include country code (e.g., +60123456789)"
+            detail="Phone number is required"
         )
     
     # Validate message
