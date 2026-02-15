@@ -5,15 +5,19 @@ GOAL:
 When an Image Generator node outputs a public URL in `output`, connect it directly to `Send Email`.
 
 CONNECTION RULE:
+
 - Connect `Image Generator` -> `Send Email` directly.
 - Do not insert a `Set` node named "Prepare Email".
 - Do not build html using base64 data URIs.
 
 DATA MAPPING:
+
 1. Image Generator output URL: `{{ $json.output }}`
-2. Email input html: Just pass the URL directly - the Python controller will auto-wrap it in `<img>` tags
+2. Email input html: Pass the raw URL directly (`{{ $json.output }}`).
+3. Pattern: No `<img>` tags, no quotes, no concatenation.
 
 REQUIRED SEND EMAIL NODE EXAMPLE:
+
 ```json
 {
   "parameters": {
@@ -33,7 +37,9 @@ REQUIRED SEND EMAIL NODE EXAMPLE:
 ```
 
 VALIDATION:
-- `jsonBody.html` uses `{{ $json.output }}` directly (URL only).
-- The Python email controller automatically wraps image URLs in `<img>` tags with proper escaping.
+
+- `jsonBody.html` uses `{{ $json.output }}` directly (raw URL only).
+- The Python email controller automatically wraps image URLs in `<img>` tags.
+- NEVER include manual `<img>` tags or `<a href>` in the `html` field for image-to-email flows.
 - No `data:image/png;base64,` prefix is present.
 - No intermediate adapter/prepare node exists between image generation and email.

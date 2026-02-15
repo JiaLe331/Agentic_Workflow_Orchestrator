@@ -61,9 +61,12 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         
         **input_requirements OUTPUT (MANDATORY)**:
         - You MUST output `input_requirements` — a list of what the user provides at runtime.
+        - **IDENTIFYING INPUTS**: Look at `generalized_workflow.additional_inputs` and the intent. If it's a "Send Email" workflow for "different users", you MUST include "email_to".
         - If the workflow needs a file upload: add `{{"name": "file", "type": "pdf", "required": true}}`
-        - If the workflow needs text input (email, name, etc): add `{{"name": "Email", "type": "string", "required": true}}`
-        - If `is_recyclable` is False: output an empty list `[]`.
+        - If the workflow needs text input (email, an employee name, a llm prompt, etc): 
+          - Example: `{{"name": "email_to", "type": "string", "required": true}}`
+          - Example: `{{"name": "llm_prompt_request", "type": "string", "required": true}}`
+        - It is not a must to have input_requirements. Only output it if the workflow needs user input at runtime, it differs for every input.
         
         STRICT SEQUENCE EXAMPLE (Creating a new employee):
         - Node 1: `webhook` (POST)
@@ -81,7 +84,8 @@ def plan_workflow(generalized_workflow: GeneralizedWorkflow, context_text: str =
         
         **EXTERNAL INPUTS (additional_inputs)**:
         - If `generalized_workflow.additional_inputs` contains values (e.g. 'whatsapp_number', 'email_subject'), you **MUST** use them in usage nodes.
-        - Example: If `additional_inputs` has {{'whatsapp_number': '12345'}}, the WhatsApp node `parameters` MUST use '12345' (or map it).
+        - **WHATSAPP VALIDATION**: WhatsApp numbers MUST be in Malaysian local format (starting with 01, e.g., 0123456789). **NEVER** use an email address as a WhatsApp recipient.
+        - Example: If `additional_inputs` has {{ 'whatsapp_number': '0123456789' }}, the WhatsApp node `parameters` MUST use '0123456789'.
         
         Output valid JSON adhering to the schema.
         

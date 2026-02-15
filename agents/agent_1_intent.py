@@ -44,25 +44,28 @@ def process_intent(user_input: str) -> GeneralizedWorkflow:
            - **MAPPING**: Map the input to any logical request based on the schema and documentation called.
              - Infer the correct column name based on the semantic meaning of the value and the table definition.
            - **EXTERNAL INPUTS**: If the value is NOT in the schema (e.g. "Send to 0123456789", "Subject: Hello"), put it in `additional_inputs`.
-           - Example: "Send to whatsapp 12345" -> additional_inputs: {{ "whatsapp_number": "12345" }}
+           - Example: "Send to whatsapp 0123456789" -> additional_inputs: {{ "whatsapp_number": "0123456789" }}
            - Example: "Email bob@example.com" -> additional_inputs: {{ "email_to": "bob@example.com", "email_subject": "Notification" }}
            
            **IDENTIFICATION RULES**:
-           - **Phone Number** (Malaysia): MUST start with '01' (e.g. 012-3456789). Look for 10-11 digit numbers starting with 01.
-           - **IC Number** (Malaysia): 
+            - **Phone Number** (Malaysia): MUST be a local formatted number starting with '01' (e.g. 0123456789). Look for 10-11 digit numbers starting with 01.
+            - **WA/WhatsApp**: When extracting for WhatsApp, ONLY use the local formatted phone number. NEVER use an email address.
+            - **IC Number** (Malaysia): 
              - Standard: 12-digit numbers (e.g. 990101-10-5555).
              - Fallback: Any 10-12 digit number that does **NOT** start with '01' should be treated as IC if context implies identity.
              - Context: If close to "IC", "Identity", "Malaysian", prioritize as IC.
            - **Date**: Extract dates and format as YYYY-MM-DD.
         8. **RECYCLABLE WORKFLOW DETECTION (is_recyclable)**:
            - Set `is_recyclable = True` IF the user implies a reusable process or dynamic input.
-           - Keywords: "my file", "upload", "provided", "input", "any file", "a file".
+           - **DYNAMIC PATTERNS**: "different users", "each user", "send to...", "various", "multiple times".
+           - **KEYWORDS**: "my file", "upload", "provided", "input", "any file", "a file", "different", "each".
            - **CONSTRAINT**: We ONLY support **PDF** files for upload. 
              - If user asks for Word/Excel/Image, you can theoretically allow it but prefer PDF or assume PDF if unspecified.
              - If user says "parse my document", assumption is PDF.
            - Example: "Summarize *my* PDF" -> is_recyclable=True.
-           - Example: "Parse *uploaded* invoices" -> is_recyclable=True.
-           - Example: "Run specific query" -> is_recyclable=False.
+           - Example: "Email *each* customer" -> is_recyclable=True.
+           - Example: "Generate CNY image for *different* user emails" -> is_recyclable=True.
+           - **WHATSAPP VALIDATION**: Never extract an email for a WhatsApp recipient.
 
         9. **SELECT DOCS**: Identify which docs are needed. Add them to 'required_docs'.
         

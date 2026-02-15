@@ -5,7 +5,7 @@ GOAL:
 Always output a valid n8n node JSON that sends an Email using the internal API.
 
 ENDPOINT:
-POST http://host.docker.internal:8000/api/email/send
+POST <http://host.docker.internal:8000/api/email/send>
 
 PAYLOAD FIELDS:
 
@@ -25,18 +25,20 @@ CRITICAL RULES FOR jsonBody:
 7) Because jsonBody is inside JSON, escape inner quotes with backslashes (\").
 
 IMAGE WORKFLOW RULE (CRITICAL):
+
 - If upstream includes an image URL in `{{ $json.output }}` (from Image Generator),
   DO NOT create a "Prepare Email" Set node.
 - Connect `Image Generator -> Send Email` directly.
-- Build html directly from the URL:
-  `{{ '<img src=\"' + $json.output + '\" alt=\"Generated Image\" />' }}`
+- Pass the raw URL directly to the `html` field:
+  `{{ $json.output }}`
+- The Python email controller automatically wraps the URL in `<img>` tags.
 - Never use `data:image/png;base64,` in html for image workflows.
 
 GENERIC EMAIL MODE (when upstream already has to/subject/html):
 "jsonBody": "={ \"to\": \"{{ $json.to }}\", \"subject\": \"{{ $json.subject }}\", \"html\": \"{{ $json.html || $json.body }}\" }"
 
 IMAGE TO EMAIL MODE (when upstream is Image Generator):
-"jsonBody": "={ \"to\": \"lijiebiz@gmail.com\", \"subject\": \"Happy Chinese New Year\", \"html\": \"{{ '<img src=\\\"' + $json.output + '\\\" alt=\\\"Generated Image\\\" />' }}\" }"
+"jsonBody": "={ \"to\": \"<lijiebiz@gmail.com>\", \"subject\": \"Happy Chinese New Year\", \"html\": \"{{ $json.output }}\" }"
 
 SEND EMAIL NODE TEMPLATE (REQUIRED STRUCTURE):
 
@@ -55,7 +57,7 @@ SEND EMAIL NODE TEMPLATE (REQUIRED STRUCTURE):
 {
   "parameters": {
     "method": "POST",
-    "url": "http://host.docker.internal:8000/api/email/send",
+    "url": "<http://host.docker.internal:8000/api/email/send>",
     "authentication": "genericCredentialType",
     "genericAuthType": "httpHeaderAuth",
     "sendBody": true,
@@ -79,7 +81,7 @@ VALIDATION CHECK BEFORE OUTPUT:
 - jsonBody contains double quotes only.
 - jsonBody does NOT contain JSON.stringify.
 - jsonBody does NOT contain single quotes.
-- For image workflows, html uses `<img src="...">` from `{{ $json.output }}`.
+- For image workflows, html uses only the raw URL from `{{ $json.output }}`.
 - For image workflows, there is no "Prepare Email" Set node.
 - The node uses `n8n-nodes-base.httpRequest` with `typeVersion: 4.2`.
 

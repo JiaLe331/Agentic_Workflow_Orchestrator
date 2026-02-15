@@ -136,6 +136,22 @@ Webhook → [Logic Nodes] → Display Results
 
 ---
 
+## IDENTIFYING RECYCLABLE INTENT (is_recyclable = True)
+
+A workflow is **recyclable** if the user wants to use it as a reusable utility. Even if they don't explicitly say "make this a POST request", the following patterns indicate it MUST be recyclable:
+
+- **Dynamic Data Patterns**: "Send to different users", "Email each customer", "Process for any ID".
+- **File Upload Patterns**: "Parse my PDF", "Summarize this invoice", "Generate image from prompt".
+- **Repeated Utility**: Any request where the target data (email, file, ID) is expected to change in future runs.
+
+### If the request is recyclable, you MUST identify the dynamic variables
+
+## Examples
+
+1. **Email Workflows**: Always include `email_to` (string) as an input requirement.
+
+---
+
 ## BANNED PATTERNS
 
 - **NEVER** use `n8n-nodes-base.formTrigger`. It is deprecated and does not support webhook invocation.

@@ -9,8 +9,10 @@ POST <http://host.docker.internal:8000/api/whatsapp/send>
 
 PAYLOAD FIELDS:
 
-- to
-- message
+- to: (Required) Recipient's phone number.
+  - **MUST** be a Malaysian local formatted number (starting with '01', e.g., 0123456789).
+  - **NEVER** use an email address in this field.
+- message: (Required) The text to send.
 
 CRITICAL RULES FOR jsonBody:
 
