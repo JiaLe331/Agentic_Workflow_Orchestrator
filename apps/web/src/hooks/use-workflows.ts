@@ -94,7 +94,19 @@ export function useWorkflows() {
         return res.json();
     };
 
+    const removeBulk = async (ids: string[]) => {
+        const res = await fetch(`${API_URL}/workflows/delete-bulk`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids }),
+        });
+        if (!res.ok) throw new Error('Failed to delete workflows');
+        mutate(`${API_URL}/workflows`);
+        return res.json();
+    };
+
     const generate = async (prompt: string, clientId?: string) => {
+
         const response = await fetch('/generate-workflow', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -115,6 +127,7 @@ export function useWorkflows() {
         create,
         update,
         remove,
+        removeBulk,
         generate
     };
 }

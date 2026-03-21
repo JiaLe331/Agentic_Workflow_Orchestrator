@@ -67,7 +67,7 @@ export default function Home() {
           </form>
 
           <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {["Sales Outreach", "HR Onboarding", "Finance Approval"].map((example) => (
+            {["File summarizer to email", "employee file onboarding", "weekly product summary to whatsapp"].map((example) => (
               <button
                 key={example}
                 onClick={() => setPrompt(`Create a ${example} workflow...`)}

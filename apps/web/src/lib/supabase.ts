@@ -222,7 +222,7 @@ export async function fetchEmployees(): Promise<(Employee & { payroll?: PayRoll 
         const { data: employees, error: empError } = await supabase
             .from('employee')
             .select('*')
-            .order('name', { ascending: true });
+            .order('updated_at', { ascending: false });
 
         if (empError) {
             console.error('Error fetching employees:', empError);

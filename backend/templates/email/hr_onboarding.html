@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Team!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #4CAF50;
+        }
+        .header h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            color: #666;
+            margin: 10px 0 0 0;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px 0;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            font-size: 18px;
+        }
+        .info-item {
+            margin: 10px 0;
+            padding: 8px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            display: inline-block;
+            width: 140px;
+        }
+        .info-value {
+            color: #333;
+        }
+        .next-steps {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .next-steps h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        .next-steps ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin: 8px 0;
+            color: #333;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .cta-button:hover {
+            background-color: #45a049;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to DerivHack!</h1>
+            <p>We're excited to have you on board</p>
+        </div>
+
+        <div class="content">
+            <p class="greeting">Dear {{ employee_name }},</p>
+
+            <p>Congratulations on joining our team! We are thrilled to welcome you to DerivHack as our new <strong>{{ title }}</strong>. Your skills and experience will be a valuable addition to our {{ department }} department.</p>
+
+            <div class="info-box">
+                <h3>📋 Your Employee Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value">{{ employee_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Position:</span>
+                    <span class="info-value">{{ title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Department:</span>
+                    <span class="info-value">{{ department }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Start Date:</span>
+                    <span class="info-value">{{ start_date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">{{ phone }}</span>
+                </div>
+            </div>
+
+            <div class="next-steps">
+                <h3>📝 Next Steps</h3>
+                <ul>
+                    <li><strong>Day 1:</strong> Arrive at 9:00 AM for orientation and office tour</li>
+                    <li><strong>Week 1:</strong> Complete onboarding paperwork and IT setup</li>
+                    <li><strong>Week 2:</strong> Meet with your team and department head</li>
+                    <li><strong>Month 1:</strong> Complete training modules and initial projects</li>
+                </ul>
+            </div>
+
+            <p>Please bring the following documents on your first day:</p>
+            <ul>
+                <li>Original IC/Passport for verification</li>
+                <li>Bank account details for salary processing</li>
+                <li>Emergency contact information</li>
+                <li>Any relevant certificates or qualifications</li>
+            </ul>
+
+            <center>
+                <a href="https://portal.derivhack.com/onboarding" class="cta-button">Access Onboarding Portal</a>
+            </center>
+
+            <p>If you have any questions before your start date, please don't hesitate to reach out to our HR team at <a href="mailto:hr@derivhack.com">hr@derivhack.com</a> or call us at {{ hr_phone }}.</p>
+
+            <p>We look forward to seeing you soon!</p>
+
+            <p><strong>Best regards,</strong><br>
+            {{ hr_manager_name }}<br>
+            HR Manager<br>
+            DerivHack Technologies</p>
+        </div>
+
+        <div class="footer">
+            <p><strong>DerivHack Technologies</strong></p>
+            <p>{{ company_address }}</p>
+            <p>Email: hr@derivhack.com | Phone: {{ company_phone }}</p>
+        </div>
+    </div>
+</body>
+</html>

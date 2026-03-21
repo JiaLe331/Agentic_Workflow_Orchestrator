@@ -8,7 +8,7 @@ import { IconTrendingUp, IconCurrencyDollar, IconReceipt } from '@tabler/icons-r
 import { formatRelativeTime } from '@/lib/dateUtils';
 
 export default function SalesPage() {
-    const [timeRange, setTimeRange] = useState<'24h' | '7d'>('24h');
+    const [timeRange, setTimeRange] = useState<'24h' | '7d'>('7d');
     const [sales, setSales] = useState<Sale[]>([]);
     const [loading, setLoading] = useState(true);
 

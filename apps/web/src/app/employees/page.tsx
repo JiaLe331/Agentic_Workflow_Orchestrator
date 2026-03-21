@@ -61,13 +61,13 @@ export default function EmployeesPage() {
                         <p className="text-gray-500">Manage employee profiles and payroll information</p>
                     </div>
 
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm flex items-center gap-3 min-w-[240px]">
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                            <Banknote className="text-gray-700" size={24} />
+                    <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm flex items-center gap-4 min-w-[240px]">
+                        <div className="p-2.5 bg-zinc-100 rounded-lg text-zinc-900">
+                            <Banknote size={20} />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 uppercase tracking-wider">Total Salary Issued</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Salary Issued</p>
+                            <p className="text-xl font-bold text-zinc-900 tracking-tight">
                                 RM {totalSalary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}
                             </p>
                         </div>
@@ -75,39 +75,37 @@ export default function EmployeesPage() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <Users className="text-gray-700" size={24} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2.5 bg-zinc-100 rounded-lg text-zinc-900">
+                                <Users size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Employees</p>
-                                <p className="text-3xl font-semibold text-gray-900">{totalEmployees}</p>
+                                <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total Employees</p>
+                                <p className="text-2xl font-bold text-zinc-900 tracking-tight">{totalEmployees}</p>
                             </div>
                         </div>
                     </div>
-
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <UserCheck className="text-gray-700" size={24} />
+                    <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2.5 bg-zinc-100 rounded-lg text-zinc-900">
+                                <UserCheck size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 uppercase tracking-wider">Active</p>
-                                <p className="text-3xl font-semibold text-gray-900">{activeEmployees}</p>
+                                <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Active</p>
+                                <p className="text-2xl font-bold text-zinc-900 tracking-tight">{activeEmployees}</p>
                             </div>
                         </div>
                     </div>
-
-                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <UserX className="text-gray-500" size={24} />
+                    <div className="bg-white rounded-xl p-5 border border-zinc-200 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2.5 bg-zinc-100 rounded-lg text-zinc-900">
+                                <UserX size={20} />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 uppercase tracking-wider">Inactive</p>
-                                <p className="text-3xl font-semibold text-gray-900">{totalEmployees - activeEmployees}</p>
+                                <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Inactive</p>
+                                <p className="text-2xl font-bold text-zinc-900 tracking-tight">{totalEmployees - activeEmployees}</p>
                             </div>
                         </div>
                     </div>
@@ -173,8 +171,8 @@ export default function EmployeesPage() {
                                                 </span>
                                             </td>
                                             <td className="py-4 px-4 text-sm text-gray-900 text-right font-semibold">
-                                                {employee.payroll
-                                                    ? `RM ${employee.payroll.total_salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
+                                                {employee.payroll?.salary != null
+                                                    ? `RM ${employee.payroll.salary.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`
                                                     : '-'}
                                             </td>
                                         </tr>

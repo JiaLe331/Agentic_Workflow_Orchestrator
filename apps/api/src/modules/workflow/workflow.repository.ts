@@ -3,7 +3,7 @@ import { DB_CONNECTION } from '../../database/database.module';
 import { workflow } from '../../database/schema';
 import { CreateWorkflowDto } from './dto/create-workflow.dto';
 import { UpdateWorkflowDto } from './dto/update-workflow.dto';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../database/schema';
 
@@ -64,4 +64,14 @@ export class WorkflowRepository {
         const deleted = await this.db.delete(workflow).where(eq(workflow.id, id)).returning({ id: workflow.id });
         return deleted[0] || null;
     }
+
+    // Remove multiple workflows
+    async removeBulk(ids: string[]): Promise<{ id: string }[]> {
+        if (!ids || ids.length === 0) return [];
+        return await this.db
+            .delete(workflow)
+            .where(inArray(workflow.id, ids))
+            .returning({ id: workflow.id });
+    }
 }
+

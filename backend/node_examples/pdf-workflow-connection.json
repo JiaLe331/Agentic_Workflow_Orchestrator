@@ -1,0 +1,96 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "path": "upload-file",
+                "formTitle": "Upload File",
+                "formDescription": "Upload a file to process.",
+                "formFields": {
+                    "values": [
+                        {
+                            "fieldLabel": "File",
+                            "fieldType": "file"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "name": "Upload File Trigger",
+            "type": "n8n-nodes-base.formTrigger",
+            "typeVersion": 1,
+            "position": [
+                3856,
+                96
+            ],
+            "id": "3d6dc42b-ce84-48c2-bfef-7bfd3eb0eced",
+            "webhookId": "c05c14e5-9481-41f9-8dd4-ed82b34d7ced"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Rename binary property 'file' to 'data' for the HTTP Request node\nif (items[0].binary && items[0].binary.file) {\n  items[0].binary.data = items[0].binary.file;\n  // Optional: remove original 'file' property to avoid duplication if needed\n  // delete items[0].binary.file;\n}\nreturn items;"
+            },
+            "name": "Adapter: File to Data",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                4064,
+                96
+            ],
+            "id": "0ba86189-9caa-416f-beba-c24052d714d1"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://host.docker.internal:8000/api/parse-pdf",
+                "sendBody": true,
+                "contentType": "multipart-form-data",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "parameterType": "formBinaryData",
+                            "name": "file",
+                            "inputDataFieldName": "File"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "name": "PDF Parser",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                4256,
+                96
+            ],
+            "id": "da856641-39f6-4866-9405-6b8a2540432e"
+        }
+    ],
+    "connections": {
+        "Upload File Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Adapter: File to Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Adapter: File to Data": {
+            "main": [
+                [
+                    {
+                        "node": "PDF Parser",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "instanceId": "2fe8b74806fda012862cc14cac990a112569ab1936cf109539c01e23dc1b2b1a"
+    }
+}
