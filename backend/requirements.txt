@@ -1,0 +1,19 @@
+# Add or remove as you proceed
+fastapi
+langchain
+pydantic
+uvicorn
+python-dotenv
+supabase
+httpx
+requests
+langchain-google-genai
+llama-parse
+twilio
+python-multipart
+jinja2
+google-api-python-client
+google-auth
+google-auth-httplib2
+pyrebase4
+groqmarkdown
